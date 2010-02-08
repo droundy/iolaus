@@ -6,7 +6,7 @@ import "./util/error"
 import "./util/help"
 
 func main() {
-	help.Init("initialize a new repository.")
 	git.AmNotDirectlyInRepo("Cannot call iolaus-initialize in a repository!")
+	help.Init("initialize a new repository.", nil)
 	error.Exit(porcelain.Init())
 }
