@@ -1,1 +1,4 @@
+set -ev
+
 go src/iolaus-initialize.go
+go src/iolaus-whatsnew.go
