@@ -2,9 +2,9 @@ package debug
 
 import "fmt"
 import "os"
-import "flag"
+import "goopt"
 
-var amdebug = flag.Bool("debug", false, "enable debugging")
+var amdebug = goopt.Bool("--debug", false, "enable debugging")
 
 func Print(v ...interface{}) os.Error {
 	if *amdebug {

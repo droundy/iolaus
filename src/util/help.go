@@ -1,30 +1,27 @@
 package help
 
-import "fmt"
-import "os"
-import "flag"
+import (
+	"fmt"
+	"os"
+	"goopt"
+)
 
 func Init(summary string, getopts func() []string ) {
-	h := flag.Bool("help",false,"show help message")
-	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage of %s:\n\t", os.Args[0])
-		fmt.Fprintln(os.Stderr, summary)
-		flag.PrintDefaults()
+	goopt.Usage = func() string {
+		return fmt.Sprintf("Usage of %s:\n\t",os.Args[0]) +
+			summary + "\n" + goopt.Help()
 	}
-	listopts := flag.Bool("list-options",false,
-		                    "list options in machine-readable format")
-	flag.Parse()
-	if *listopts {
+	listopts := func () os.Error {
 		if getopts != nil {
 			for _, o := range getopts() {
 				fmt.Println(o)
 			}
 		}
-		flag.VisitAll(func (f *flag.Flag) { fmt.Println("--"+f.Name) })
+		goopt.VisitAllNames(func (n string) { fmt.Println(n) })
 		os.Exit(0)
+		return nil
 	}
-	if *h {
-		flag.Usage();
-		os.Exit(0);
-	}
+	goopt.NoArg([]string{"--list-options"},
+		"list options in machine-readable format", listopts)
+	goopt.Parse()
 }

@@ -54,7 +54,6 @@ func (s Patch) String() (out string) {
 						break
 					}
 				}
-				out += "hello world "+ fmt.Sprint(numstart)+"\n"
 				for _, l := range older[0:numstart] {
 					out += " " + l
 				}
