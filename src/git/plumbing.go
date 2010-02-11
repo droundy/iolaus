@@ -36,21 +36,36 @@ func (s Patch) String() (out string) {
 				out += "\n" + fmt.Sprintln(chunk.Line)
 				older := strings.SplitAfter(string(chunk.Old), "\n",0)
 				newer := strings.SplitAfter(string(chunk.New), "\n",0)
-				for i, l := range older {
-					if len(l)>0 {
-						if i>=len(newer) || newer[i] != l {
-							out += "-" + l
-						} else {
-							out += " " + l
-						}
+				numstart := 0
+				for i:=0; i<5; i++ {
+					if i < len(older)-1 && i < len(newer)-1 &&
+						older[i] == newer[i] {
+						numstart = i+1
+					} else {
+						break
 					}
 				}
-				for i, l := range newer {
-					if len(l)>0 {
-						if i>=len(older) || older[i] != l {
-							out += "+" + l
-						}
+				numend := 0
+				for i:=1; i<5; i++ {
+					if i < len(older) && i < len(newer) &&
+						older[len(older)-i] == newer[len(newer)-i] {
+						numend = i
+					} else {
+						break
 					}
+				}
+				out += "hello world "+ fmt.Sprint(numstart)+"\n"
+				for _, l := range older[0:numstart] {
+					out += " " + l
+				}
+				for _, l := range older[numstart:len(older)-numend] {
+					out += "-" + l
+				}
+				for _, l := range newer[numstart:len(newer)-numend] {
+					out += "+" + l
+				}
+				for _, l := range older[len(older)-numend:len(older)] {
+					out += " " + l
 				}
 			}
 		}
