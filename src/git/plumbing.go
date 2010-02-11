@@ -73,10 +73,15 @@ func (s Patch) String() (out string) {
 	return
 }
 
-func LsFiles() (fs []string, e os.Error) {
+func LsFiles() []string {
+	o, _ := LsFilesE()
+	return o
+}
+
+func LsFilesE() (fs []string, e os.Error) {
 	var o string
 	o, e = git.Read("ls-files",
 		              []string{"--exclude-standard", "-z", "--others", "--cached"})
 	fs = strings.Split(o, "\000", 0)
-	return
+	return fs[0:len(fs)-1], e
 }
