@@ -1,11 +1,17 @@
 package main;
 
 import (
+	"os"
+	"goopt"
 	"./git/git"
 	"./git/plumbing"
 	"./util/out"
+	"./util/error"
 	"./util/help"
 )
+
+var shortlog = goopt.String([]string{"-m","--patch"}, "COMMITNAME",
+	"name of commit")
 
 func main() {
 	git.AmInRepo("Must be in a repository to call record!")
@@ -14,8 +20,17 @@ func main() {
 
 	for _,f := range plumbing.DiffFilesModified([]string{}) {
 		out.Print("Considering changes to",f)
+		plumbing.UpdateIndex(f)
 	}
 	for _,newf := range plumbing.LsOthers() {
 		out.Print("Considering adding",newf)
+		plumbing.UpdateIndex(newf)
+	}
+	if *shortlog != "COMMITNAME" {
+		c := plumbing.CommitTree(plumbing.WriteTree(),
+			[]plumbing.Commitish{plumbing.Ref("HEAD")}, *shortlog)
+		plumbing.UpdateRef("HEAD", c)
+	} else {
+		error.FailOn(os.NewError("FIXME, need to read log"))
 	}
 }

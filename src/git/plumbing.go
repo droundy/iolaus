@@ -18,11 +18,42 @@ type Patch patch.Set
 
 type Hash [40]byte
 func (h Hash) String() string { return string(h[0:40]) }
+type Tree string
+func (r Tree) String() string { return string(r) }
 type Ref string
 func (r Ref) String() string { return string(r) }
 
 type Treeish interface {
 	String() string
+}
+
+type Commitish interface {
+	String() string
+}
+
+func UpdateIndex(f string) os.Error {
+	return git.Run("update-index", []string{"--add","--remove","--", f})
+}
+
+func UpdateRef(ref string, val Commitish) os.Error {
+	return git.Run("update-ref", []string{ref, val.String()})
+}
+
+func WriteTree() Treeish {
+	o,_ := git.Read("write-tree",[]string{})
+	return Tree(o[0:40])
+}
+
+func CommitTree(tree Treeish, parents []Commitish, log string) Commitish {
+	args := make([]string, 1+2*len(parents))
+	args[0] = tree.String()
+	for i,p := range parents {
+		args[2*i+1] = "-p"
+		args[2*i+2] = p.String()
+	}
+	o,e := git.WriteRead("commit-tree", args, log)
+	if e != nil { panic("bad output in commit-tree") }
+	return Ref(o[0:40])
 }
 
 func ReadTree(ref Treeish) {

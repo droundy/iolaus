@@ -76,6 +76,63 @@ func Read(arg1 string, args []string) (output string, err os.Error) {
 	return string(o), nil
 }
 
+func WriteRead(arg1 string, args []string, inp string) (output string, e os.Error) {
+	debug.Print("calling git ",args)
+	args2 := make([]string, 2+len(args))
+	args2[0] = "git" // zeroth argument is the program name...
+	args2[1] = arg1 // first argument is the command...
+	for i, c := range args {
+    args2[i+2] = c
+  }
+	output = "" // empty output if we have an error...
+	git, e := exec.LookPath("git")
+	if e != nil { announce(e); return }
+	pid,e := exec.Run(git, args2, os.Environ(),
+		exec.Pipe, exec.Pipe, exec.PassThrough)
+	if e != nil { announce(e); return }
+	_,e = fmt.Fprint(pid.Stdin, inp)
+	if e != nil { announce(e); return }
+	e = pid.Stdin.Close()
+	if e != nil { announce(e); return }
+	o,e := ioutil.ReadAll(pid.Stdout)
+	output = string(o)
+	if e != nil { announce(e); return }
+	ws,e := pid.Wait(0) // could have been os.WRUSAGE
+	if e != nil { announce(e); return }
+	if ws.ExitStatus() != 0 {
+		e = os.NewError("git exited with "+string(ws.ExitStatus()))
+		announce(e)
+		return
+	}
+	return
+}
+
+func Write(arg1 string, args []string, inp string) (e os.Error) {
+	debug.Print("calling git ",args)
+	args2 := make([]string, 2+len(args))
+	args2[0] = "git" // zeroth argument is the program name...
+	args2[1] = arg1 // first argument is the command...
+	for i, c := range args {
+    args2[i+2] = c
+  }
+	git, e := exec.LookPath("git")
+	if e != nil { announce(e); return }
+	pid,e := exec.Run(git, args2, os.Environ(),
+		exec.Pipe, exec.PassThrough, exec.PassThrough)
+	if e != nil { announce(e); return }
+	_,e = fmt.Fprint(pid.Stdin, inp)
+	if e != nil { announce(e); return }
+	e = pid.Stdin.Close()
+	ws,e := pid.Wait(0) // could have been os.WRUSAGE
+	if e != nil { announce(e); return }
+	if ws.ExitStatus() != 0 {
+		e = os.NewError("git exited with "+string(ws.ExitStatus()))
+		announce(e)
+		return
+	}
+	return nil
+}
+
 func Run(arg1 string, args []string) (e os.Error) {
 	debug.Print("calling git ",args)
 	args2 := make([]string, 2+len(args))
