@@ -11,15 +11,15 @@ import (
 
 func AmInRepo(mess string) {
 	oldwd, _ := os.Getwd()
-	for oldwd != "" {
-		s, e := os.Stat(oldwd+"/.git")
+	wd := oldwd
+	for wd != "" {
+		s, e := os.Stat(wd+"/.git")
 		if e == nil && s != nil && s.IsDirectory() {
-			os.Setenv("GIT_DIR", oldwd+"/.git")
-			os.Setenv("GIT_WORK_TREE", oldwd)
+			os.Chdir(wd)
 			return
 		}
-		oldwd, _ = path.Split(oldwd)
-		oldwd = path.Clean(oldwd[0:len(oldwd)-1])
+		wd, _ = path.Split(wd)
+		wd = path.Clean(wd[0:len(wd)-1])
 	}
 	fmt.Println(mess)
 	os.Exit(1)
@@ -51,7 +51,7 @@ func announce(err os.Error) {
 }
 
 func Read(arg1 string, args []string) (output string, err os.Error) {
-	debug.Print("calling git ",args)
+	debug.Print("calling git",arg1,args)
 	args2 := make([]string, 2+len(args))
 	args2[0] = "git" // zeroth argument is the program name...
 	args2[1] = arg1 // first argument is the command...

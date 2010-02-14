@@ -3,6 +3,7 @@ package plumbing
 import (
 	"./git"
 	"../util/patience"
+	"../util/debug"
 	"os"
 	"strings"
 	"patch"
@@ -38,6 +39,7 @@ func (s Patch) String() (out string) {
 				newer := strings.SplitAfter(string(chunk.New), "\n",0)
 				lastline:=chunk.Line
 				mychunks := patience.DiffFromLine(chunk.Line, older, newer)
+				fmt.Println("¤¤¤¤¤¤", f.Src,chunk.Line,"¤¤¤¤¤¤")
 				for _,ch := range mychunks {
 					if ch.Line > lastline + 6 {
 						for i:=lastline+1; i<lastline+4; i++ {
@@ -48,12 +50,15 @@ func (s Patch) String() (out string) {
 							fmt.Print(" ",newer[i-chunk.Line])
 						}
 					} else {
-						for i:=lastline+1; i<ch.Line; i++ {
+						for i:=lastline; i<ch.Line; i++ {
 							fmt.Print(" ",newer[i-chunk.Line])
 						}
 					}
 					fmt.Print(ch)
-					lastline = ch.Line
+					lastline = ch.Line + len(ch.New)
+				}
+				for i:=lastline-chunk.Line; i<len(newer);i++ {
+					fmt.Print(" ",newer[i])
 				}
 			}
 		}
@@ -67,9 +72,23 @@ func LsFiles() []string {
 }
 
 func LsFilesE() (fs []string, e os.Error) {
-	var o string
-	o, e = git.Read("ls-files",
-		              []string{"--exclude-standard", "-z", "--others", "--cached"})
-	fs = strings.Split(o, "\000", 0)
-	return fs[0:len(fs)-1], e
+	return genLsFilesE([]string{"--exclude-standard","-z","--others","--cached"})
+}
+
+func LsOthers() []string {
+	o, e := genLsFilesE([]string{"--exclude-standard","-z","--others"})
+	if e != nil {
+		debug.Print("yeckgys")
+	}
+	return o
+}
+
+func genLsFilesE(args []string) ([]string, os.Error) {
+	o, e := git.Read("ls-files", args)
+	fs := strings.Split(o, "\000", 0)
+	debug.Print("ls-files gives",o)
+	if len(fs[len(fs)-1]) == 0 {
+		return fs[0:len(fs)-1], e
+	}
+	return fs, e
 }
