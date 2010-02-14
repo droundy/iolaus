@@ -16,8 +16,14 @@ func Init() {
 
 type Patch patch.Set
 
-func Diff(paths []string) Patch {
-	o, _ := git.Read("diff", []string{})
+func DiffFiles(paths []string) Patch {
+	args := make([]string,len(paths)+2)
+	args[0] = "-p"
+	args[1] = "--"
+	for i,p := range paths {
+		args[i+2] = p
+	}
+	o, _ := git.Read("diff-files", args)
 	p, _ := patch.Parse(strings.Bytes(o));
 	return Patch(*p)
 }
@@ -85,10 +91,13 @@ func LsOthers() []string {
 
 func genLsFilesE(args []string) ([]string, os.Error) {
 	o, e := git.Read("ls-files", args)
-	fs := strings.Split(o, "\000", 0)
-	debug.Print("ls-files gives",o)
-	if len(fs[len(fs)-1]) == 0 {
-		return fs[0:len(fs)-1], e
+	return splitOnNulls(o), e
+}
+
+func splitOnNulls(s string) []string {
+	xs := strings.Split(s, "\000", 0)
+	if len(xs[len(xs)-1]) == 0 {
+		return xs[0:len(xs)-1]
 	}
-	return fs, e
+	return xs
 }
