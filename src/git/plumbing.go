@@ -16,6 +16,31 @@ func Init() {
 
 type Patch patch.Set
 
+type Hash [40]byte
+func (h Hash) String() string { return string(h[0:40]) }
+type Ref string
+func (r Ref) String() string { return string(r) }
+
+type Treeish interface {
+	String() string
+}
+
+func ReadTree(ref Treeish) {
+	git.Run("read-tree",[]string{ref.String()})
+}
+
+func DiffFilesModified(paths []string) []string {
+	args := make([]string,len(paths)+3)
+	args[0] = "--name-only"
+	args[1] = "-z"
+	args[2] = "--"
+	for i,p := range paths {
+		args[i+3] = p
+	}
+	o, _ := git.Read("diff-files", args)
+	return splitOnNulls(o)
+}
+
 func DiffFiles(paths []string) Patch {
 	args := make([]string,len(paths)+2)
 	args[0] = "-p"
@@ -38,7 +63,11 @@ func (s Patch) String() (out string) {
 		}
 		switch d := f.Diff.(type) {
 		default:
-			out += fmt.Sprintf("\nunexpected type %T", f.Diff)  // %T prints type
+			if f.Diff == patch.NoDiff {
+				// There is nothing here to see...
+			} else {
+				out += fmt.Sprintf("\nunexpected type %T", f.Diff)  // %T prints type
+			}
 		case patch.TextDiff:
 			for _, chunk := range d {
 				older := strings.SplitAfter(string(chunk.Old), "\n",0)
