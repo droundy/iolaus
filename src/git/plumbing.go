@@ -14,8 +14,14 @@ func Init() {
 
 type Patch patch.Set
 
-func Diff(paths []string) Patch {
-	o, _ := git.Read("diff", []string{})
+func DiffFiles(paths []string) Patch {
+	args := make([]string,len(paths)+2)
+	args[0] = "-p"
+	args[1] = "--"
+	for i,p := range paths {
+		args[i+2] = p
+	}
+	o, _ := git.Read("diff-files", args)
 	p, _ := patch.Parse(strings.Bytes(o));
 	return Patch(*p)
 }

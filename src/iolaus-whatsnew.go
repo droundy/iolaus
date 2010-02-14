@@ -12,6 +12,6 @@ func main() {
 	help.Init("see unrecorded changes.")
 	fs,_ := plumbing.LsFiles()
 	error.Print(fs)
-	p := plumbing.Diff([]string{})
+	p := plumbing.DiffFiles([]string{})
 	error.Print(p)
 }
