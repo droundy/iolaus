@@ -20,7 +20,7 @@ var all = goopt.Flag([]string{"-a","--all"}, []string{"--interactive"},
 func main() {
 	git.AmInRepo("Must be in a repository to call record!")
 	help.Init("record changes.", plumbing.LsFiles)
-	plumbing.ReadTree(plumbing.Ref("HEAD"))
+	//plumbing.ReadTree(plumbing.Ref("HEAD"))
 
 	if *all {
 		for _,f := range plumbing.DiffFilesModified([]string{}) {
