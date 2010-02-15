@@ -1,7 +1,10 @@
 package error
 
-import "fmt"
-import "os"
+import (
+	"fmt"
+	"os"
+	"./cook"
+)
 
 func Print(v ...interface{}) os.Error {
 	_,e := fmt.Fprintln(os.Stderr, v)
@@ -10,14 +13,16 @@ func Print(v ...interface{}) os.Error {
 
 func FailOn(e os.Error) {
 	if e != nil {
-		Print(e)
+		cook.SetCooked()
+		Print(e,"\n")
 		os.Exit(1)
 	}
 }
 
 func Exit(e os.Error) {
+	cook.SetCooked()
 	if e != nil {
-		Print(e)
+		Print(e,"\n")
 		os.Exit(1)
 	}
 	os.Exit(0)
