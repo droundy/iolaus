@@ -7,7 +7,8 @@ import (
 )
 
 func Print(v ...interface{}) os.Error {
-	_,e := fmt.Fprintln(os.Stderr, v)
+	_,e := fmt.Fprint(os.Stderr, v)
+	fmt.Fprint(os.Stderr, "\r\n")
 	return e
 }
 
