@@ -1,7 +1,7 @@
 set -ev
 
-gotit src/iolaus-initialize.go
-gotit src/iolaus-whatsnew.go
+go src/iolaus-initialize.go
+go src/iolaus-whatsnew.go
 
-gotit src/iolaus-whatsnew.go | grep 'Added .test'
+go src/iolaus-whatsnew.go | grep 'Added .test'
 

@@ -13,6 +13,6 @@ func main() {
 	plumbing.ReadTree(plumbing.Ref("HEAD"))
 	out.Print(plumbing.DiffFiles([]string{}))
 	for _,newf := range plumbing.LsOthers() {
-		out.Print("Added",newf)
+		out.Print("Added ",newf)
 	}
 }
