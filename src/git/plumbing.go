@@ -4,6 +4,7 @@ import (
 	"./git"
 	"../util/patience"
 	"../util/debug"
+	"../util/error"
 	"os"
 	"strings"
 	"patch"
@@ -11,7 +12,7 @@ import (
 )
 
 func Init() {
-	git.Run("init",nil)
+	git.Run("init")
 }
 
 type Patch patch.Set
@@ -32,15 +33,15 @@ type Commitish interface {
 }
 
 func UpdateIndex(f string) os.Error {
-	return git.Run("update-index", []string{"--add","--remove","--", f})
+	return git.Run("update-index", "--add", "--remove", "--", f)
 }
 
 func UpdateRef(ref string, val Commitish) os.Error {
-	return git.Run("update-ref", []string{ref, val.String()})
+	return git.Run("update-ref", ref, val.String())
 }
 
 func WriteTree() Treeish {
-	o,_ := git.Read("write-tree",[]string{})
+	o,_ := git.Read("write-tree")
 	return Tree(o[0:40])
 }
 
@@ -51,13 +52,17 @@ func CommitTree(tree Treeish, parents []Commitish, log string) Commitish {
 		args[2*i+1] = "-p"
 		args[2*i+2] = p.String()
 	}
-	o,e := git.WriteRead("commit-tree", args, log)
+	o,e := func (x ...string) (o string, e os.Error) {
+		x = args
+		o,e = git.WriteRead("commit-tree", log, x)
+		return
+	}()
 	if e != nil { panic("bad output in commit-tree") }
 	return Ref(o[0:40])
 }
 
 func ReadTree(ref Treeish) {
-	git.Run("read-tree",[]string{ref.String()})
+	git.Run("read-tree", ref.String())
 }
 
 func DiffFilesModified(paths []string) []string {
@@ -68,7 +73,11 @@ func DiffFilesModified(paths []string) []string {
 	for i,p := range paths {
 		args[i+3] = p
 	}
-	o, _ := git.Read("diff-files", args)
+	o := func (x ...string) string {
+		x = args
+		o,_ := git.Read("diff-files", x)
+		return o
+	}()
 	return splitOnNulls(o)
 }
 
@@ -79,8 +88,14 @@ func DiffFiles(paths []string) Patch {
 	for i,p := range paths {
 		args[i+2] = p
 	}
-	o, _ := git.Read("diff-files", args)
-	p, _ := patch.Parse(strings.Bytes(o));
+	o,e := func (x ...string) (o string, e os.Error) {
+		x = args
+		o,e = git.Read("diff-files", x)
+		return
+	}()
+	error.FailOn(e)
+	p, e := patch.Parse(strings.Bytes(o));
+	error.FailOn(e)
 	return Patch(*p)
 }
 
@@ -138,18 +153,18 @@ func LsFiles() []string {
 }
 
 func LsFilesE() (fs []string, e os.Error) {
-	return genLsFilesE([]string{"--exclude-standard","-z","--others","--cached"})
+	return genLsFilesE("--exclude-standard","-z","--others","--cached")
 }
 
 func LsOthers() []string {
-	o, e := genLsFilesE([]string{"--exclude-standard","-z","--others"})
+	o, e := genLsFilesE("--exclude-standard","-z","--others")
 	if e != nil {
 		debug.Print("yeckgys")
 	}
 	return o
 }
 
-func genLsFilesE(args []string) ([]string, os.Error) {
+func genLsFilesE(args ...string) ([]string, os.Error) {
 	o, e := git.Read("ls-files", args)
 	return splitOnNulls(o), e
 }

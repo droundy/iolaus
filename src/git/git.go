@@ -50,7 +50,7 @@ func announce(err os.Error) {
 	debug.Print(err)
 }
 
-func Read(arg1 string, args []string) (output string, err os.Error) {
+func Read(arg1 string, args ...string) (output string, err os.Error) {
 	debug.Print("calling git",arg1,args)
 	args2 := make([]string, 2+len(args))
 	args2[0] = "git" // zeroth argument is the program name...
@@ -76,7 +76,7 @@ func Read(arg1 string, args []string) (output string, err os.Error) {
 	return string(o), nil
 }
 
-func WriteRead(arg1 string, args []string, inp string) (output string, e os.Error) {
+func WriteRead(arg1 string, inp string, args ...string) (output string, e os.Error) {
 	debug.Print("calling git ",args)
 	args2 := make([]string, 2+len(args))
 	args2[0] = "git" // zeroth argument is the program name...
@@ -107,7 +107,7 @@ func WriteRead(arg1 string, args []string, inp string) (output string, e os.Erro
 	return
 }
 
-func Write(arg1 string, args []string, inp string) (e os.Error) {
+func Write(arg1 string, inp string, args ...string) (e os.Error) {
 	debug.Print("calling git ",args)
 	args2 := make([]string, 2+len(args))
 	args2[0] = "git" // zeroth argument is the program name...
@@ -133,7 +133,7 @@ func Write(arg1 string, args []string, inp string) (e os.Error) {
 	return nil
 }
 
-func Run(arg1 string, args []string) (e os.Error) {
+func Run(arg1 string, args ...string) (e os.Error) {
 	debug.Print("calling git ",args)
 	args2 := make([]string, 2+len(args))
 	args2[0] = "git" // zeroth argument is the program name...
