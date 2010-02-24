@@ -3,7 +3,9 @@ package cook
 import (
 	"exec"
 	"os"
+	"once"
 	"io/ioutil"
+	"./exit"
 )
 
 // The secret type only exists so noone can use Undo to do anything
@@ -13,7 +15,7 @@ type secret string
 
 func Undo(state secret) {
 	pid,e := exec.Run("/bin/stty", []string{"/bin/stty",string(state)},
-		os.Environ(),
+		os.Environ(), ".",
 		exec.PassThrough, exec.PassThrough, exec.PassThrough)
 	if e != nil { panic(e) }
 	pid.Wait(0)
@@ -21,7 +23,7 @@ func Undo(state secret) {
 
 func readStty() secret {
 	pid,e := exec.Run("/bin/stty", []string{"/bin/stty","-g"}, os.Environ(),
-		exec.PassThrough, exec.Pipe, exec.PassThrough)
+		".", exec.PassThrough, exec.Pipe, exec.PassThrough)
 	if e != nil { panic(e) }
 	o,e := ioutil.ReadAll(pid.Stdout)
 	if e != nil { panic(e) }
@@ -34,9 +36,10 @@ func readStty() secret {
 }
 
 func SetRaw() secret {
+	once.Do(exit.AtExit(func () { SetCooked() }))
 	x := readStty() // could use "-echo" below...
 	pid,e := exec.Run("/bin/stty", []string{"/bin/stty","raw"},
-		os.Environ(),
+		os.Environ(), ".",
 		exec.PassThrough, exec.PassThrough, exec.PassThrough)
 	if e != nil { panic(e) }
 	pid.Wait(0)
@@ -46,7 +49,7 @@ func SetRaw() secret {
 func SetCooked() secret {
 	x := readStty()
 	pid,e := exec.Run("/bin/stty", []string{"/bin/stty","cooked","echo"},
-		os.Environ(),
+		os.Environ(), ".",
 		exec.PassThrough, exec.PassThrough, exec.PassThrough)
 	if e != nil { panic(e) }
 	pid.Wait(0)

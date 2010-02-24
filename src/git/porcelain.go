@@ -6,5 +6,5 @@ import (
 )
 
 func Init() os.Error {
-	return git.Run("init", nil)
+	return git.Run("init")
 }

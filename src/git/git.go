@@ -2,6 +2,7 @@ package git
 
 import (
 	"../util/debug"
+	"../util/exit"
 	"os"
 	"exec"
 	"path"
@@ -22,7 +23,7 @@ func AmInRepo(mess string) {
 		wd = path.Clean(wd[0:len(wd)-1])
 	}
 	fmt.Println(mess)
-	os.Exit(1)
+	exit.Exit(1)
 }
 
 func AmNotInRepo(mess string) {
@@ -31,7 +32,7 @@ func AmNotInRepo(mess string) {
 		s, e := os.Stat(oldwd+"/.git")
 		if e == nil && s != nil && s.IsDirectory() {
 			fmt.Println(mess)
-			os.Exit(1)
+			exit.Exit(1)
 		}
 		oldwd, _ = path.Split(oldwd)
 		oldwd = path.Clean(oldwd[0:len(oldwd)-1])
@@ -42,7 +43,7 @@ func AmNotDirectlyInRepo(mess string) {
 	s, e := os.Stat(".git")
 	if e == nil && s != nil && s.IsDirectory() {
 		fmt.Println(mess)
-		os.Exit(1)
+		exit.Exit(1)
 	}
 }
 
@@ -61,7 +62,7 @@ func Read(arg1 string, args ...string) (output string, err os.Error) {
 	output = "" // empty output if we have an error...
 	git, err := exec.LookPath("git")
 	if err != nil { announce(err); return }
-	pid,err := exec.Run(git, args2, os.Environ(),
+	pid,err := exec.Run(git, args2, os.Environ(), ".",
 		exec.PassThrough, exec.Pipe, exec.PassThrough)
 	if err != nil { announce(err); return }
 	o,err := ioutil.ReadAll(pid.Stdout)
@@ -87,7 +88,7 @@ func WriteRead(arg1 string, inp string, args ...string) (output string, e os.Err
 	output = "" // empty output if we have an error...
 	git, e := exec.LookPath("git")
 	if e != nil { announce(e); return }
-	pid,e := exec.Run(git, args2, os.Environ(),
+	pid,e := exec.Run(git, args2, os.Environ(), ".",
 		exec.Pipe, exec.Pipe, exec.PassThrough)
 	if e != nil { announce(e); return }
 	_,e = fmt.Fprint(pid.Stdin, inp)
@@ -117,7 +118,7 @@ func Write(arg1 string, inp string, args ...string) (e os.Error) {
   }
 	git, e := exec.LookPath("git")
 	if e != nil { announce(e); return }
-	pid,e := exec.Run(git, args2, os.Environ(),
+	pid,e := exec.Run(git, args2, os.Environ(), ".",
 		exec.Pipe, exec.PassThrough, exec.PassThrough)
 	if e != nil { announce(e); return }
 	_,e = fmt.Fprint(pid.Stdin, inp)
@@ -143,7 +144,7 @@ func Run(arg1 string, args ...string) (e os.Error) {
   }
 	git, e := exec.LookPath("git")
 	if e != nil { announce(e); return }
-	pid,e := exec.Run(git, args2, os.Environ(),
+	pid,e := exec.Run(git, args2, os.Environ(), ".",
 		exec.PassThrough, exec.PassThrough, exec.PassThrough)
 	if e != nil { announce(e); return }
 	ws,e := pid.Wait(0) // could have been os.WRUSAGE
