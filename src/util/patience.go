@@ -47,7 +47,9 @@ func DiffFromLine(line0 int, o, n []string) []StringChunk {
 	if len(uniques) == 0 {
 		first, last := 0, 0
 		for first < len(o) && first < len(n) && o[first] == n[first] { first++ }
-		for first < len(o) && first < len(n) && o[len(o)-1-last] == n[len(n)-1-last] { last++ }
+		for first < len(o) && first < len(n) &&
+			len(o)-1-last >= 0 && len(n)-1-last >= 0 &&
+			o[len(o)-1-last] == n[len(n)-1-last] { last++ }
 		if len(o)-last > first || len(n)-last > first {
 			return []StringChunk{StringChunk{line0+first,
 					o[first:len(o)-last], n[first:len(n)-last]}}

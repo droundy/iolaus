@@ -1,17 +1,11 @@
-# git-ls-files --others --exclude-from=.git/info/exclude
-# Lines that start with '#' are comments.
-# For a project mostly in C, the following would be a good set of
-# exclude patterns (uncomment them if you want to use them):
-*.[oa8]
+*.[oa8651]
 *~
 *.log
 *.html
 manual
 iolaus-record
 iolaus-amend-record
-*.1
 iolaus-whatsnew
-iolaus-changes
 iolaus-initialize
 mkmake
 pdiff

@@ -1,7 +1,9 @@
 set -ev
 
-go src/iolaus-initialize.go
-go src/iolaus-whatsnew.go
+./bin/iolaus-initialize
 
-go src/iolaus-whatsnew.go | grep 'Added .test'
+./bin/iolaus-whatsnew
+./bin/iolaus-whatsnew | grep 'Added .test'
 
+# the following test demonstrates a bug!!!
+./bin/iolaus-record -am 'Hello world' || true

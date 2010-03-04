@@ -104,8 +104,12 @@ func (s Patch) String() (out string) {
 	for _, f := range s.File {
 		if len(out) > 0 { out += "\n" }
 		// out += string(f.Verb) + " " + f.Src
-		if f.OldMode != 0 || f.NewMode != 0 {
+		if f.OldMode != 0 && f.NewMode != 0 {
 			out += "\n" + fmt.Sprint(f.OldMode) + " -> " + fmt.Sprint(f.NewMode)
+		}
+		if f.OldMode != 0 && f.NewMode == 0 { // The file has been removed!
+			out += "\nRemoved "+ f.Src
+			continue
 		}
 		switch d := f.Diff.(type) {
 		default:
