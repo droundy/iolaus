@@ -13,6 +13,7 @@ iolaus-amend-record
 iolaus-whatsnew
 iolaus-changes
 iolaus-initialize
+mkmake
 pdiff
 \#*
 .\#*

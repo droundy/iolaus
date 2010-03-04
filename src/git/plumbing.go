@@ -94,7 +94,7 @@ func DiffFiles(paths []string) Patch {
 		return
 	}()
 	error.FailOn(e)
-	p, e := patch.Parse(strings.Bytes(o));
+	p, e := patch.Parse([]byte(o));
 	error.FailOn(e)
 	return Patch(*p)
 }
