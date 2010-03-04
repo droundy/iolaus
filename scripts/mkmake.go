@@ -14,6 +14,7 @@ import (
 	"go/ast"
 	"strconv"
 	"path"
+        "sort"
 )
 
 var (
@@ -87,6 +88,7 @@ func (maker) VisitFile(f string, _ *os.Dir) {
 			deps = deps[0:len(deps)+1]
 			deps[len(deps)-1] = i + ".$(O)"
 		}
+                sort.SortStrings(deps[1:]) // alphebatize all deps but first
 		basename := f[0:len(f)-3]
 		objname := basename+".$(O)"
 		if pname == "main" {

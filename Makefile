@@ -23,24 +23,24 @@ scripts/mkmake.$(O): scripts/mkmake.go
 
 src/git/git.$(O): src/git/git.go src/util/debug.$(O) src/util/exit.$(O)
 
-src/git/plumbing.$(O): src/git/plumbing.go src/util/patience.$(O) src/util/debug.$(O) src/util/error.$(O) src/git/git.$(O)
+src/git/plumbing.$(O): src/git/plumbing.go src/git/git.$(O) src/util/debug.$(O) src/util/error.$(O) src/util/patience.$(O)
 
 src/git/porcelain.$(O): src/git/porcelain.go src/git/git.$(O)
 
 bin/iolaus-initialize: src/iolaus-initialize.$(O)
 	@mkdir -p bin
 	$(LD) -o $@ $<
-src/iolaus-initialize.$(O): src/iolaus-initialize.go src/util/error.$(O) src/util/help.$(O) src/git/porcelain.$(O) src/git/git.$(O)
+src/iolaus-initialize.$(O): src/iolaus-initialize.go src/git/git.$(O) src/git/porcelain.$(O) src/util/error.$(O) src/util/help.$(O)
 
 bin/iolaus-record: src/iolaus-record.$(O)
 	@mkdir -p bin
 	$(LD) -o $@ $<
-src/iolaus-record.$(O): src/iolaus-record.go src/util/error.$(O) src/util/out.$(O) src/util/help.$(O) src/git/git.$(O) src/util/cook.$(O) src/git/plumbing.$(O)
+src/iolaus-record.$(O): src/iolaus-record.go src/git/git.$(O) src/git/plumbing.$(O) src/util/cook.$(O) src/util/error.$(O) src/util/help.$(O) src/util/out.$(O)
 
 bin/iolaus-whatsnew: src/iolaus-whatsnew.$(O)
 	@mkdir -p bin
 	$(LD) -o $@ $<
-src/iolaus-whatsnew.$(O): src/iolaus-whatsnew.go src/util/out.$(O) src/util/help.$(O) src/git/git.$(O) src/git/plumbing.$(O)
+src/iolaus-whatsnew.$(O): src/iolaus-whatsnew.go src/git/git.$(O) src/git/plumbing.$(O) src/util/help.$(O) src/util/out.$(O)
 
 bin/pdiff: src/pdiff.$(O)
 	@mkdir -p bin
@@ -51,7 +51,7 @@ src/util/cook.$(O): src/util/cook.go src/util/exit.$(O)
 
 src/util/debug.$(O): src/util/debug.go
 
-src/util/error.$(O): src/util/error.go src/util/exit.$(O) src/util/cook.$(O)
+src/util/error.$(O): src/util/error.go src/util/cook.$(O) src/util/exit.$(O)
 
 src/util/exit.$(O): src/util/exit.go
 
