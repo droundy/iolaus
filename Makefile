@@ -2,19 +2,24 @@
 # All rights reserved.
 
 
-all: Makefile  bin/iolaus-initialize bin/iolaus-record bin/iolaus-whatsnew bin/mkmake bin/pdiff
+all: Makefile  scripts/mkmake bin/iolaus-initialize bin/iolaus-record bin/iolaus-whatsnew bin/pdiff
 
 include $(GOROOT)/src/Make.$(GOARCH)
 
 .PHONY: test
 .SUFFIXES: .$(O) .go .got .gotgo
 
-Makefile: bin/mkmake
-	./bin/mkmake > $@
+Makefile: scripts/mkmake
+	./scripts/mkmake > $@
 .go.$(O):
 	cd `dirname "$<"`; $(GC) `basename "$<"`
 .got.gotgo:
 	gotgo "$<"
+
+scripts/mkmake: scripts/mkmake.$(O)
+	@mkdir -p bin
+	$(LD) -o $@ $<
+scripts/mkmake.$(O): scripts/mkmake.go
 
 src/git/git.$(O): src/git/git.go src/util/debug.$(O) src/util/exit.$(O)
 
@@ -36,11 +41,6 @@ bin/iolaus-whatsnew: src/iolaus-whatsnew.$(O)
 	@mkdir -p bin
 	$(LD) -o $@ $<
 src/iolaus-whatsnew.$(O): src/iolaus-whatsnew.go src/util/out.$(O) src/util/help.$(O) src/git/git.$(O) src/git/plumbing.$(O)
-
-bin/mkmake: src/mkmake.$(O)
-	@mkdir -p bin
-	$(LD) -o $@ $<
-src/mkmake.$(O): src/mkmake.go
 
 bin/pdiff: src/pdiff.$(O)
 	@mkdir -p bin

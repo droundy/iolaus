@@ -130,7 +130,7 @@ include $(GOROOT)/src/Make.$(GOARCH)
 .SUFFIXES: .$(O) .go .got .gotgo
 
 `, mybinfiles)
-	fmt.Print("Makefile: bin/mkmake\n\t./bin/mkmake > $@\n")
+	fmt.Print("Makefile: scripts/mkmake\n\t./scripts/mkmake > $@\n")
 	fmt.Print(".go.$(O):\n\tcd `dirname \"$<\"`; $(GC) `basename \"$<\"`\n")
 	fmt.Print(".got.gotgo:\n\tgotgo \"$<\"\n\n")
 	path.Walk(".", maker{}, nil)
