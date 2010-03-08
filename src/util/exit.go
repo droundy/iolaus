@@ -2,6 +2,7 @@ package exit
 
 import (
 	"os"
+	hooks "./gotgo/slice(func())"
 )
 
 func Exit(ecode int) {
@@ -29,17 +30,6 @@ func init() {
     go handleExit()
 }
 
-func append(fs []func(), f func()) []func() {
-	if len(fs) == cap(fs) {
-		newfs := make([]func(), len(fs), 2*(len(fs)+1))
-		for i,v := range(fs) { newfs[i] = v }
-		fs = newfs
-	}
-	fs = fs[0:len(fs)+1]
-	fs[len(fs)-1] = f
-	return fs
-}
-
 func handleExit() {
   atExit := make([]func(), 0, 100)
 	eraseOne := make(chan int)
@@ -47,7 +37,7 @@ func handleExit() {
 		select {
 		case x := <- aeRequests:
 			i := len(atExit)
-			atExit = append(atExit, x.atexit)
+			atExit = hooks.Append(atExit, x.atexit)
 			x.cancel <- func() { eraseOne <- i }
 		case i := <- eraseOne:
 			atExit[i] = nil

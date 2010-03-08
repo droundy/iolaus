@@ -12,10 +12,11 @@ test: tests/example
 install: installbins installpkgs
 
 
+include $(GOROOT)/src/Make.$(GOARCH)
+
 binaries:  bin/iolaus-initialize bin/iolaus-record bin/iolaus-whatsnew bin/pdiff
 packages: 
 
-include $(GOROOT)/src/Make.$(GOARCH)
 ifndef GOBIN
 GOBIN=$(HOME)/bin
 endif
@@ -26,7 +27,7 @@ space := $(nullstring) # a space at the end
 bindir=$(subst $(space),\ ,$(GOBIN))
 pkgdir=$(subst $(space),\ ,$(GOROOT)/pkg/$(GOOS)_$(GOARCH))
 
-.PHONY: test binaries install installbins installpkgs
+.PHONY: test binaries packages install installbins installpkgs
 .SUFFIXES: .$(O) .go .got .gotgo
 
 .go.$(O):
@@ -80,7 +81,15 @@ src/util/debug.$(O): src/util/debug.go
 
 src/util/error.$(O): src/util/error.go src/util/cook.$(O) src/util/exit.$(O)
 
-src/util/exit.$(O): src/util/exit.go
+# looks like we require src/util/gotgo/slice.got as installed package...
+src/util/gotgo/slice(func()).go: $(pkgdir)/./gotgo/slice.gotgo
+	mkdir -p src/util/gotgo/
+	$< 'func()' > "$@"
+src/util/exit.$(O): src/util/exit.go src/util/gotgo/slice(func()).$(O)
+
+src/util/gotgo/slice(func()).$(O): src/util/gotgo/slice(func()).go
+
+src/util/gotgo/slice(int).$(O): src/util/gotgo/slice(int).go
 
 src/util/help.$(O): src/util/help.go
 
