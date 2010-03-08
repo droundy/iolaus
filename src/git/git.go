@@ -8,6 +8,7 @@ import (
 	"path"
 	"fmt"
 	"io/ioutil"
+	stringslice "./gotgo/slice(string)"
 )
 
 func AmInRepo(mess string) {
@@ -53,16 +54,11 @@ func announce(err os.Error) {
 
 func Read(arg1 string, args ...string) (output string, err os.Error) {
 	debug.Print("calling git",arg1,args)
-	args2 := make([]string, 2+len(args))
-	args2[0] = "git" // zeroth argument is the program name...
-	args2[1] = arg1 // first argument is the command...
-	for i, c := range args {
-    args2[i+2] = c
-  }
+	args = stringslice.Cat([]string{"git", arg1}, args)
 	output = "" // empty output if we have an error...
 	git, err := exec.LookPath("git")
 	if err != nil { announce(err); return }
-	pid,err := exec.Run(git, args2, os.Environ(), ".",
+	pid,err := exec.Run(git, args, os.Environ(), ".",
 		exec.PassThrough, exec.Pipe, exec.PassThrough)
 	if err != nil { announce(err); return }
 	o,err := ioutil.ReadAll(pid.Stdout)
@@ -79,16 +75,11 @@ func Read(arg1 string, args ...string) (output string, err os.Error) {
 
 func WriteRead(arg1 string, inp string, args ...string) (output string, e os.Error) {
 	debug.Print("calling git ",args)
-	args2 := make([]string, 2+len(args))
-	args2[0] = "git" // zeroth argument is the program name...
-	args2[1] = arg1 // first argument is the command...
-	for i, c := range args {
-    args2[i+2] = c
-  }
+	args = stringslice.Cat([]string{"git", arg1}, args)
 	output = "" // empty output if we have an error...
 	git, e := exec.LookPath("git")
 	if e != nil { announce(e); return }
-	pid,e := exec.Run(git, args2, os.Environ(), ".",
+	pid,e := exec.Run(git, args, os.Environ(), ".",
 		exec.Pipe, exec.Pipe, exec.PassThrough)
 	if e != nil { announce(e); return }
 	_,e = fmt.Fprint(pid.Stdin, inp)
@@ -110,15 +101,10 @@ func WriteRead(arg1 string, inp string, args ...string) (output string, e os.Err
 
 func Write(arg1 string, inp string, args ...string) (e os.Error) {
 	debug.Print("calling git ",args)
-	args2 := make([]string, 2+len(args))
-	args2[0] = "git" // zeroth argument is the program name...
-	args2[1] = arg1 // first argument is the command...
-	for i, c := range args {
-    args2[i+2] = c
-  }
+	args = stringslice.Cat([]string{"git", arg1}, args)
 	git, e := exec.LookPath("git")
 	if e != nil { announce(e); return }
-	pid,e := exec.Run(git, args2, os.Environ(), ".",
+	pid,e := exec.Run(git, args, os.Environ(), ".",
 		exec.Pipe, exec.PassThrough, exec.PassThrough)
 	if e != nil { announce(e); return }
 	_,e = fmt.Fprint(pid.Stdin, inp)
@@ -136,15 +122,10 @@ func Write(arg1 string, inp string, args ...string) (e os.Error) {
 
 func Run(arg1 string, args ...string) (e os.Error) {
 	debug.Print("calling git ",args)
-	args2 := make([]string, 2+len(args))
-	args2[0] = "git" // zeroth argument is the program name...
-	args2[1] = arg1 // first argument is the command...
-	for i, c := range args {
-    args2[i+2] = c
-  }
+	args = stringslice.Cat([]string{"git", arg1}, args)
 	git, e := exec.LookPath("git")
 	if e != nil { announce(e); return }
-	pid,e := exec.Run(git, args2, os.Environ(), ".",
+	pid,e := exec.Run(git, args, os.Environ(), ".",
 		exec.PassThrough, exec.PassThrough, exec.PassThrough)
 	if e != nil { announce(e); return }
 	ws,e := pid.Wait(0) // could have been os.WRUSAGE

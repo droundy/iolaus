@@ -1,5 +1,9 @@
 package patience
 
+import (
+	intslice "./gotgo/slice(int)"
+)
+
 type StringChunk struct {
     Line int
     Old  []string
@@ -36,11 +40,10 @@ func DiffFromLine(line0 int, o, n []string) []StringChunk {
 	// construct a list of the "new" positions of unique elements of
 	// the "old" array.
 	onums := map[string] int{}
-	uniques := make([]int,0,len(o)) // better to use min(len(o),len(n))...
+	uniques := []int{}
 	for onum, l := range o {
 		if nnum, ok := nnums[l]; ok && nnum != 0 {
-			uniques = uniques[0:len(uniques)+1]
-			uniques[len(uniques)-1] = nnum
+			uniques = intslice.Append(uniques, nnum)
 			onums[l] = onum // this is distance from "line0"
 		}
 	}
@@ -84,14 +87,12 @@ func DiffFromLine(line0 int, o, n []string) []StringChunk {
 	}
 	//fmt.Println("unique are",uniques)
 	//fmt.Println("piles are",piles)
-	lcs := make([]int, 0, len(uniques))
+	lcs := []int{}
 	for pnum, enum := len(piles)-1, len(piles[len(piles)-1])-1; pnum >= 0; pnum-- {
-		length := len(lcs)
-		lcs = lcs[0:length+1]
 		//fmt.Println("pnum is",pnum)
 		//fmt.Println("enum is",enum)
 		//fmt.Println("len(piles[pnum])",len(piles[pnum]))
-		lcs[length] = piles[pnum][enum].val
+		lcs = intslice.Append(lcs, piles[pnum][enum].val)
 		enum = piles[pnum][enum].prev
 	}
 	diff := make([]StringChunk, 0, 2*len(lcs))

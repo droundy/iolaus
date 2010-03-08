@@ -9,6 +9,7 @@ import (
 	"strings"
 	"patch"
 	"fmt"
+	stringslice "./gotgo/slice(string)"
 )
 
 func Init() {
@@ -46,11 +47,10 @@ func WriteTree() Treeish {
 }
 
 func CommitTree(tree Treeish, parents []Commitish, log string) Commitish {
-	args := make([]string, 1+2*len(parents))
-	args[0] = tree.String()
-	for i,p := range parents {
-		args[2*i+1] = "-p"
-		args[2*i+2] = p.String()
+	args := []string{tree.String()}
+	for _,p := range parents {
+		args = stringslice.Append(args, "-p")
+		args = stringslice.Append(args, p.String())
 	}
 	o,e := func (x ...string) (o string, e os.Error) {
 		x = args
@@ -66,13 +66,7 @@ func ReadTree(ref Treeish) {
 }
 
 func DiffFilesModified(paths []string) []string {
-	args := make([]string,len(paths)+3)
-	args[0] = "--name-only"
-	args[1] = "-z"
-	args[2] = "--"
-	for i,p := range paths {
-		args[i+3] = p
-	}
+	args := stringslice.Cat([]string{"--name-only", "-z", "--"}, paths)
 	o := func (x ...string) string {
 		x = args
 		o,_ := git.Read("diff-files", x)
@@ -82,12 +76,7 @@ func DiffFilesModified(paths []string) []string {
 }
 
 func DiffFiles(paths []string) Patch {
-	args := make([]string,len(paths)+2)
-	args[0] = "-p"
-	args[1] = "--"
-	for i,p := range paths {
-		args[i+2] = p
-	}
+	args := stringslice.Cat([]string{"-p", "--"}, paths)
 	o,e := func (x ...string) (o string, e os.Error) {
 		x = args
 		o,e = git.Read("diff-files", x)
