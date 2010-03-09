@@ -31,7 +31,7 @@ func init() {
 }
 
 func handleExit() {
-  atExit := make([]func(), 0, 100)
+  atExit := []func(){}
 	eraseOne := make(chan int)
 	for {
 		select {

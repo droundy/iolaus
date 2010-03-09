@@ -87,19 +87,39 @@ src/util/gotgo/slice(func()).go: $(pkgdir)/./gotgo/slice.gotgo
 	$< 'func()' > "$@"
 src/util/exit.$(O): src/util/exit.go src/util/gotgo/slice(func()).$(O)
 
+src/util/gotgo/slice([]pt.PatienceElem).$(O): src/util/gotgo/slice([]pt.PatienceElem).go src/util/patienceTypes.$(O)
+
 src/util/gotgo/slice(func()).$(O): src/util/gotgo/slice(func()).go
 
 src/util/gotgo/slice(int).$(O): src/util/gotgo/slice(int).go
+
+src/util/gotgo/slice(pt.PatienceElem).$(O): src/util/gotgo/slice(pt.PatienceElem).go src/util/patienceTypes.$(O)
+
+src/util/gotgo/slice(pt.StringChunk).$(O): src/util/gotgo/slice(pt.StringChunk).go src/util/patienceTypes.$(O)
 
 src/util/help.$(O): src/util/help.go
 
 src/util/out.$(O): src/util/out.go src/util/cook.$(O)
 
 # looks like we require src/util/gotgo/slice.got as installed package...
+src/util/gotgo/slice([]pt.PatienceElem).go: $(pkgdir)/./gotgo/slice.gotgo
+	mkdir -p src/util/gotgo/
+	$< --import 'import pt "../patienceTypes"' '[]pt.PatienceElem' > "$@"
+# looks like we require src/util/gotgo/slice.got as installed package...
 src/util/gotgo/slice(int).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p src/util/gotgo/
 	$< 'int' > "$@"
-src/util/patience.$(O): src/util/patience.go src/util/gotgo/slice(int).$(O)
+# looks like we require src/util/gotgo/slice.got as installed package...
+src/util/gotgo/slice(pt.StringChunk).go: $(pkgdir)/./gotgo/slice.gotgo
+	mkdir -p src/util/gotgo/
+	$< --import 'import pt "../patienceTypes"' 'pt.StringChunk' > "$@"
+# looks like we require src/util/gotgo/slice.got as installed package...
+src/util/gotgo/slice(pt.PatienceElem).go: $(pkgdir)/./gotgo/slice.gotgo
+	mkdir -p src/util/gotgo/
+	$< --import 'import pt "../patienceTypes"' 'pt.PatienceElem' > "$@"
+src/util/patience.$(O): src/util/patience.go src/util/gotgo/slice([]pt.PatienceElem).$(O) src/util/gotgo/slice(int).$(O) src/util/gotgo/slice(pt.PatienceElem).$(O) src/util/gotgo/slice(pt.StringChunk).$(O) src/util/patienceTypes.$(O)
+
+src/util/patienceTypes.$(O): src/util/patienceTypes.go
 
 installbins:  $(bindir)/iolaus-initialize $(bindir)/iolaus-record $(bindir)/iolaus-whatsnew $(bindir)/pdiff
 installpkgs: 

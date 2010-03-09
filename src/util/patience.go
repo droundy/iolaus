@@ -1,33 +1,18 @@
 package patience
 
 import (
+	pt "./patienceTypes"
 	intslice "./gotgo/slice(int)"
+	ch "./gotgo/slice(pt.StringChunk)"
+	pes "./gotgo/slice(pt.PatienceElem)"
+	pess "./gotgo/slice([]pt.PatienceElem)"
 )
 
-type StringChunk struct {
-    Line int
-    Old  []string
-    New  []string
-}
-func (ch StringChunk) String() (out string) {
-	if len(ch.Old) == 0 && len(ch.New) == 0 {
-		return ""
-	}
-	out = "" // fmt.Sprintln(" ",ch.Line)
-	for _, l := range ch.Old {
-		out += "-" + l
-	}
-	for _, l := range ch.New {
-		out += "+" + l
-	}
-	return
-}
-
-func Diff(o, n []string) []StringChunk {
+func Diff(o, n []string) []pt.StringChunk {
 	return DiffFromLine(1,o,n)
 }
 
-func DiffFromLine(line0 int, o, n []string) []StringChunk {
+func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 	nnums := map[string] int{}
 	for lnum, l := range n {
 		_, present := nnums[l]
@@ -54,35 +39,33 @@ func DiffFromLine(line0 int, o, n []string) []StringChunk {
 			len(o)-1-last >= 0 && len(n)-1-last >= 0 &&
 			o[len(o)-1-last] == n[len(n)-1-last] { last++ }
 		if len(o)-last > first || len(n)-last > first {
-			return []StringChunk{StringChunk{line0+first,
+			return []pt.StringChunk{pt.StringChunk{line0+first,
 					o[first:len(o)-last], n[first:len(n)-last]}}
 		} else {
-			return []StringChunk{}
+			return []pt.StringChunk{}
 		}
 	}
-	piles := make([][]patienceElem,1,len(uniques))
-	piles[0] = []patienceElem{ patienceElem{uniques[0],0} }
+	piles := [][]pt.PatienceElem{[]pt.PatienceElem{pt.PatienceElem{uniques[0],0}}}
 	for _,v := range uniques[1:] {
 		foundone := false
 		for ipile,pile := range piles {
-			if pile[0].val > v {
+			if pile[0].Val > v {
 				foundone = true
 				var myprev int
 				if ipile > 0 {
 					// points to top element of previous pile 
 					myprev = len(piles[ipile-1])-1
 				}
-				append(patienceElem{v,myprev},&piles[ipile])
+				piles[ipile] = pes.Append(piles[ipile], pt.PatienceElem{v,myprev})
 				break
 			}
 		}
 		if !foundone {
-			newpile := make([]patienceElem,1,4)
-			newpile[0] = patienceElem{v, len(piles[len(piles)-1])-1}
+			newpile := make([]pt.PatienceElem,1,4)
+			newpile[0] = pt.PatienceElem{v, len(piles[len(piles)-1])-1}
 			//fmt.Println("len(piles) is",len(piles))
 			//fmt.Println("cap(piles) is",cap(piles))
-			piles = piles[0:len(piles)+1]
-			piles[len(piles)-1] = newpile
+			piles = pess.Append(piles, newpile)
 		}
 	}
 	//fmt.Println("unique are",uniques)
@@ -92,10 +75,10 @@ func DiffFromLine(line0 int, o, n []string) []StringChunk {
 		//fmt.Println("pnum is",pnum)
 		//fmt.Println("enum is",enum)
 		//fmt.Println("len(piles[pnum])",len(piles[pnum]))
-		lcs = intslice.Append(lcs, piles[pnum][enum].val)
-		enum = piles[pnum][enum].prev
+		lcs = intslice.Append(lcs, piles[pnum][enum].Val)
+		enum = piles[pnum][enum].Prev
 	}
-	diff := make([]StringChunk, 0, 2*len(lcs))
+	diff := []pt.StringChunk{}
 	for prevo,prevn,i:= 0,0,len(lcs)-1; i>=0; i-- {
 		nextn := lcs[i]
 		//fmt.Println("looking for",n[nextn])
@@ -103,53 +86,10 @@ func DiffFromLine(line0 int, o, n []string) []StringChunk {
 		//fmt.Println("nexto",nexto)
 		//fmt.Println("uniques is",uniques)
 		//fmt.Println("nnums is",nnums)
-		join(&diff,
+		diff = ch.Cat(diff,
 			DiffFromLine(line0+prevn, o[prevo:nexto], n[prevn:nextn]))
 		prevo = nexto
 		prevn = nextn
 	}
 	return diff
-}
-
-type patienceElem struct {
-	val int
-	// The prev points to the next "pile" to read off.
-	prev int
-}
-
-func append(x patienceElem, slice *[]patienceElem) {
-	length := len(*slice)
-  if length + 1 > cap(*slice) {  // reallocate
-    // Allocate double what's needed, for future growth.
-    newSlice := make([]patienceElem, (length + 1)*2)
-    // Copy data (could use bytes.Copy()).
-    for i, c := range *slice {
-      newSlice[i] = c
-    }
-    *slice = newSlice
-  }
-	*slice = (*slice)[0:length+1]
-	(*slice)[length] = x
-}
-
-func join(big *[]StringChunk, little []StringChunk) {
-	length := len(*big)
-	llittle := len(little)
-  if length + llittle > cap(*big) {  // reallocate
-    // Allocate double what's needed, for future growth.
-    newSlice := make([]StringChunk, length+llittle, (length + llittle)*2)
-    // Copy data (could use bytes.Copy()).
-    for i, c := range *big {
-      newSlice[i] = c
-    }
-		//fmt.Println("newSlice is",newSlice)
-		//fmt.Println("cap(newSlice) is",cap(newSlice))
-    *big = newSlice
-  }
-	*big = (*big)[0:length+llittle]
-	//fmt.Println("big is",*big)
-	//fmt.Println("cap(big) is",cap(*big))
-	for i,c := range little {
-		(*big)[length+i] = c
-	}
 }
