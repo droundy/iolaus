@@ -52,11 +52,7 @@ func CommitTree(tree Treeish, parents []Commitish, log string) Commitish {
 		args = stringslice.Append(args, "-p")
 		args = stringslice.Append(args, p.String())
 	}
-	o,e := func (x ...string) (o string, e os.Error) {
-		x = args
-		o,e = git.WriteRead("commit-tree", log, x)
-		return
-	}()
+	o,e := git.WriteReadS("commit-tree", log, args)
 	if e != nil { panic("bad output in commit-tree") }
 	return Ref(o[0:40])
 }
@@ -67,21 +63,13 @@ func ReadTree(ref Treeish) {
 
 func DiffFilesModified(paths []string) []string {
 	args := stringslice.Cat([]string{"--name-only", "-z", "--"}, paths)
-	o := func (x ...string) string {
-		x = args
-		o,_ := git.Read("diff-files", x)
-		return o
-	}()
+	o,_ := git.ReadS("diff-files", args)
 	return splitOnNulls(o)
 }
 
 func DiffFiles(paths []string) Patch {
 	args := stringslice.Cat([]string{"-p", "--"}, paths)
-	o,e := func (x ...string) (o string, e os.Error) {
-		x = args
-		o,e = git.Read("diff-files", x)
-		return
-	}()
+	o,e := git.ReadS("diff-files", args)
 	error.FailOn(e)
 	p, e := patch.Parse([]byte(o));
 	error.FailOn(e)

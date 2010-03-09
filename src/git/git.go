@@ -53,6 +53,22 @@ func announce(err os.Error) {
 }
 
 func Read(arg1 string, args ...string) (output string, err os.Error) {
+	return ReadS(arg1, args)
+}
+
+func WriteRead(arg1 string, inp string, args ...string) (output string, e os.Error) {
+	return WriteReadS(arg1, inp, args)
+}
+
+func Write(arg1 string, inp string, args ...string) (e os.Error) {
+	return WriteS(arg1, inp, args)
+}
+
+func Run(arg1 string, args ...string) (e os.Error) {
+	return RunS(arg1, args)
+}
+
+func ReadS(arg1 string, args []string) (output string, err os.Error) {
 	debug.Print("calling git",arg1,args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
 	output = "" // empty output if we have an error...
@@ -73,7 +89,7 @@ func Read(arg1 string, args ...string) (output string, err os.Error) {
 	return string(o), nil
 }
 
-func WriteRead(arg1 string, inp string, args ...string) (output string, e os.Error) {
+func WriteReadS(arg1 string, inp string, args []string) (output string, e os.Error) {
 	debug.Print("calling git ",args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
 	output = "" // empty output if we have an error...
@@ -99,7 +115,7 @@ func WriteRead(arg1 string, inp string, args ...string) (output string, e os.Err
 	return
 }
 
-func Write(arg1 string, inp string, args ...string) (e os.Error) {
+func WriteS(arg1 string, inp string, args []string) (e os.Error) {
 	debug.Print("calling git ",args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
 	git, e := exec.LookPath("git")
@@ -120,7 +136,7 @@ func Write(arg1 string, inp string, args ...string) (e os.Error) {
 	return nil
 }
 
-func Run(arg1 string, args ...string) (e os.Error) {
+func RunS(arg1 string, args []string) (e os.Error) {
 	debug.Print("calling git ",args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
 	git, e := exec.LookPath("git")
