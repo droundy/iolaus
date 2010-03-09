@@ -4,7 +4,7 @@ import "fmt"
 import "os"
 import "strings"
 import "io/ioutil"
-import "./util/patience"
+import "../src/util/patience"
 
 func main() {
 	obytes, _ := ioutil.ReadFile(os.Args[0])

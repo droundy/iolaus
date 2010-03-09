@@ -15,7 +15,7 @@ install: installbins installpkgs
 
 include $(GOROOT)/src/Make.$(GOARCH)
 
-binaries:  scripts/harness bin/iolaus-initialize bin/iolaus-push bin/iolaus-record bin/iolaus-whatsnew bin/pdiff
+binaries:  scripts/harness scripts/pdiff bin/iolaus-initialize bin/iolaus-push bin/iolaus-record bin/iolaus-whatsnew
 packages: 
 
 ifndef GOBIN
@@ -40,6 +40,11 @@ scripts/harness: scripts/harness.$(O)
 	@mkdir -p bin
 	$(LD) -o $@ $<
 scripts/harness.$(O): scripts/harness.go src/util/error.$(O) src/util/exit.$(O)
+
+scripts/pdiff: scripts/pdiff.$(O)
+	@mkdir -p bin
+	$(LD) -o $@ $<
+scripts/pdiff.$(O): scripts/pdiff.go src/util/patience.$(O)
 
 # looks like we require src/git/gotgo/slice.got as installed package...
 src/git/gotgo/slice(string).go: $(pkgdir)/./gotgo/slice.gotgo
@@ -80,13 +85,6 @@ bin/iolaus-whatsnew: src/iolaus-whatsnew.$(O)
 $(bindir)/iolaus-whatsnew: bin/iolaus-whatsnew
 	cp $< $@
 src/iolaus-whatsnew.$(O): src/iolaus-whatsnew.go src/git/git.$(O) src/git/plumbing.$(O) src/util/help.$(O) src/util/out.$(O)
-
-bin/pdiff: src/pdiff.$(O)
-	@mkdir -p bin
-	$(LD) -o $@ $<
-$(bindir)/pdiff: bin/pdiff
-	cp $< $@
-src/pdiff.$(O): src/pdiff.go src/util/patience.$(O)
 
 src/util/cook.$(O): src/util/cook.go src/util/exit.$(O)
 
@@ -134,5 +132,5 @@ src/util/patience.$(O): src/util/patience.go src/util/gotgo/slice([]pt.PatienceE
 
 src/util/patienceTypes.$(O): src/util/patienceTypes.go
 
-installbins:  $(bindir)/iolaus-initialize $(bindir)/iolaus-push $(bindir)/iolaus-record $(bindir)/iolaus-whatsnew $(bindir)/pdiff
+installbins:  $(bindir)/iolaus-initialize $(bindir)/iolaus-push $(bindir)/iolaus-record $(bindir)/iolaus-whatsnew
 installpkgs: 
