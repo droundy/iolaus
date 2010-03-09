@@ -24,11 +24,11 @@ func main() {
 
 	if *all {
 		for _,f := range plumbing.DiffFilesModified([]string{}) {
-			out.Print("Considering changes to",f)
+			out.Print("Considering changes to ",f)
 			plumbing.UpdateIndex(f)
 		}
 		for _,newf := range plumbing.LsOthers() {
-			out.Print("Considering adding",newf)
+			out.Print("Considering adding ",newf)
 			plumbing.UpdateIndex(newf)
 		}
 	} else {
@@ -63,7 +63,7 @@ func main() {
 		error.FailOn(e)
 		*shortlog = name
 	}
-	c := plumbing.CommitTree(plumbing.WriteTree(),
-		[]plumbing.Commitish{plumbing.Ref("HEAD")}, *shortlog)
+	_, heads, _ := plumbing.ShowRef("--heads")
+	c := plumbing.CommitTree(plumbing.WriteTree(), heads, *shortlog)
 	plumbing.UpdateRef("HEAD", c)
 }

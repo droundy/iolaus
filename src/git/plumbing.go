@@ -24,6 +24,10 @@ type Tree string
 func (r Tree) String() string { return string(r) }
 type Ref string
 func (r Ref) String() string { return string(r) }
+func (r Ref) commitString() string { return string(r) }
+type CommitHash Hash
+func (h CommitHash) String() string { return string(h[0:40]) }
+func (h CommitHash) commitString() string { return string(h[0:40]) }
 
 type Treeish interface {
 	String() string
@@ -31,6 +35,7 @@ type Treeish interface {
 
 type Commitish interface {
 	String() string
+	commitString() string
 }
 
 func UpdateIndex(f string) os.Error {
@@ -39,6 +44,27 @@ func UpdateIndex(f string) os.Error {
 
 func UpdateRef(ref string, val Commitish) os.Error {
 	return git.Run("update-ref", ref, val.String())
+}
+
+func ShowRef(args ...string) (hs []CommitHash, rs []Commitish, e os.Error) {
+	o, e := git.Read("show-ref", args)
+	if e != nil { return }
+	hs, rs = splitRefs(o)
+	return hs, rs, e
+}
+
+func splitRefs(s string) (hs []CommitHash, rs []Commitish) {
+	xs := strings.Split(s, "\n", 0)
+	xs = stringslice.Filter(func(x string) bool { return len(x) < 42 }, xs)
+	hs = make([]CommitHash, len(xs))
+	rs = make([]Commitish, len(xs))
+	for i,x := range xs {
+		for j := range hs[i] {
+			hs[i][j] = x[j] // shouldn't there be a nicer way to do this?
+		}
+		rs[i] = Ref(x[41:])
+	}
+	return
 }
 
 func WriteTree() Treeish {
@@ -53,7 +79,7 @@ func CommitTree(tree Treeish, parents []Commitish, log string) Commitish {
 		args = stringslice.Append(args, p.String())
 	}
 	o,e := git.WriteReadS("commit-tree", log, args)
-	if e != nil { panic("bad output in commit-tree") }
+	if e != nil { panic("bad output in commit-tree: "+e.String()) }
 	return Ref(o[0:40])
 }
 
