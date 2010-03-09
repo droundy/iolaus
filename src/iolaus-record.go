@@ -24,11 +24,11 @@ func main() {
 
 	if *all {
 		for _,f := range plumbing.DiffFilesModified([]string{}) {
-			out.Print("Considering changes to",f)
+			out.Print("Considering changes to ",f)
 			plumbing.UpdateIndex(f)
 		}
 		for _,newf := range plumbing.LsOthers() {
-			out.Print("Considering adding",newf)
+			out.Print("Considering adding ",newf)
 			plumbing.UpdateIndex(newf)
 		}
 	} else {
