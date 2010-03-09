@@ -6,4 +6,4 @@ set -ev
 ./bin/iolaus-whatsnew | grep 'Added .test'
 
 # the following test demonstrates a bug!!!
-./bin/iolaus-record -am 'Hello world' || true
+./bin/iolaus-record -am 'Hello world'

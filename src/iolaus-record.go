@@ -63,7 +63,7 @@ func main() {
 		error.FailOn(e)
 		*shortlog = name
 	}
-	c := plumbing.CommitTree(plumbing.WriteTree(),
-		[]plumbing.Commitish{plumbing.Ref("HEAD")}, *shortlog)
+	_, heads, _ := plumbing.ShowRef("--heads")
+	c := plumbing.CommitTree(plumbing.WriteTree(), heads, *shortlog)
 	plumbing.UpdateRef("HEAD", c)
 }
