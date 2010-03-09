@@ -73,6 +73,10 @@ func Run(arg1 string, args ...string) (e os.Error) {
 	return RunS(arg1, args)
 }
 
+func RunSilently(arg1 string, args ...string) (e os.Error) {
+	return RunSilentlyS(arg1, args)
+}
+
 func ReadS(arg1 string, args []string) (output string, err os.Error) {
 	debug.Print("calling git",arg1,args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
@@ -95,7 +99,7 @@ func ReadS(arg1 string, args []string) (output string, err os.Error) {
 }
 
 func WriteReadS(arg1 string, inp string, args []string) (output string, e os.Error) {
-	debug.Print("calling git ",args)
+	debug.Print("calling git",arg1,args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
 	output = "" // empty output if we have an error...
 	git, e := exec.LookPath("git")
@@ -121,7 +125,7 @@ func WriteReadS(arg1 string, inp string, args []string) (output string, e os.Err
 }
 
 func WriteS(arg1 string, inp string, args []string) (e os.Error) {
-	debug.Print("calling git ",args)
+	debug.Print("calling git",arg1,args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
 	git, e := exec.LookPath("git")
 	if e != nil { announce(e); return }
@@ -142,12 +146,30 @@ func WriteS(arg1 string, inp string, args []string) (e os.Error) {
 }
 
 func RunS(arg1 string, args []string) (e os.Error) {
-	debug.Print("calling git ",args)
+	debug.Print("calling git",arg1,args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
 	git, e := exec.LookPath("git")
 	if e != nil { announce(e); return }
 	pid,e := exec.Run(git, args, os.Environ(), ".",
 		exec.PassThrough, exec.PassThrough, exec.PassThrough)
+	if e != nil { announce(e); return }
+	ws,e := pid.Wait(0) // could have been os.WRUSAGE
+	if e != nil { announce(e); return }
+	if ws.ExitStatus() != 0 {
+		e = os.NewError(fmt.Sprintf("git exited with '%v'",ws.ExitStatus()))
+		announce(e)
+		return
+	}
+	return nil
+}
+
+func RunSilentlyS(arg1 string, args []string) (e os.Error) {
+	debug.Print("calling git",arg1,args)
+	args = stringslice.Cat([]string{"git", arg1}, args)
+	git, e := exec.LookPath("git")
+	if e != nil { announce(e); return }
+	pid,e := exec.Run(git, args, os.Environ(), ".",
+		exec.PassThrough, exec.DevNull, exec.DevNull)
 	if e != nil { announce(e); return }
 	ws,e := pid.Wait(0) // could have been os.WRUSAGE
 	if e != nil { announce(e); return }

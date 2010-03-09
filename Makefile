@@ -15,7 +15,7 @@ install: installbins installpkgs
 
 include $(GOROOT)/src/Make.$(GOARCH)
 
-binaries:  scripts/harness bin/iolaus-initialize bin/iolaus-record bin/iolaus-whatsnew bin/pdiff
+binaries:  scripts/harness bin/iolaus-initialize bin/iolaus-push bin/iolaus-record bin/iolaus-whatsnew bin/pdiff
 packages: 
 
 ifndef GOBIN
@@ -59,6 +59,13 @@ bin/iolaus-initialize: src/iolaus-initialize.$(O)
 $(bindir)/iolaus-initialize: bin/iolaus-initialize
 	cp $< $@
 src/iolaus-initialize.$(O): src/iolaus-initialize.go src/git/git.$(O) src/git/porcelain.$(O) src/util/error.$(O) src/util/help.$(O)
+
+bin/iolaus-push: src/iolaus-push.$(O)
+	@mkdir -p bin
+	$(LD) -o $@ $<
+$(bindir)/iolaus-push: bin/iolaus-push
+	cp $< $@
+src/iolaus-push.$(O): src/iolaus-push.go src/git/git.$(O) src/git/plumbing.$(O) src/util/error.$(O) src/util/exit.$(O) src/util/help.$(O) src/util/out.$(O)
 
 bin/iolaus-record: src/iolaus-record.$(O)
 	@mkdir -p bin
@@ -127,5 +134,5 @@ src/util/patience.$(O): src/util/patience.go src/util/gotgo/slice([]pt.PatienceE
 
 src/util/patienceTypes.$(O): src/util/patienceTypes.go
 
-installbins:  $(bindir)/iolaus-initialize $(bindir)/iolaus-record $(bindir)/iolaus-whatsnew $(bindir)/pdiff
+installbins:  $(bindir)/iolaus-initialize $(bindir)/iolaus-push $(bindir)/iolaus-record $(bindir)/iolaus-whatsnew $(bindir)/pdiff
 installpkgs: 

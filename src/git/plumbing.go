@@ -6,6 +6,7 @@ import (
 	"../util/debug"
 	"../util/error"
 	"os"
+	"once"
 	"strings"
 	"patch"
 	"fmt"
@@ -46,6 +47,19 @@ func UpdateRef(ref string, val Commitish) os.Error {
 	return git.Run("update-ref", ref, val.String())
 }
 
+func FetchPack(remote string, args ...string) {
+	args = stringslice.Append(args, remote)
+	git.RunSilentlyS("fetch-pack", args)
+}
+
+func LsRemote(remote string, args ...string) (hs []CommitHash, rs []Commitish, e os.Error) {
+	args = stringslice.Append(args, remote)
+	o, e := git.ReadS("ls-remote", args)
+	if e != nil { return }
+	hs, rs = splitRefs(o)
+	return hs, rs, e
+}
+
 func ShowRef(args ...string) (hs []CommitHash, rs []Commitish, e os.Error) {
 	o, e := git.Read("show-ref", args)
 	if e != nil { return }
@@ -55,7 +69,7 @@ func ShowRef(args ...string) (hs []CommitHash, rs []Commitish, e os.Error) {
 
 func splitRefs(s string) (hs []CommitHash, rs []Commitish) {
 	xs := strings.Split(s, "\n", 0)
-	xs = stringslice.Filter(func(x string) bool { return len(x) < 42 }, xs)
+	xs = stringslice.Filter(func(x string) bool { return len(x) >= 42 }, xs)
 	hs = make([]CommitHash, len(xs))
 	rs = make([]Commitish, len(xs))
 	for i,x := range xs {
@@ -182,4 +196,33 @@ func splitOnNulls(s string) []string {
 		return xs[0:len(xs)-1]
 	}
 	return xs
+}
+
+var configList map[string]string
+
+func ListConfig() map[string]string {
+	once.Do(func() {
+		o,_ := git.Read("config", "--null", "--list")
+		configList = splitOnNullsAndLines(o)
+	})
+	return configList
+}
+
+func splitOnNullsAndLines(s string) (out map[string]string) {
+	xs := strings.Split(s, "\000", 0)
+	out = make(map[string]string)
+	for _,x := range xs {
+		kv := strings.Split(x, "\n", 0)
+		if len(kv) == 2 {
+			out[kv[0]] = kv[1]
+		}
+	}
+	return
+}
+
+func RemoteUrl(r string) string {
+	conf := ListConfig()
+	rr,ok := conf["remote."+r+".url"]
+	if ok { return rr }
+	return r // not a real remote
 }
