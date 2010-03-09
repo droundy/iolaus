@@ -7,14 +7,15 @@ Makefile: scripts/make.header $(wildcard *.go)
 	cp -f scripts/make.header $@
 	gotmake >> $@
 
-test: tests/example
+test: all
+	./scripts/harness
 
 install: installbins installpkgs
 
 
 include $(GOROOT)/src/Make.$(GOARCH)
 
-binaries:  bin/iolaus-initialize bin/iolaus-record bin/iolaus-whatsnew bin/pdiff
+binaries:  scripts/harness bin/iolaus-initialize bin/iolaus-record bin/iolaus-whatsnew bin/pdiff
 packages: 
 
 ifndef GOBIN
@@ -34,6 +35,11 @@ pkgdir=$(subst $(space),\ ,$(GOROOT)/pkg/$(GOOS)_$(GOARCH))
 	cd `dirname "$<"`; $(GC) `basename "$<"`
 .got.gotgo:
 	gotgo "$<"
+
+scripts/harness: scripts/harness.$(O)
+	@mkdir -p bin
+	$(LD) -o $@ $<
+scripts/harness.$(O): scripts/harness.go src/util/error.$(O) src/util/exit.$(O)
 
 # looks like we require src/git/gotgo/slice.got as installed package...
 src/git/gotgo/slice(string).go: $(pkgdir)/./gotgo/slice.gotgo
