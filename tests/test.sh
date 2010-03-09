@@ -9,4 +9,4 @@ date > .test
 iolaus-whatsnew
 iolaus-whatsnew | grep 'Added .test'
 
-iolaus-record -am 'Hello world'
+iolaus-record --all --patch 'Hello world'

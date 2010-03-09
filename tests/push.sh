@@ -14,7 +14,7 @@ git clone repo new
 cd new
 echo bye > foo
 iolaus-record -am modfoo
-iolaus-push -a
+iolaus-push --all
 
 cd ../repo
 git reset --hard
