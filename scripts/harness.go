@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path"
 	"exec"
+	"io/ioutil"
 	"../src/util/error"
 	"../src/util/exit"
 )
@@ -22,19 +23,22 @@ func main() {
 	for _,d := range ds {
 		if d.IsRegular() && (d.Permission() & 1) == 1 && endsWith(d.Name, ".sh") {
 			basename := d.Name[0:len(d.Name)-3]
-			fmt.Println("Running", basename,"...")
+			fmt.Printf("Running %s... ", basename)
 			dirname := path.Join("tests/tmp", basename)
 			error.FailOn(os.MkdirAll(dirname, 0777))
 			pid, e := exec.Run(path.Join(wd,"tests",d.Name), []string{}, os.Environ(), dirname,
-				exec.PassThrough, exec.PassThrough, exec.PassThrough)
+				exec.DevNull, exec.Pipe, exec.MergeWithStdout)
+			error.FailOn(e)
+			o,e := ioutil.ReadAll(pid.Stdout)
 			error.FailOn(e)
 			ret, e := pid.Wait(0)
 			error.FailOn(e)
 			if ret.ExitStatus() != 0 {
-				error.Print("Test failed!")
+				error.Print("FAILED!\n", string(o))
+				error.Print("Test '", basename, "' failed!")
 				exit.Exit(1)
 			}
-			fmt.Println("Test passed.\n")
+			fmt.Println("passed.")
 		}
 	}
 }
