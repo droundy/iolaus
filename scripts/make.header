@@ -7,6 +7,7 @@ Makefile: scripts/make.header $(wildcard */*/.go) $(wildcard */*.go)
 	cp -f scripts/make.header $@
 	gotmake >> $@
 
-test: tests/example
+test: all
+	./scripts/harness
 
 install: installbins installpkgs

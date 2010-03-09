@@ -7,7 +7,7 @@ iolaus-record
 iolaus-amend-record
 iolaus-whatsnew
 iolaus-initialize
-mkmake
+harness
 pdiff
 \#*
 .\#*

@@ -1,9 +1,3 @@
 set -ev
 
-./bin/iolaus-initialize
-
-./bin/iolaus-whatsnew
-./bin/iolaus-whatsnew | grep 'Added .test'
-
-# the following test demonstrates a bug!!!
-./bin/iolaus-record -am 'Hello world'
+make test
