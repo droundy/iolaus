@@ -3,7 +3,7 @@
 
 all: Makefile binaries
 
-Makefile: scripts/make.header $(wildcard *.go)
+Makefile: scripts/make.header $(wildcard */*/.go) $(wildcard */*.go)
 	cp -f scripts/make.header $@
 	gotmake >> $@
 
@@ -27,8 +27,8 @@ space := $(nullstring) # a space at the end
 bindir=$(subst $(space),\ ,$(GOBIN))
 pkgdir=$(subst $(space),\ ,$(GOROOT)/pkg/$(GOOS)_$(GOARCH))
 
-.PHONY: test binaries packages install installbins installpkgs
-.SUFFIXES: .$(O) .go .got .gotgo
+.PHONY: test binaries packages install installbins installpkgs $(EXTRAPHONY)
+.SUFFIXES: .$(O) .go .got .gotgo $(EXTRASUFFIXES)
 
 .go.$(O):
 	cd `dirname "$<"`; $(GC) `basename "$<"`

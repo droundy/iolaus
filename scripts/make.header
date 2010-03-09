@@ -3,7 +3,7 @@
 
 all: Makefile binaries
 
-Makefile: scripts/make.header $(wildcard *.go)
+Makefile: scripts/make.header $(wildcard */*/.go) $(wildcard */*.go)
 	cp -f scripts/make.header $@
 	gotmake >> $@
 
