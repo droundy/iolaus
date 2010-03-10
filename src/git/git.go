@@ -11,6 +11,30 @@ import (
 	stringslice "./gotgo/slice(string)"
 )
 
+// These data types are mostly just defined here so that I can use
+// gotgo on them conveniently...
+type Hash [40]byte
+func (h Hash) String() string { return string(h[0:40]) }
+type TreeHash Hash
+func (r TreeHash) String() string { return string(r[0:40]) }
+func (r TreeHash) treeString() string { return string(r[0:40]) }
+type Ref string
+func (r Ref) String() string { return string(r) }
+func (r Ref) commitString() string { return string(r) }
+func (r Ref) treeString() string { return string(r) }
+type CommitHash Hash
+func (h CommitHash) String() string { return string(h[0:40]) }
+func (h CommitHash) commitString() string { return string(h[0:40]) }
+func (h CommitHash) treeString() string { return string(h[0:40]) }
+type Treeish interface {
+	String() string
+	treeString() string
+}
+type Commitish interface {
+	String() string
+	commitString() string
+}
+
 func AmInRepo(mess string) {
 	oldwd, _ := os.Getwd()
 	wd := oldwd

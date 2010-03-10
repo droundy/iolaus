@@ -24,5 +24,10 @@ func main() {
 	error.FailOn(e)
 	out.Print("Remotes are ", remotes)
 	out.Print("I haven't finished with push yet.")
+	for _,r := range remotes {
+		cc, e := plumbing.Commit(r)
+		error.FailOn(e)
+		out.Print("Remote has:\n", cc)
+	}
 	exit.Exit(0)
 }

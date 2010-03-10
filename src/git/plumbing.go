@@ -1,7 +1,7 @@
 package plumbing
 
 import (
-	"./git"
+	git "./git"
 	"../util/patience"
 	"../util/debug"
 	"../util/error"
@@ -11,6 +11,7 @@ import (
 	"patch"
 	"fmt"
 	stringslice "./gotgo/slice(string)"
+	pars "./gotgo/slice(git.CommitHash)"
 )
 
 func Init() {
@@ -19,31 +20,11 @@ func Init() {
 
 type Patch patch.Set
 
-type Hash [40]byte
-func (h Hash) String() string { return string(h[0:40]) }
-type Tree string
-func (r Tree) String() string { return string(r) }
-type Ref string
-func (r Ref) String() string { return string(r) }
-func (r Ref) commitString() string { return string(r) }
-type CommitHash Hash
-func (h CommitHash) String() string { return string(h[0:40]) }
-func (h CommitHash) commitString() string { return string(h[0:40]) }
-
-type Treeish interface {
-	String() string
-}
-
-type Commitish interface {
-	String() string
-	commitString() string
-}
-
 func UpdateIndex(f string) os.Error {
 	return git.Run("update-index", "--add", "--remove", "--", f)
 }
 
-func UpdateRef(ref string, val Commitish) os.Error {
+func UpdateRef(ref string, val git.Commitish) os.Error {
 	return git.Run("update-ref", ref, val.String())
 }
 
@@ -52,7 +33,7 @@ func FetchPack(remote string, args ...string) {
 	git.RunSilentlyS("fetch-pack", args)
 }
 
-func LsRemote(remote string, args ...string) (hs []CommitHash, rs []Commitish, e os.Error) {
+func LsRemote(remote string, args ...string) (hs []git.CommitHash, rs []git.Commitish, e os.Error) {
 	args = stringslice.Append(args, remote)
 	o, e := git.ReadS("ls-remote", args)
 	if e != nil { return }
@@ -60,33 +41,37 @@ func LsRemote(remote string, args ...string) (hs []CommitHash, rs []Commitish, e
 	return hs, rs, e
 }
 
-func ShowRef(args ...string) (hs []CommitHash, rs []Commitish, e os.Error) {
+func ShowRef(args ...string) (hs []git.CommitHash, rs []git.Commitish, e os.Error) {
 	o, e := git.Read("show-ref", args)
 	if e != nil { return }
 	hs, rs = splitRefs(o)
 	return hs, rs, e
 }
 
-func splitRefs(s string) (hs []CommitHash, rs []Commitish) {
+func splitRefs(s string) (hs []git.CommitHash, rs []git.Commitish) {
 	xs := strings.Split(s, "\n", 0)
 	xs = stringslice.Filter(func(x string) bool { return len(x) >= 42 }, xs)
-	hs = make([]CommitHash, len(xs))
-	rs = make([]Commitish, len(xs))
+	hs = make([]git.CommitHash, len(xs))
+	rs = make([]git.Commitish, len(xs))
 	for i,x := range xs {
 		for j := range hs[i] {
 			hs[i][j] = x[j] // shouldn't there be a nicer way to do this?
 		}
-		rs[i] = Ref(x[41:])
+		rs[i] = git.Ref(x[41:])
 	}
 	return
 }
 
-func WriteTree() Treeish {
+func WriteTree() git.Treeish {
 	o,_ := git.Read("write-tree")
-	return Tree(o[0:40])
+	t := git.TreeHash{}
+	for j := range o[0:40] {
+		t[j] = o[j] // shouldn't there be a nicer way to do this?
+	}
+	return t
 }
 
-func CommitTree(tree Treeish, parents []Commitish, log string) Commitish {
+func CommitTree(tree git.Treeish, parents []git.Commitish, log string) git.Commitish {
 	args := []string{tree.String()}
 	for _,p := range parents {
 		args = stringslice.Append(args, "-p")
@@ -94,10 +79,10 @@ func CommitTree(tree Treeish, parents []Commitish, log string) Commitish {
 	}
 	o,e := git.WriteReadS("commit-tree", log, args)
 	if e != nil { panic("bad output in commit-tree: "+e.String()) }
-	return Ref(o[0:40])
+	return git.Ref(o[0:40]) // should be a git.Commitish
 }
 
-func ReadTree(ref Treeish) {
+func ReadTree(ref git.Treeish) {
 	git.Run("read-tree", ref.String())
 }
 
@@ -225,4 +210,64 @@ func RemoteUrl(r string) string {
 	rr,ok := conf["remote."+r+".url"]
 	if ok { return rr }
 	return r // not a real remote
+}
+
+type CommitEntry struct {
+	Parents []git.CommitHash
+  Tree git.TreeHash
+  Author string
+  Committer string
+  Message string
+}
+
+func (ce CommitEntry) String() string {
+	return "Author: " + ce.Author + "\n" + ce.Message
+}
+
+func rawCommit(c git.Commitish) (o string, e os.Error) {
+	return git.Read("cat-file", "commit", c.String())
+}
+
+func Commit(c git.Commitish) (ce CommitEntry, e os.Error) {
+	o,e := rawCommit(c)
+	if e != nil { return }
+	ls := strings.Split(o, "\n", 0)
+	// ls will always have a length of at least one!
+	for _,l := range ls {
+		switch {
+		case startsWith(l, "tree "):
+			ce.Tree = git.TreeHash(mkHash(dropToSpace(l)))
+		case startsWith(l, "parent "):
+			ce.Parents = pars.Append(ce.Parents, git.CommitHash(mkHash(dropToSpace(l))))
+		case startsWith(l, "author "):
+			ce.Author = dropToSpace(l)
+		case startsWith(l, "committer "):
+			ce.Committer = dropToSpace(l)
+		default:
+			break
+		}
+	}
+	xs := strings.Split(o, "\n\n", 2)
+	if len(xs) != 2 { panic("bad foo in bar") }
+	ce.Message = xs[1]
+	return
+}
+
+func startsWith(s string, e string) bool {
+	return len(s) >= len(e) && s[0:len(e)] == e
+}
+
+func dropToSpace(s string) string {
+	for i,c := range s {
+		if c == ' ' {
+			return s[i+1:]
+		}
+	}
+	return ""
+}
+
+func mkHash(s string) (h git.Hash) {
+	if len(s) < 40 { panic("Hash to small in mkhash") }
+	for i,v := range []byte(s)[0:40] { h[i] = v }
+	return
 }

@@ -52,9 +52,15 @@ src/git/gotgo/slice(string).go: $(pkgdir)/./gotgo/slice.gotgo
 	$< 'string' > "$@"
 src/git/git.$(O): src/git/git.go src/git/gotgo/slice(string).$(O) src/util/debug.$(O) src/util/exit.$(O)
 
+src/git/gotgo/slice(git.CommitHash).$(O): src/git/gotgo/slice(git.CommitHash).go src/git/git.$(O)
+
 src/git/gotgo/slice(string).$(O): src/git/gotgo/slice(string).go
 
-src/git/plumbing.$(O): src/git/plumbing.go src/git/git.$(O) src/git/gotgo/slice(string).$(O) src/util/debug.$(O) src/util/error.$(O) src/util/patience.$(O)
+# looks like we require src/git/gotgo/slice.got as installed package...
+src/git/gotgo/slice(git.CommitHash).go: $(pkgdir)/./gotgo/slice.gotgo
+	mkdir -p src/git/gotgo/
+	$< --import 'import git "../git"' 'git.CommitHash' > "$@"
+src/git/plumbing.$(O): src/git/plumbing.go src/git/git.$(O) src/git/gotgo/slice(git.CommitHash).$(O) src/git/gotgo/slice(string).$(O) src/util/debug.$(O) src/util/error.$(O) src/util/patience.$(O)
 
 src/git/porcelain.$(O): src/git/porcelain.go src/git/git.$(O)
 
