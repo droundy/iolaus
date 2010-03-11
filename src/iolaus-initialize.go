@@ -1,9 +1,11 @@
 package main;
 
-import "./git/git"
-import "./git/porcelain"
-import "./util/error"
-import "./util/help"
+import (
+	"./git/git"
+	"./git/porcelain"
+	"./util/error"
+	"./util/help"
+)
 
 func main() {
 	help.Init("initialize a new repository.", nil)

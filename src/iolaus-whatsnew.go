@@ -5,6 +5,7 @@ import (
 	"./git/plumbing"
 	"./util/out"
 	"./util/help"
+	"./util/exit"
 )
 
 func main() {
@@ -18,4 +19,5 @@ func main() {
 	for _,newf := range plumbing.LsOthers() {
 		out.Print("Added ",newf)
 	}
+	exit.Exit(0)
 }
