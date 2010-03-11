@@ -13,6 +13,9 @@ import (
 
 var all = goopt.Flag([]string{"-a","--all"}, []string{"--interactive"},
 	"push all patches", "prompt for patches interactively")
+var dryRun = goopt.Flag([]string{"--dry-run"}, []string{},
+	"don't actually push, just show what we would push",
+	"actually do push")
 
 func main() {
 	git.AmInRepo("Must be in a repository to call push!")
@@ -41,10 +44,15 @@ func main() {
 		error.FailOn(e)
 		out.Print("Could push:\n", cc)
 	}
+	if len(topush) == 0 {
+		out.Print("No commits to push!")
+		exit.Exit(0)
+	}
+	if *dryRun { exit.Exit(0) }
 	topull, e := plumbing.RevListDifference(remoterefs, localrefs)
 	error.FailOn(e)
 	if len(topull) > 0 {
-		for _,tp := range topush {
+		for _,tp := range topull {
 			cc, e := plumbing.Commit(tp)
 			error.FailOn(e)
 			out.Print("Could pull:\n", cc)

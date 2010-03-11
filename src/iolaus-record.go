@@ -10,7 +10,7 @@ import (
 	"./util/error"
 	"./util/help"
 	"./util/cook"
-	ch "./gotgo/slice(git.Commitish)"
+	hashes "./gotgo/slice(git.Commitish)"
 )
 
 var shortlog = goopt.String([]string{"-m","--patch"}, "COMMITNAME",
@@ -66,8 +66,8 @@ func main() {
 	}
 	heads, _ := plumbing.ShowRef("--heads")
 	hs := make([]git.Commitish,0,len(heads))
-	for _,h := range hs {
-		hs = ch.Append(hs, h)
+	for _,h := range heads {
+		hs = hashes.Append(hs, h)
 	}
 	c := plumbing.CommitTree(plumbing.WriteTree(), hs, *shortlog)
 	plumbing.UpdateRef("HEAD", c)
