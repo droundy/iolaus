@@ -39,8 +39,15 @@ func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 			len(o)-1-last >= 0 && len(n)-1-last >= 0 &&
 			o[len(o)-1-last] == n[len(n)-1-last] { last++ }
 		if len(o)-last > first || len(n)-last > first {
-			return []pt.StringChunk{pt.StringChunk{line0+first,
-					o[first:len(o)-last], n[first:len(n)-last]}}
+			ostuff := []string{}
+			if len(o)-last > first {
+				ostuff = o[first:len(o)-last]
+			}
+			nstuff := []string{}
+			if len(n)-last > first {
+				nstuff = n[first:len(n)-last]
+			}
+			return []pt.StringChunk{pt.StringChunk{line0+first, ostuff, nstuff}}
 		} else {
 			return []pt.StringChunk{}
 		}
