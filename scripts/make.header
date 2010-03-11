@@ -1,7 +1,7 @@
 # Copyright 2010 David Roundy, roundyd@physics.oregonstate.edu.
 # All rights reserved.
 
-all: Makefile binaries
+all: Makefile binaries web
 
 Makefile: scripts/make.header $(wildcard */*/.go) $(wildcard */*.go)
 	cp -f scripts/make.header $@
@@ -11,3 +11,8 @@ test: all
 	./scripts/harness
 
 install: installbins installpkgs
+
+web: doc/index.html
+
+doc/index.html: README.md scripts/mkdown
+	./scripts/mkdown -o doc/index.html README.md
