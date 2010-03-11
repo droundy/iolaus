@@ -3,6 +3,7 @@
 *.log
 *.html
 manual
+iolaus-pull
 iolaus-push
 iolaus-record
 iolaus-amend-record

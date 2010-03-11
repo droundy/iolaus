@@ -24,6 +24,10 @@ func UpdateIndex(f string) os.Error {
 	return git.Run("update-index", "--add", "--remove", "--", f)
 }
 
+func CheckoutIndex(args ...string) os.Error {
+	return git.RunS("checkout-index", args)
+}
+
 func UpdateRef(ref string, val git.Commitish) os.Error {
 	return git.Run("update-ref", ref, val.String())
 }

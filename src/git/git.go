@@ -115,7 +115,7 @@ func ReadS(arg1 string, args []string) (output string, err os.Error) {
 	ws,err := pid.Wait(0) // could have been os.WRUSAGE
 	if err != nil { announce(err); return }
 	if ws.ExitStatus() != 0 {
-		err = os.NewError(fmt.Sprintf("git exited with '%v'",ws.ExitStatus()))
+		err = os.NewError(fmt.Sprintf("git %s exited with '%v'",arg1,ws.ExitStatus()))
 		announce(err)
 		return
 	}

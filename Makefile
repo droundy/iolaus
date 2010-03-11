@@ -15,7 +15,7 @@ install: installbins installpkgs
 
 include $(GOROOT)/src/Make.$(GOARCH)
 
-binaries:  scripts/harness scripts/pdiff bin/iolaus-initialize bin/iolaus-push bin/iolaus-record bin/iolaus-whatsnew
+binaries:  scripts/harness scripts/pdiff bin/iolaus-initialize bin/iolaus-pull bin/iolaus-push bin/iolaus-record bin/iolaus-whatsnew
 packages: 
 
 ifndef GOBIN
@@ -77,6 +77,13 @@ src/iolaus-initialize.$(O): src/iolaus-initialize.go src/git/git.$(O) src/git/po
 src/gotgo/slice(git.Commitish).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p src/gotgo/
 	$< --import 'import git "../git/git"' 'git.Commitish' > "$@"
+bin/iolaus-pull: src/iolaus-pull.$(O)
+	@mkdir -p bin
+	$(LD) -o $@ $<
+$(bindir)/iolaus-pull: bin/iolaus-pull
+	cp $< $@
+src/iolaus-pull.$(O): src/iolaus-pull.go src/git/git.$(O) src/git/plumbing.$(O) src/gotgo/slice(git.Commitish).$(O) src/util/error.$(O) src/util/exit.$(O) src/util/help.$(O) src/util/out.$(O)
+
 bin/iolaus-push: src/iolaus-push.$(O)
 	@mkdir -p bin
 	$(LD) -o $@ $<
@@ -144,5 +151,5 @@ src/util/patience.$(O): src/util/patience.go src/util/gotgo/slice([]pt.PatienceE
 
 src/util/patienceTypes.$(O): src/util/patienceTypes.go
 
-installbins:  $(bindir)/iolaus-initialize $(bindir)/iolaus-push $(bindir)/iolaus-record $(bindir)/iolaus-whatsnew
+installbins:  $(bindir)/iolaus-initialize $(bindir)/iolaus-pull $(bindir)/iolaus-push $(bindir)/iolaus-record $(bindir)/iolaus-whatsnew
 installpkgs: 

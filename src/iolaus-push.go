@@ -67,4 +67,5 @@ func main() {
 			out.Print("I haven't yet implemented interactive pushes.")
 		}
 	}
+	exit.Exit(0)
 }
