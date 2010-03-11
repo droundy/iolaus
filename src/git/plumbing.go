@@ -2,6 +2,7 @@ package plumbing
 
 import (
 	git "./git"
+	"./color"
 	"../util/patience"
 	"../util/debug"
 	"../util/error"
@@ -109,7 +110,7 @@ func (s Patch) String() (out string) {
 			out += "\n" + fmt.Sprint(f.OldMode) + " -> " + fmt.Sprint(f.NewMode)
 		}
 		if f.OldMode != 0 && f.NewMode == 0 { // The file has been removed!
-			out += "\nRemoved "+ f.Src
+			out += color.String("\nRemoved "+ f.Src, color.Meta)
 			continue
 		}
 		switch d := f.Diff.(type) {
@@ -125,13 +126,13 @@ func (s Patch) String() (out string) {
 				newer := strings.SplitAfter(string(chunk.New), "\n",0)
 				lastline:=chunk.Line
 				mychunks := patience.DiffFromLine(chunk.Line, older, newer)
-				fmt.Println("¤¤¤¤¤¤", f.Src,chunk.Line,"¤¤¤¤¤¤")
+				fmt.Println(color.String("¤¤¤¤¤¤ "+f.Src+string(chunk.Line)+" ¤¤¤¤¤¤", color.Meta))
 				for _,ch := range mychunks {
 					if ch.Line > lastline + 6 {
 						for i:=lastline+1; i<lastline+4; i++ {
 							fmt.Print(" ",newer[i-chunk.Line])
 						}
-						fmt.Println("¤¤¤¤¤¤", f.Src,ch.Line-3,"¤¤¤¤¤¤")
+						fmt.Println(color.String("¤¤¤¤¤¤ "+f.Src+string(chunk.Line-3)+" ¤¤¤¤¤¤", color.Meta))
 						for i:=ch.Line-3; i<ch.Line; i++ {
 							fmt.Print(" ",newer[i-chunk.Line])
 						}

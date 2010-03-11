@@ -46,6 +46,8 @@ scripts/pdiff: scripts/pdiff.$(O)
 	$(LD) -o $@ $<
 scripts/pdiff.$(O): scripts/pdiff.go src/util/patience.$(O)
 
+src/git/color.$(O): src/git/color.go src/git/git.$(O)
+
 # looks like we require src/git/gotgo/slice.got as installed package...
 src/git/gotgo/slice(string).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p src/git/gotgo/
@@ -60,7 +62,7 @@ src/git/gotgo/slice(string).$(O): src/git/gotgo/slice(string).go
 src/git/gotgo/slice(git.CommitHash).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p src/git/gotgo/
 	$< --import 'import git "../git"' 'git.CommitHash' > "$@"
-src/git/plumbing.$(O): src/git/plumbing.go src/git/git.$(O) src/git/gotgo/slice(git.CommitHash).$(O) src/git/gotgo/slice(string).$(O) src/util/debug.$(O) src/util/error.$(O) src/util/patience.$(O)
+src/git/plumbing.$(O): src/git/plumbing.go src/git/color.$(O) src/git/git.$(O) src/git/gotgo/slice(git.CommitHash).$(O) src/git/gotgo/slice(string).$(O) src/util/debug.$(O) src/util/error.$(O) src/util/patience.$(O)
 
 src/git/porcelain.$(O): src/git/porcelain.go src/git/git.$(O)
 
@@ -103,7 +105,7 @@ bin/iolaus-whatsnew: src/iolaus-whatsnew.$(O)
 	$(LD) -o $@ $<
 $(bindir)/iolaus-whatsnew: bin/iolaus-whatsnew
 	cp $< $@
-src/iolaus-whatsnew.$(O): src/iolaus-whatsnew.go src/git/git.$(O) src/git/plumbing.$(O) src/util/help.$(O) src/util/out.$(O)
+src/iolaus-whatsnew.$(O): src/iolaus-whatsnew.go src/git/color.$(O) src/git/git.$(O) src/git/plumbing.$(O) src/util/exit.$(O) src/util/help.$(O) src/util/out.$(O)
 
 src/util/cook.$(O): src/util/cook.go src/util/exit.$(O)
 
@@ -149,7 +151,7 @@ src/util/gotgo/slice(pt.PatienceElem).go: $(pkgdir)/./gotgo/slice.gotgo
 	$< --import 'import pt "../patienceTypes"' 'pt.PatienceElem' > "$@"
 src/util/patience.$(O): src/util/patience.go src/util/gotgo/slice([]pt.PatienceElem).$(O) src/util/gotgo/slice(int).$(O) src/util/gotgo/slice(pt.PatienceElem).$(O) src/util/gotgo/slice(pt.StringChunk).$(O) src/util/patienceTypes.$(O)
 
-src/util/patienceTypes.$(O): src/util/patienceTypes.go
+src/util/patienceTypes.$(O): src/util/patienceTypes.go src/git/color.$(O)
 
 installbins:  $(bindir)/iolaus-initialize $(bindir)/iolaus-pull $(bindir)/iolaus-push $(bindir)/iolaus-record $(bindir)/iolaus-whatsnew
 installpkgs: 

@@ -2,6 +2,7 @@ package main;
 
 import (
 	"./git/git"
+	"./git/color"
 	"./git/plumbing"
 	"./util/out"
 	"./util/help"
@@ -17,7 +18,7 @@ func main() {
 		out.Print(p)
 	}
 	for _,newf := range plumbing.LsOthers() {
-		out.Print("Added ",newf)
+		out.Print(color.String("Added "+newf, color.Meta))
 	}
 	exit.Exit(0)
 }
