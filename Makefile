@@ -1,7 +1,7 @@
 # Copyright 2010 David Roundy, roundyd@physics.oregonstate.edu.
 # All rights reserved.
 
-all: Makefile binaries
+all: Makefile binaries web
 
 Makefile: scripts/make.header $(wildcard */*/.go) $(wildcard */*.go)
 	cp -f scripts/make.header $@
@@ -12,10 +12,15 @@ test: all
 
 install: installbins installpkgs
 
+web: doc/index.html
+
+doc/index.html: README.md scripts/mkdown
+	./scripts/mkdown -o doc/index.html README.md
+
 
 include $(GOROOT)/src/Make.$(GOARCH)
 
-binaries:  scripts/harness scripts/pdiff bin/iolaus-initialize bin/iolaus-pull bin/iolaus-push bin/iolaus-record bin/iolaus-whatsnew
+binaries:  scripts/harness scripts/mkdown scripts/pdiff bin/iolaus-initialize bin/iolaus-pull bin/iolaus-push bin/iolaus-record bin/iolaus-whatsnew
 packages: 
 
 ifndef GOBIN
@@ -36,10 +41,21 @@ pkgdir=$(subst $(space),\ ,$(GOROOT)/pkg/$(GOOS)_$(GOARCH))
 .got.gotgo:
 	gotgo "$<"
 
+scripts/gotgo/slice(string).$(O): scripts/gotgo/slice(string).go
+
 scripts/harness: scripts/harness.$(O)
 	@mkdir -p bin
 	$(LD) -o $@ $<
 scripts/harness.$(O): scripts/harness.go src/util/error.$(O) src/util/exit.$(O)
+
+# looks like we require scripts/gotgo/slice.got as installed package...
+scripts/gotgo/slice(string).go: $(pkgdir)/./gotgo/slice.gotgo
+	mkdir -p scripts/gotgo/
+	$< 'string' > "$@"
+scripts/mkdown: scripts/mkdown.$(O)
+	@mkdir -p bin
+	$(LD) -o $@ $<
+scripts/mkdown.$(O): scripts/mkdown.go scripts/gotgo/slice(string).$(O) src/util/debug.$(O) src/util/error.$(O)
 
 scripts/pdiff: scripts/pdiff.$(O)
 	@mkdir -p bin
