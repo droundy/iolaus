@@ -1,5 +1,7 @@
 package patienceTypes
 
+import "../git/color"
+
 type StringChunk struct {
     Line int
     Old  []string
@@ -11,10 +13,10 @@ func (ch StringChunk) String() (out string) {
 	}
 	out = "" // fmt.Sprintln(" ",ch.Line)
 	for _, l := range ch.Old {
-		out += "-" + l
+		out += color.String("-" + l, color.Old)
 	}
 	for _, l := range ch.New {
-		out += "+" + l
+		out += color.String("+" + l, color.New)
 	}
 	return
 }
