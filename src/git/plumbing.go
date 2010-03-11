@@ -33,31 +33,26 @@ func FetchPack(remote string, args ...string) {
 	git.RunSilentlyS("fetch-pack", args)
 }
 
-func LsRemote(remote string, args ...string) (hs []git.CommitHash, rs []git.Commitish, e os.Error) {
+func LsRemote(remote string, args ...string) (hs map[git.Ref]git.CommitHash, e os.Error) {
 	args = stringslice.Append(args, remote)
 	o, e := git.ReadS("ls-remote", args)
 	if e != nil { return }
-	hs, rs = splitRefs(o)
-	return hs, rs, e
+	return splitRefs(o), e
 }
 
-func ShowRef(args ...string) (hs []git.CommitHash, rs []git.Commitish, e os.Error) {
+func ShowRef(args ...string) (hs map[git.Ref]git.CommitHash, e os.Error) {
 	o, e := git.Read("show-ref", args)
 	if e != nil { return }
-	hs, rs = splitRefs(o)
-	return hs, rs, e
+	return splitRefs(o), e
 }
 
-func splitRefs(s string) (hs []git.CommitHash, rs []git.Commitish) {
+func splitRefs(s string) (hs map[git.Ref]git.CommitHash) {
+	hs = make(map[git.Ref]git.CommitHash)
 	xs := strings.Split(s, "\n", 0)
-	xs = stringslice.Filter(func(x string) bool { return len(x) >= 42 }, xs)
-	hs = make([]git.CommitHash, len(xs))
-	rs = make([]git.Commitish, len(xs))
-	for i,x := range xs {
-		for j := range hs[i] {
-			hs[i][j] = x[j] // shouldn't there be a nicer way to do this?
+	for _,x := range xs {
+		if len(x) > 42 {
+			hs[git.Ref(string(x[41:]))] = git.CommitHash(mkHash(x))
 		}
-		rs[i] = git.Ref(x[41:])
 	}
 	return
 }
@@ -270,4 +265,36 @@ func mkHash(s string) (h git.Hash) {
 	if len(s) < 40 { panic("Hash to small in mkhash") }
 	for i,v := range []byte(s)[0:40] { h[i] = v }
 	return
+}
+
+func RevListDifference(newer, older []git.Commitish) ([]git.CommitHash, os.Error) {
+	args := []string{}
+	for _,n := range newer {
+		args = stringslice.Append(args, n.String())
+	}
+	for _,o := range older {
+		args = stringslice.Append(args, "^"+o.String())
+	}
+	return RevListS(args)
+}
+
+func RevListS(args []string) (commits []git.CommitHash, e os.Error) {
+	o,e := git.ReadS("rev-list", args)
+	if e != nil { return }
+	ls := strings.Split(o,"\n",0)
+	for _,l := range ls {
+		if len(l) == 40 {
+			commits = pars.Append(commits, git.CommitHash(mkHash(l)))
+		}
+	}
+	return
+}
+
+func SendPack(repo0 string, updates map[git.Ref]git.CommitHash) os.Error {
+	repo := RemoteUrl(repo0)
+	args := []string{repo}
+	for name,hash := range updates {
+		args = stringslice.Append(args, hash.String()+":"+name.String())
+	}
+	return git.RunS("send-pack", args)
 }

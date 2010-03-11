@@ -64,6 +64,8 @@ src/git/plumbing.$(O): src/git/plumbing.go src/git/git.$(O) src/git/gotgo/slice(
 
 src/git/porcelain.$(O): src/git/porcelain.go src/git/git.$(O)
 
+src/gotgo/slice(git.Commitish).$(O): src/gotgo/slice(git.Commitish).go src/git/git.$(O)
+
 bin/iolaus-initialize: src/iolaus-initialize.$(O)
 	@mkdir -p bin
 	$(LD) -o $@ $<
@@ -71,19 +73,23 @@ $(bindir)/iolaus-initialize: bin/iolaus-initialize
 	cp $< $@
 src/iolaus-initialize.$(O): src/iolaus-initialize.go src/git/git.$(O) src/git/porcelain.$(O) src/util/error.$(O) src/util/help.$(O)
 
+# looks like we require src/gotgo/slice.got as installed package...
+src/gotgo/slice(git.Commitish).go: $(pkgdir)/./gotgo/slice.gotgo
+	mkdir -p src/gotgo/
+	$< --import 'import git "../git/git"' 'git.Commitish' > "$@"
 bin/iolaus-push: src/iolaus-push.$(O)
 	@mkdir -p bin
 	$(LD) -o $@ $<
 $(bindir)/iolaus-push: bin/iolaus-push
 	cp $< $@
-src/iolaus-push.$(O): src/iolaus-push.go src/git/git.$(O) src/git/plumbing.$(O) src/util/error.$(O) src/util/exit.$(O) src/util/help.$(O) src/util/out.$(O)
+src/iolaus-push.$(O): src/iolaus-push.go src/git/git.$(O) src/git/plumbing.$(O) src/gotgo/slice(git.Commitish).$(O) src/util/error.$(O) src/util/exit.$(O) src/util/help.$(O) src/util/out.$(O)
 
 bin/iolaus-record: src/iolaus-record.$(O)
 	@mkdir -p bin
 	$(LD) -o $@ $<
 $(bindir)/iolaus-record: bin/iolaus-record
 	cp $< $@
-src/iolaus-record.$(O): src/iolaus-record.go src/git/git.$(O) src/git/plumbing.$(O) src/util/cook.$(O) src/util/error.$(O) src/util/help.$(O) src/util/out.$(O)
+src/iolaus-record.$(O): src/iolaus-record.go src/git/git.$(O) src/git/plumbing.$(O) src/gotgo/slice(git.Commitish).$(O) src/util/cook.$(O) src/util/error.$(O) src/util/help.$(O) src/util/out.$(O)
 
 bin/iolaus-whatsnew: src/iolaus-whatsnew.$(O)
 	@mkdir -p bin
