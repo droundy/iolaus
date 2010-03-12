@@ -1,6 +1,7 @@
 package main;
 
 import (
+	"os"
 	"goopt"
 	git "./git/git"
 	"./git/plumbing"
@@ -67,6 +68,10 @@ func main() {
 	} else {
 		out.Print("This is a fast-forward pull!")
 		if *all {
+			p := plumbing.DiffFiles([]string{}).String()
+			if p != "" {
+				error.FailOn(os.NewError("I can't handle local changes yet!"))
+			}
 			//plumbing.SendPack(origin, locals)
 			if len(remotes) == 1 {
 				for _,h := range remotes {
