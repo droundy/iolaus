@@ -13,6 +13,17 @@ iolaus-record --all --patch 'Hello world'
 
 chmod +x .test
 
-iolaus-record --debug --all --patch 'Failing test' && exit 1
+iolaus-record --all --patch 'Failing test' && exit 1
 
+iolaus-record --test --all --patch 'Failing test' && exit 1
+
+iolaus-record --no-test --all --patch 'Failing test'
+
+cat > .test <<EOF
+#!/bin/sh
 true
+EOF
+chmod +x .test
+
+iolaus-record -am 'passing test'
+

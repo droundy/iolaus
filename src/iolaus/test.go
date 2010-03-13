@@ -4,16 +4,21 @@ import (
 	"os"
 	"fmt"
 	"exec"
+	"goopt"
 	"../git/git"
 	"../git/plumbing"
 	"../util/out"
 )
+
+var notest = goopt.Flag([]string{"--no-test"}, []string{"--test"},
+	"do not run the test suite", "run the test suite [default]")
 
 // test.Commit tests a given (presumably new) commit, and returns a
 // modified commit that may contain a note indicating that it's been
 // tested.
 func Commit(h git.CommitHash) (outh git.CommitHash, e os.Error) {
 	outh = h
+	if *notest { return }
 	t, e := plumbing.Commit(h)
 	if e != nil { return }
 	e = Tree(t.Tree)
@@ -23,6 +28,7 @@ func Commit(h git.CommitHash) (outh git.CommitHash, e os.Error) {
 // test.Tree tests a given tree, and returns an os.Error indicating
 // whether the tests failed.
 func Tree(h git.TreeHash) os.Error {
+	if *notest { return nil }
 	_,e := plumbing.RevParse("refs/tested/"+h.String())
 	// if there is no error, then we've already tested this tree, and
 	// found it passed!
