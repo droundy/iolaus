@@ -19,6 +19,9 @@ iolaus-record --test --all --patch 'Failing test' && exit 1
 
 iolaus-record --no-test --all --patch 'Failing test'
 
+# At this point, we haven't yet passed a test...
+git log | grep 'Tested-on' && exit 1
+
 cat > .test <<EOF
 #!/bin/sh
 true
@@ -27,3 +30,5 @@ chmod +x .test
 
 iolaus-record -am 'passing test'
 
+# Now it has been tested...
+git log | grep 'Tested-on'

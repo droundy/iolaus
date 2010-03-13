@@ -93,7 +93,15 @@ src/git/porcelain.$(O): src/git/porcelain.go src/git/git.$(O)
 
 src/gotgo/slice(git.Commitish).$(O): src/gotgo/slice(git.Commitish).go src/git/git.$(O)
 
-src/iolaus/test.$(O): src/iolaus/test.go src/git/git.$(O) src/git/plumbing.$(O) src/util/out.$(O)
+src/iolaus/gotgo/box(git.CommitHash,git.Commitish).$(O): src/iolaus/gotgo/box(git.CommitHash,git.Commitish).go
+
+ifneq ($(strip $(shell which gotgo)),)
+# looks like we require src/iolaus/gotgo/box.got as installed package...
+src/iolaus/gotgo/box(git.CommitHash,git.Commitish).go: $(pkgdir)/./gotgo/box.gotgo
+	mkdir -p src/iolaus/gotgo/
+	$< --import 'import git "../../git/git"' 'git.CommitHash' 'git.Commitish' > "$@"
+endif
+src/iolaus/test.$(O): src/iolaus/test.go src/git/git.$(O) src/git/plumbing.$(O) src/iolaus/gotgo/box(git.CommitHash,git.Commitish).$(O) src/util/out.$(O)
 
 bin/iolaus-initialize: src/iolaus-initialize.$(O)
 	@mkdir -p bin
