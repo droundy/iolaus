@@ -95,6 +95,13 @@ func Reverse(slice []pt.StringChunk) (out []pt.StringChunk) {
 	}
 	return
 }
+
+func Any(f func(pt.StringChunk) bool, slice []pt.StringChunk) bool {
+	for _,v:= range slice {
+		if f(v) { return true }
+	}
+	return false
+}
 // Here we will test that the types parameters are ok...
 
 

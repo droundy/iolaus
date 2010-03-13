@@ -15,10 +15,23 @@ test: all
 
 install: installbins installpkgs
 
-web: doc/index.html
+web: doc/index.html $(subst src,doc,$(subst .go,.html,$(wildcard src/*.go)))
 
 doc/index.html: README.md scripts/mkdown
 	./scripts/mkdown -o doc/index.html README.md
+
+EXTRAPHONY=man installman
+
+man: $(subst src,doc/man/man1,$(subst .go,.1,$(wildcard src/*.go)))
+installman: $(subst src,doc/man/man1,$(subst .go,.1,$(wildcard src/*.go)))
+	echo cp -f $? /usr/share/man/man1/
+
+doc/man/man1/%.1: bin/%
+	@mkdir -p `dirname $@`
+	$< --create-manpage > $@
+
+doc/%.html: doc/man/man1/%.1
+	groff -man -Thtml $< > $@
 
 
 include $(GOROOT)/src/Make.$(GOARCH)
@@ -93,7 +106,7 @@ src/git/porcelain.$(O): src/git/porcelain.go src/git/git.$(O)
 
 src/gotgo/slice(git.Commitish).$(O): src/gotgo/slice(git.Commitish).go src/git/git.$(O)
 
-src/iolaus/gotgo/box(git.CommitHash,git.Commitish).$(O): src/iolaus/gotgo/box(git.CommitHash,git.Commitish).go
+src/iolaus/gotgo/box(git.CommitHash,git.Commitish).$(O): src/iolaus/gotgo/box(git.CommitHash,git.Commitish).go src/git/git.$(O)
 
 ifneq ($(strip $(shell which gotgo)),)
 # looks like we require src/iolaus/gotgo/box.got as installed package...

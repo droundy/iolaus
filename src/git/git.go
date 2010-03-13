@@ -45,7 +45,9 @@ func AmInRepo(mess string) {
 			return
 		}
 		wd, _ = path.Split(wd)
-		wd = path.Clean(wd[0:len(wd)-1])
+		if wd != "" {
+			wd = path.Clean(wd[0:len(wd)-1])
+		}
 	}
 	fmt.Println(mess)
 	exit.Exit(1)

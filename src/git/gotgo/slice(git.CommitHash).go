@@ -95,6 +95,13 @@ func Reverse(slice []git.CommitHash) (out []git.CommitHash) {
 	}
 	return
 }
+
+func Any(f func(git.CommitHash) bool, slice []git.CommitHash) bool {
+	for _,v:= range slice {
+		if f(v) { return true }
+	}
+	return false
+}
 // Here we will test that the types parameters are ok...
 
 

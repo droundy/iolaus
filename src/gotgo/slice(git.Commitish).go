@@ -95,6 +95,13 @@ func Reverse(slice []git.Commitish) (out []git.Commitish) {
 	}
 	return
 }
+
+func Any(f func(git.Commitish) bool, slice []git.Commitish) bool {
+	for _,v:= range slice {
+		if f(v) { return true }
+	}
+	return false
+}
 // Here we will test that the types parameters are ok...
 
 

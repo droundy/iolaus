@@ -15,7 +15,7 @@ var outname = goopt.String([]string{"-o","--output"}, "FILENAME",
 	"name of output file")
 
 func main() {
-	goopt.Parse()
+	goopt.Parse(nil)
 	if len(goopt.Args) != 2 {
 		error.Exit(os.NewError(os.Args[0]+" requires just one argument!"))
 	}

@@ -18,9 +18,19 @@ var dryRun = goopt.Flag([]string{"--dry-run"}, []string{},
 	"don't actually pull, just show what we would pull",
 	"actually do pull")
 
+var description = func() string {
+	return `
+Pull is used to bring changes made in another repository into the current
+repository (that is, either the one in the current directory, or the one
+specified with the --repodir option). Pull allows you to bring over all or
+some of the patches that are in that repository but not in this one. Pull
+accepts arguments, which are URLs from which to pull, and when called
+without an argument, pull will pull from origin.
+`}
+
 func main() {
+	help.Init("pull changes from origin.", description, plumbing.LsFiles)
 	git.AmInRepo("Must be in a repository to call pull!")
-	help.Init("pull changes from origin.", plumbing.LsFiles)
 
 	origin := plumbing.RemoteUrl("origin")
 	if len(goopt.Args) > 1 {

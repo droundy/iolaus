@@ -94,6 +94,13 @@ func Reverse(slice []func()) (out []func()) {
 	}
 	return
 }
+
+func Any(f func(func()) bool, slice []func()) bool {
+	for _,v:= range slice {
+		if f(v) { return true }
+	}
+	return false
+}
 // Here we will test that the types parameters are ok...
 
 

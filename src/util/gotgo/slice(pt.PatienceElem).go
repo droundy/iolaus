@@ -95,6 +95,13 @@ func Reverse(slice []pt.PatienceElem) (out []pt.PatienceElem) {
 	}
 	return
 }
+
+func Any(f func(pt.PatienceElem) bool, slice []pt.PatienceElem) bool {
+	for _,v:= range slice {
+		if f(v) { return true }
+	}
+	return false
+}
 // Here we will test that the types parameters are ok...
 
 

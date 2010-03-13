@@ -17,9 +17,15 @@ var dryRun = goopt.Flag([]string{"--dry-run"}, []string{},
 	"don't actually push, just show what we would push",
 	"actually do push")
 
+var description = func() string {
+	return `
+Push is the opposite of pull.  Push allows you to copy changes from the
+current repository into another repository.
+`}
+
 func main() {
+	help.Init("push changes to origin.", description, plumbing.LsFiles)
 	git.AmInRepo("Must be in a repository to call push!")
-	help.Init("push changes to origin.", plumbing.LsFiles)
 
 	remotes,e := plumbing.LsRemote("origin", "--heads")
 	error.FailOn(e)

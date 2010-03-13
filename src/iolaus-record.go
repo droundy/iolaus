@@ -19,9 +19,15 @@ var shortlog = goopt.String([]string{"-m","--patch"}, "COMMITNAME",
 var all = goopt.Flag([]string{"-a","--all"}, []string{"--interactive"},
 	"record all patches", "prompt for patches interactively")
 
+var description = func() string {
+	return `
+Record is used to name a set of changes and record the patch to the
+repository.
+`}
+
 func main() {
+	help.Init("record changes.", description, plumbing.LsFiles)
 	git.AmInRepo("Must be in a repository to call record!")
-	help.Init("record changes.", plumbing.LsFiles)
 	//plumbing.ReadTree(plumbing.Ref("HEAD"))
 
 	if *all {
