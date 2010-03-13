@@ -10,6 +10,7 @@ import (
 	"./util/error"
 	"./util/help"
 	"./util/cook"
+	"./iolaus/test"
 	hashes "./gotgo/slice(git.Commitish)"
 )
 
@@ -70,5 +71,7 @@ func main() {
 		hs = hashes.Append(hs, h)
 	}
 	c := plumbing.CommitTree(plumbing.WriteTree(), hs, *shortlog)
-	plumbing.UpdateRef("HEAD", c)
+	ctested, e := test.Commit(c)
+	error.FailOn(e)
+	plumbing.UpdateRef("HEAD", ctested)
 }

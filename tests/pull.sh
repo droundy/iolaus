@@ -13,7 +13,7 @@ mkdir new
 cd new
 iolaus-initialize
 iolaus-pull --dry-run ../repo
-iolaus-pull --debug --all ../repo
+iolaus-pull --all ../repo
 ls
 git log
 grep hello foo

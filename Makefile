@@ -84,6 +84,8 @@ src/git/porcelain.$(O): src/git/porcelain.go src/git/git.$(O)
 
 src/gotgo/slice(git.Commitish).$(O): src/gotgo/slice(git.Commitish).go src/git/git.$(O)
 
+src/iolaus/test.$(O): src/iolaus/test.go src/git/git.$(O) src/git/plumbing.$(O) src/util/out.$(O)
+
 bin/iolaus-initialize: src/iolaus-initialize.$(O)
 	@mkdir -p bin
 	$(LD) -o $@ $<
@@ -114,7 +116,7 @@ bin/iolaus-record: src/iolaus-record.$(O)
 	$(LD) -o $@ $<
 $(bindir)/iolaus-record: bin/iolaus-record
 	cp $< $@
-src/iolaus-record.$(O): src/iolaus-record.go src/git/git.$(O) src/git/plumbing.$(O) src/gotgo/slice(git.Commitish).$(O) src/util/cook.$(O) src/util/error.$(O) src/util/help.$(O) src/util/out.$(O)
+src/iolaus-record.$(O): src/iolaus-record.go src/git/git.$(O) src/git/plumbing.$(O) src/gotgo/slice(git.Commitish).$(O) src/iolaus/test.$(O) src/util/cook.$(O) src/util/error.$(O) src/util/help.$(O) src/util/out.$(O)
 
 bin/iolaus-whatsnew: src/iolaus-whatsnew.$(O)
 	@mkdir -p bin

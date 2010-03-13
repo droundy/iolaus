@@ -71,7 +71,7 @@ func WriteTree() git.Treeish {
 	return t
 }
 
-func CommitTree(tree git.Treeish, parents []git.Commitish, log string) git.Commitish {
+func CommitTree(tree git.Treeish, parents []git.Commitish, log string) git.CommitHash {
 	args := []string{tree.String()}
 	for _,p := range parents {
 		args = stringslice.Append(args, "-p")
@@ -79,11 +79,12 @@ func CommitTree(tree git.Treeish, parents []git.Commitish, log string) git.Commi
 	}
 	o,e := git.WriteReadS("commit-tree", log, args)
 	if e != nil { panic("bad output in commit-tree: "+e.String()) }
-	return git.Ref(o[0:40]) // should be a git.Commitish
+	return git.CommitHash(mkHash(o))
 }
 
-func ReadTree(ref git.Treeish) {
-	git.Run("read-tree", ref.String())
+func ReadTree(ref git.Treeish, args ...string) {
+	args = stringslice.Append(args, ref.String())
+	git.RunS("read-tree", args)
 }
 
 func DiffFilesModified(paths []string) []string {
@@ -293,6 +294,12 @@ func RevListS(args []string) (commits []git.CommitHash, e os.Error) {
 		}
 	}
 	return
+}
+
+func RevParse(rev string) (h git.CommitHash, e os.Error) {
+	o,e := git.Read("rev-parse", "--verify", rev)
+	if e != nil { return }
+	return git.CommitHash(mkHash(o)), e
 }
 
 func SendPack(repo0 string, updates map[git.Ref]git.CommitHash) os.Error {
