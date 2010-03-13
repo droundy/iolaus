@@ -1,11 +1,14 @@
 # Copyright 2010 David Roundy, roundyd@physics.oregonstate.edu.
 # All rights reserved.
 
+ifneq ($(strip $(shell which gotmake)),)
 all: Makefile binaries web
 
-Makefile: scripts/make.header $(wildcard */*/.go) $(wildcard */*.go)
-	cp -f scripts/make.header $@
-	gotmake >> $@
+Makefile: scripts/make.header scripts/mkmake $(wildcard */*/.go) $(wildcard */*.go)
+	./scripts/mkmake
+else
+all: binaries web
+endif
 
 test: all
 	./scripts/harness
@@ -48,10 +51,12 @@ scripts/harness: scripts/harness.$(O)
 	$(LD) -o $@ $<
 scripts/harness.$(O): scripts/harness.go src/util/error.$(O) src/util/exit.$(O)
 
+ifneq ($(strip $(shell which gotgo)),)
 # looks like we require scripts/gotgo/slice.got as installed package...
 scripts/gotgo/slice(string).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p scripts/gotgo/
 	$< 'string' > "$@"
+endif
 scripts/mkdown: scripts/mkdown.$(O)
 	@mkdir -p bin
 	$(LD) -o $@ $<
@@ -64,20 +69,24 @@ scripts/pdiff.$(O): scripts/pdiff.go src/util/patience.$(O)
 
 src/git/color.$(O): src/git/color.go src/git/git.$(O)
 
+ifneq ($(strip $(shell which gotgo)),)
 # looks like we require src/git/gotgo/slice.got as installed package...
 src/git/gotgo/slice(string).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p src/git/gotgo/
 	$< 'string' > "$@"
+endif
 src/git/git.$(O): src/git/git.go src/git/gotgo/slice(string).$(O) src/util/debug.$(O) src/util/exit.$(O)
 
 src/git/gotgo/slice(git.CommitHash).$(O): src/git/gotgo/slice(git.CommitHash).go src/git/git.$(O)
 
 src/git/gotgo/slice(string).$(O): src/git/gotgo/slice(string).go
 
+ifneq ($(strip $(shell which gotgo)),)
 # looks like we require src/git/gotgo/slice.got as installed package...
 src/git/gotgo/slice(git.CommitHash).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p src/git/gotgo/
 	$< --import 'import git "../git"' 'git.CommitHash' > "$@"
+endif
 src/git/plumbing.$(O): src/git/plumbing.go src/git/color.$(O) src/git/git.$(O) src/git/gotgo/slice(git.CommitHash).$(O) src/git/gotgo/slice(string).$(O) src/util/debug.$(O) src/util/error.$(O) src/util/patience.$(O)
 
 src/git/porcelain.$(O): src/git/porcelain.go src/git/git.$(O)
@@ -93,10 +102,12 @@ $(bindir)/iolaus-initialize: bin/iolaus-initialize
 	cp $< $@
 src/iolaus-initialize.$(O): src/iolaus-initialize.go src/git/git.$(O) src/git/porcelain.$(O) src/util/error.$(O) src/util/help.$(O)
 
+ifneq ($(strip $(shell which gotgo)),)
 # looks like we require src/gotgo/slice.got as installed package...
 src/gotgo/slice(git.Commitish).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p src/gotgo/
 	$< --import 'import git "../git/git"' 'git.Commitish' > "$@"
+endif
 bin/iolaus-pull: src/iolaus-pull.$(O)
 	@mkdir -p bin
 	$(LD) -o $@ $<
@@ -131,10 +142,12 @@ src/util/debug.$(O): src/util/debug.go
 
 src/util/error.$(O): src/util/error.go src/util/cook.$(O) src/util/exit.$(O)
 
+ifneq ($(strip $(shell which gotgo)),)
 # looks like we require src/util/gotgo/slice.got as installed package...
 src/util/gotgo/slice(func()).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p src/util/gotgo/
 	$< 'func()' > "$@"
+endif
 src/util/exit.$(O): src/util/exit.go src/util/gotgo/slice(func()).$(O)
 
 src/util/gotgo/slice([]pt.PatienceElem).$(O): src/util/gotgo/slice([]pt.PatienceElem).go src/util/patienceTypes.$(O)
@@ -151,22 +164,30 @@ src/util/help.$(O): src/util/help.go
 
 src/util/out.$(O): src/util/out.go src/util/cook.$(O)
 
+ifneq ($(strip $(shell which gotgo)),)
 # looks like we require src/util/gotgo/slice.got as installed package...
 src/util/gotgo/slice([]pt.PatienceElem).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p src/util/gotgo/
 	$< --import 'import pt "../patienceTypes"' '[]pt.PatienceElem' > "$@"
+endif
+ifneq ($(strip $(shell which gotgo)),)
 # looks like we require src/util/gotgo/slice.got as installed package...
 src/util/gotgo/slice(int).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p src/util/gotgo/
 	$< 'int' > "$@"
+endif
+ifneq ($(strip $(shell which gotgo)),)
 # looks like we require src/util/gotgo/slice.got as installed package...
 src/util/gotgo/slice(pt.StringChunk).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p src/util/gotgo/
 	$< --import 'import pt "../patienceTypes"' 'pt.StringChunk' > "$@"
+endif
+ifneq ($(strip $(shell which gotgo)),)
 # looks like we require src/util/gotgo/slice.got as installed package...
 src/util/gotgo/slice(pt.PatienceElem).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p src/util/gotgo/
 	$< --import 'import pt "../patienceTypes"' 'pt.PatienceElem' > "$@"
+endif
 src/util/patience.$(O): src/util/patience.go src/util/gotgo/slice([]pt.PatienceElem).$(O) src/util/gotgo/slice(int).$(O) src/util/gotgo/slice(pt.PatienceElem).$(O) src/util/gotgo/slice(pt.StringChunk).$(O) src/util/patienceTypes.$(O)
 
 src/util/patienceTypes.$(O): src/util/patienceTypes.go src/git/color.$(O)
