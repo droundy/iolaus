@@ -82,9 +82,9 @@ func CommitTree(tree git.Treeish, parents []git.Commitish, log string) git.Commi
 	return git.CommitHash(mkHash(o))
 }
 
-func ReadTree(ref git.Treeish, args ...string) {
+func ReadTree(ref git.Treeish, args ...string) os.Error {
 	args = stringslice.Append(args, ref.String())
-	git.RunS("read-tree", args)
+	return git.RunS("read-tree", args)
 }
 
 func DiffFilesModified(paths []string) []string {
