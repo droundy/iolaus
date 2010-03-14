@@ -40,7 +40,8 @@ func main() {
 			plumbing.UpdateIndex(newf)
 		}
 	} else {
-		defer cook.Undo(cook.SetRaw())
+		unraw := cook.SetRaw()
+		defer cook.Undo(unraw)
 		for _,f := range plumbing.DiffFilesModified([]string{}) {
 			c,e := out.PromptForChar("Record changes to %s? ", f)
 			switch c {
@@ -61,9 +62,10 @@ func main() {
 			case 'n','N': out.Print("Ignoring addition of file ",f)
 			}
 		}
+		cook.Undo(unraw)
 	}
 	if *shortlog == "COMMITNAME" {
-		defer cook.Undo(cook.SetCooked())
+		cook.SetCooked()
 		out.Print("What is the patch name? ")
 		inp,e := bufio.NewReaderSize(os.Stdin,1)
 		error.FailOn(e)
