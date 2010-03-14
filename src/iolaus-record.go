@@ -28,7 +28,7 @@ repository.
 func main() {
 	help.Init("record changes.", description, plumbing.LsFiles)
 	git.AmInRepo("Must be in a repository to call record!")
-	//plumbing.ReadTree(plumbing.Ref("HEAD"))
+	//plumbing.ReadTree(git.Ref("HEAD"))
 
 	if *all {
 		for _,f := range plumbing.DiffFilesModified([]string{}) {
