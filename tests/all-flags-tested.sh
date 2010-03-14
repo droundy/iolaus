@@ -13,8 +13,6 @@ for cmdx in ../../../bin/*; do
             echo -n
         elif test $flag == --help; then
             echo -n
-        elif test $flag == --interactive; then
-            echo -n # for the moment, testing --interactive is too tedious
         else
             echo -n Checking if $cmd $flag is tested... ' '
             if grep $cmd ../../*.sh | grep -- $flag > /dev/null; then

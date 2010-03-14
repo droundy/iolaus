@@ -30,6 +30,17 @@ func main() {
 	git.AmInRepo("Must be in a repository to call record!")
 	//plumbing.ReadTree(git.Ref("HEAD"))
 
+	e := plumbing.ReadTree(git.Ref("HEAD"), "--index-output=.git/index.recording")
+	if e != nil {
+		error.Print("It looks like your repository is headless...")
+	}
+	// It's pretty hokey to use os.Setenv here rather than using exec to
+	// set it directly, but it shouldn't be a problem as long as we
+	// aren't calling git from multiple goroutines.
+	e = os.Setenv("GIT_INDEX_FILE", ".git/index.recording")
+	error.FailOn(e)
+	defer os.Setenv("GIT_INDEX_FILE", "")
+
 	if *all {
 		for _,f := range plumbing.DiffFilesModified([]string{}) {
 			out.Print("Considering changes to ",f)
@@ -82,4 +93,7 @@ func main() {
 	ctested, e := test.Commit(c)
 	error.FailOn(e)
 	plumbing.UpdateRef("HEAD", ctested)
+	// Now let's update the true index by just copying over the scratch...
+	e = os.Rename(".git/index.recording", ".git/index")
+	error.FailOn(e) // FIXME: we should do better than this...
 }
