@@ -18,7 +18,7 @@ copy that haven't yet been recorded.
 func main() {
 	help.Init("see unrecorded changes.", description, plumbing.LsFiles)
 	git.AmInRepo("Must be in a repository to call whatsnew!")
-	//plumbing.ReadTree(plumbing.Ref("HEAD"))
+	//plumbing.ReadTree(git.Ref("HEAD"))
 	p := plumbing.DiffFiles([]string{}).String()
 	if p != "" {
 		out.Print(p)
