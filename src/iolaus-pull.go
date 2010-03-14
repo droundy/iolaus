@@ -78,8 +78,9 @@ func main() {
 	} else {
 		out.Print("This is a fast-forward pull!")
 		if *all {
-			p := plumbing.DiffFilesP([]string{}).String()
-			if p != "" {
+			p,e := plumbing.DiffFiles([]string{})
+			error.FailOn(e)
+			if len(p) > 0 {
 				error.FailOn(os.NewError("I can't handle local changes yet!"))
 			}
 			//plumbing.SendPack(origin, locals)

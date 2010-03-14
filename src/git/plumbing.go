@@ -11,6 +11,7 @@ import (
 	"strings"
 	"patch"
 	"fmt"
+	"strconv"
 	stringslice "./gotgo/slice(string)"
 	pars "./gotgo/slice(git.CommitHash)"
 )
@@ -101,6 +102,75 @@ func DiffFilesP(paths []string) Patch {
 	error.FailOn(e)
 	return Patch(*p)
 }
+
+func DiffFiles(paths []string) (d []FileDiff, e os.Error) {
+	args := stringslice.Cat([]string{"--"}, paths)
+	o,e := git.ReadS("diff-files", args)
+	if e != nil { return }
+	ls := strings.Split(o,"\n",0)
+	d = make([]FileDiff, 0, len(ls))
+	i := 0
+	for _,l := range ls {
+		if len(l) < 84 { continue }
+		d = d[0:i+1]
+		if l[0] != ':' { continue }
+		// It would be faster to just use byte offsets, but I'm sure I'd
+		// get them wrong, so for now I'll just use the slow, sloppy, lazy
+		// approach.
+		xxxx := strings.Split(l[1:], "\t",0)
+		if len(xxxx) < 2 {
+			e = os.NewError("bad line: "+l)
+			return
+		}
+		chunks := strings.Split(xxxx[0]," ",0)
+		if len(chunks) < 4 { continue }
+		mode, e := strconv.Btoui64(chunks[0],8)
+		if e != nil { return }
+		d[i].OldMode = int(mode)
+		mode, e = strconv.Btoui64(chunks[1],8)
+		if e != nil { return }
+		d[i].NewMode = int(mode)
+		d[i].OldHash = mkHash(chunks[2])
+		d[i].NewHash = mkHash(chunks[3])
+		d[i].Change = Verb(chunks[4][0])
+		d[i].Name = xxxx[1]
+		switch d[i].Change {
+		case Renamed, Copied:
+			d[i].OldName = xxxx[2]
+		}
+		i++
+	}
+	return
+}
+
+type FileDiff struct {
+	OldName, Name string
+	OldMode, NewMode int
+	OldHash, NewHash git.Hash
+	Change Verb
+}
+func (d FileDiff) String() string {
+	switch d.Change {
+	case Copied, Renamed:
+		return fmt.Sprintf(":%o %o %s %s %c\t%s\t%s",
+			d.OldMode, d.NewMode, d.OldHash, d.NewHash, d.Change, d.Name, d.OldName)
+	}
+	return fmt.Sprintf(":%o %o %s %s %c\t%s",
+		d.OldMode, d.NewMode, d.OldHash, d.NewHash, d.Change, d.Name)
+}
+
+type Verb int
+const (
+	Added Verb = 'A'
+	Copied Verb = 'C'
+	Deleted Verb = 'D'
+	Modified Verb = 'M'
+	Renamed Verb = 'R'
+	Type Verb = 'T'
+	Unmerged Verb = 'U'
+	Unknown Verb = 'X'
+)
+
 
 func (s Patch) String() (out string) {
 	out = s.Header

@@ -7,6 +7,7 @@ import (
 	"./util/out"
 	"./util/help"
 	"./util/exit"
+	"./util/error"
 )
 
 var description = func() string {
@@ -19,9 +20,10 @@ func main() {
 	help.Init("see unrecorded changes.", description, plumbing.LsFiles)
 	git.AmInRepo("Must be in a repository to call whatsnew!")
 	//plumbing.ReadTree(git.Ref("HEAD"))
-	p := plumbing.DiffFilesP([]string{}).String()
-	if p != "" {
-		out.Print(p)
+	d,e := plumbing.DiffFiles([]string{})
+	error.FailOn(e)
+	for _,ch := range d {
+		out.Print(ch)
 	}
 	for _,newf := range plumbing.LsOthers() {
 		out.Print(color.String("Added "+newf, color.Meta))
