@@ -92,7 +92,7 @@ func Tree(h git.TreeHash) (msg string, e os.Error) {
 		ws,e := pid.Wait(0)
 		if e != nil { return "",e }
 		if ws.ExitStatus() != 0 {
-			return "",os.NewError(fmt.Sprintf(".build exited with '%v'\n%s",ws.ExitStatus()))
+			return "",os.NewError(fmt.Sprintf(".build exited with '%v'",ws.ExitStatus()))
 		}
 		msg = "Built-on: " + machineName
 	}
@@ -106,7 +106,7 @@ func Tree(h git.TreeHash) (msg string, e os.Error) {
 		ws,e := pid.Wait(0)
 		if e != nil { return "", e }
 		if ws.ExitStatus() != 0 {
-			return "",os.NewError(fmt.Sprintf(".test exited with '%v'\n%s",ws.ExitStatus()))
+			return "",os.NewError(fmt.Sprintf(".test exited with '%v'",ws.ExitStatus()))
 		}
 		msg = "Tested-on: " + machineName
 	}
