@@ -123,8 +123,8 @@ func tmpDir(p string) (string, os.Error) {
 	if e == nil { return p,nil }
 	for i:=0; i<30; i++ {
 		pnew := p+"-"+fmt.Sprint(i)
-		err := os.Mkdir(pnew,0777)
-		if err == nil { return pnew,nil }
+		e = os.Mkdir(pnew,0777)
+		if e == nil { return pnew,nil }
 	}
 	return "",e
 }
