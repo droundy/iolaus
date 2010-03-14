@@ -1,7 +1,7 @@
 *.[oa8651]
 *~
 *.log
-*.html
+doc
 manual
 iolaus-pull
 iolaus-push
@@ -12,6 +12,7 @@ iolaus-initialize
 harness
 pdiff
 mkdown
+mkmanual
 tmp
 \#*
 .\#*

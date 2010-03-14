@@ -4,39 +4,26 @@ import (
 	"os"
 	"fmt"
 	"exec"
-	"goopt"
-	"path"
 	"io/ioutil"
 	"../src/util/debug"
 	"../src/util/error"
 	stringslice "./gotgo/slice(string)"
 )
 
-var outname = goopt.String([]string{"-o","--output"}, "FILENAME",
-	"name of output file")
-
 func main() {
-	goopt.Parse(nil)
-	if len(goopt.Args) != 2 {
-		error.Exit(os.NewError(os.Args[0]+" requires just one argument!"))
-	}
-	mdf := goopt.Args[1]
-	if mdf[len(mdf)-3:] != ".md" {
-		error.Exit(os.NewError(mdf+" doesn't end with .md"))
-	}
-	basename := mdf[0:len(mdf)-3]
-	if *outname == "FILENAME" {
-		*outname = basename+".html"
-	}
-	dir,_ := path.Split(*outname)
-	os.MkdirAll(dir, 0777)
-	body,err := pandoc(mdf)
-	error.FailOn(err)
+	os.MkdirAll("doc", 0777)
 	header,err := ioutil.ReadFile("scripts/header.html")
 	error.FailOn(err)
+	html := string(header)
+	html += "<ul>\n"
+	for _,cmd := range os.Args[1:] {
+		cmd = cmd[4:len(cmd)-3]
+		html += "<li><a href=\""+cmd+".html\">"+cmd+"</a></li>\n"
+	}
+	html += "</ul>\n"
 	footer,err := ioutil.ReadFile("scripts/footer.html")
 	error.FailOn(err)
-	ioutil.WriteFile(*outname, []byte(string(header)+body+string(footer)), 0666)
+	ioutil.WriteFile("doc/manual.html", []byte(html+string(footer)), 0666)
 	error.Exit(nil)
 }
 

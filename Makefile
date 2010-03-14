@@ -15,10 +15,21 @@ test: all
 
 install: installbins installpkgs
 
-web: doc/index.html $(subst src,doc,$(subst .go,.html,$(wildcard src/*.go)))
+web: doc/index.html doc/manual.html \
+	$(subst src,doc,$(subst .go,.html,$(wildcard src/*.go))) \
+	doc/hydra.svg doc/iolaus.css
 
-doc/index.html: README.md scripts/mkdown
+doc/index.html: README.md scripts/mkdown scripts/header.html scripts/footer.html
 	./scripts/mkdown -o doc/index.html README.md
+
+doc/manual.html: scripts/mkmanual scripts/header.html scripts/footer.html
+	./scripts/mkmanual src/*.go
+
+doc/%.svg: scripts/%.svg
+	cp -f $< $@
+
+doc/%.css: scripts/%.css
+	cp -f $< $@
 
 EXTRAPHONY=man installman
 
@@ -31,12 +42,13 @@ doc/man/man1/%.1: bin/%
 	$< --create-manpage > $@
 
 doc/%.html: doc/man/man1/%.1
-	groff -man -Thtml $< > $@
+	cat scripts/header.html | sed -e "s/Iolaus/$*/" > $@
+	groff -man -Thtml $< | tail -n +19 >> $@
 
 
 include $(GOROOT)/src/Make.$(GOARCH)
 
-binaries:  scripts/harness scripts/mkdown scripts/pdiff bin/iolaus-initialize bin/iolaus-pull bin/iolaus-push bin/iolaus-record bin/iolaus-whatsnew
+binaries:  scripts/harness scripts/mkdown scripts/mkmanual scripts/pdiff bin/iolaus-initialize bin/iolaus-pull bin/iolaus-push bin/iolaus-record bin/iolaus-whatsnew
 packages: 
 
 ifndef GOBIN
@@ -74,6 +86,11 @@ scripts/mkdown: scripts/mkdown.$(O)
 	@mkdir -p bin
 	$(LD) -o $@ $<
 scripts/mkdown.$(O): scripts/mkdown.go scripts/gotgo/slice(string).$(O) src/util/debug.$(O) src/util/error.$(O)
+
+scripts/mkmanual: scripts/mkmanual.$(O)
+	@mkdir -p bin
+	$(LD) -o $@ $<
+scripts/mkmanual.$(O): scripts/mkmanual.go scripts/gotgo/slice(string).$(O) src/util/debug.$(O) src/util/error.$(O)
 
 scripts/pdiff: scripts/pdiff.$(O)
 	@mkdir -p bin
