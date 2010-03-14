@@ -93,7 +93,7 @@ func DiffFilesModified(paths []string) []string {
 	return splitOnNulls(o)
 }
 
-func DiffFiles(paths []string) Patch {
+func DiffFilesP(paths []string) Patch {
 	args := stringslice.Cat([]string{"-p", "--"}, paths)
 	o,e := git.ReadS("diff-files", args)
 	error.FailOn(e)
