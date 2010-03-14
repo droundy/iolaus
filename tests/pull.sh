@@ -17,3 +17,5 @@ iolaus-pull --all ../repo
 ls
 git log
 grep hello foo
+
+# FIXME: need to test iolaus-pull --interactive
