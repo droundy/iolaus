@@ -26,6 +26,7 @@ repository.
 `}
 
 func main() {
+	defer error.Exit(nil) // Must call exit so that cleanup will work!
 	help.Init("record changes.", description, plumbing.LsFiles)
 	git.AmInRepo("Must be in a repository to call record!")
 	//plumbing.ReadTree(git.Ref("HEAD"))

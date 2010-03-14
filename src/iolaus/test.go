@@ -63,6 +63,7 @@ func Tree(h git.TreeHash) (msg string, e os.Error) {
 	// found it passed!
 	if e == nil { return "",e }
 	testdir,e := tmpDir("/tmp/silly-testing")
+	defer os.RemoveAll(testdir) // FIXME: this should be optional, eventually.
 	if e != nil { return "",e }
 	//here,e := os.Getwd()
 	//if e != nil { return "",e }
