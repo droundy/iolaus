@@ -4,6 +4,7 @@ import (
 	"os"
 	"fmt"
 	"exec"
+	"path"
 	"strings"
 	"syscall"
 	"goopt"
@@ -61,13 +62,11 @@ func Tree(h git.TreeHash) (msg string, e os.Error) {
 	// if there is no error, then we've already tested this tree, and
 	// found it passed!
 	if e == nil { return "",e }
-	e = os.RemoveAll("/tmp/silly-testing")
-	if e != nil { return "",e }
-	e = os.MkdirAll("/tmp/silly-testing", 0777)
+	testdir,e := tmpDir("/tmp/silly-testing")
 	if e != nil { return "",e }
 	//here,e := os.Getwd()
 	//if e != nil { return "",e }
-	//e = os.Chdir("/tmp/silly-testing")
+	//e = os.Chdir(testdir)
 	//if e != nil { return "",e }
 	//defer os.Chdir(here)
 	plumbing.ReadTree(h, "--index-output=.git/index.tmp")
@@ -78,16 +77,16 @@ func Tree(h git.TreeHash) (msg string, e os.Error) {
 	if e != nil { return "",e }
 	defer os.Setenv("GIT_INDEX_FILE", "")
 	// don't forget the trailing slash in the prefix!
-	e = plumbing.CheckoutIndex("-a", "--prefix=/tmp/silly-testing/")
+	e = plumbing.CheckoutIndex("-a", "--prefix="+testdir+"/")
 	if e != nil { return "",e }
 	// remove the temporary index, but don't worry if this fails...
 	os.Remove(".git/index.tmp")
-	bstat,e := os.Stat("/tmp/silly-testing/.build")
+	bstat,e := os.Stat(path.Join(testdir,".build"))
 	if e == nil && (bstat.Permission() & 1) == 1 {
 		out.Print("Running build!")
 		// There is an executable .build, so run it!
-		pid,e := exec.Run("/tmp/silly-testing/.build", []string{}, os.Environ(),
-			"/tmp/silly-testing", exec.DevNull, exec.PassThrough, exec.MergeWithStdout)
+		pid,e := exec.Run(path.Join(testdir,".build"), []string{}, os.Environ(),
+			testdir, exec.DevNull, exec.PassThrough, exec.MergeWithStdout)
 		if e != nil { return "",e }
 		ws,e := pid.Wait(0)
 		if e != nil { return "",e }
@@ -96,12 +95,12 @@ func Tree(h git.TreeHash) (msg string, e os.Error) {
 		}
 		msg = "Built-on: " + machineName
 	}
-	tstat,e := os.Stat("/tmp/silly-testing/.test")
+	tstat,e := os.Stat(path.Join(testdir,".test"))
 	if e == nil && (tstat.Permission() & 1) == 1 {
 		out.Print("Running test!")
 		// There is an executable .test, so run it!
-		pid,e := exec.Run("/tmp/silly-testing/.test", []string{}, os.Environ(),
-			"/tmp/silly-testing", exec.DevNull, exec.PassThrough, exec.MergeWithStdout)
+		pid,e := exec.Run(path.Join(testdir,".test"), []string{}, os.Environ(),
+			testdir, exec.DevNull, exec.PassThrough, exec.MergeWithStdout)
 		if e != nil { return "", e }
 		ws,e := pid.Wait(0)
 		if e != nil { return "", e }
@@ -110,11 +109,22 @@ func Tree(h git.TreeHash) (msg string, e os.Error) {
 		}
 		msg = "Tested-on: " + machineName
 	}
-	e = os.RemoveAll("/tmp/silly-testing")
+	e = os.RemoveAll(testdir)
 	return
 }
 
 func isExecutable(f string) bool {
 	stat,e := os.Stat(f)
 	return e == nil && (stat.Permission() & 1) == 1
+}
+
+func tmpDir(p string) (string, os.Error) {
+	e := os.Mkdir(p,0777)
+	if e == nil { return p,nil }
+	for i:=0; i<30; i++ {
+		pnew := p+"-"+fmt.Sprint(i)
+		err := os.Mkdir(pnew,0777)
+		if err == nil { return pnew,nil }
+	}
+	return "",e
 }
