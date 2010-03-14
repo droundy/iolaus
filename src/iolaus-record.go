@@ -11,6 +11,7 @@ import (
 	"./util/help"
 	"./util/cook"
 	"./iolaus/test"
+	"./iolaus/core"
 	hashes "./gotgo/slice(git.Commitish)"
 )
 
@@ -26,7 +27,7 @@ repository.
 `}
 
 func main() {
-	help.Init("record changes.", description, plumbing.LsFiles)
+	help.Init("record changes.", description, core.ModifiedFiles)
 	git.AmInRepo("Must be in a repository to call record!")
 	//plumbing.ReadTree(git.Ref("HEAD"))
 
@@ -34,26 +35,23 @@ func main() {
 	if e != nil {
 		error.Print("It looks like your repository is headless...")
 	}
+	// Check which files are touched before using the new index...
+	modfiles := core.ModifiedFiles()
 	// It's pretty hokey to use os.Setenv here rather than using exec to
 	// set it directly, but it shouldn't be a problem as long as we
 	// aren't calling git from multiple goroutines.
 	e = os.Setenv("GIT_INDEX_FILE", ".git/index.recording")
 	error.FailOn(e)
-	defer os.Setenv("GIT_INDEX_FILE", "")
 
 	if *all {
-		for _,f := range plumbing.DiffFilesModified([]string{}) {
+		for _,f := range modfiles {
 			out.Print("Considering changes to ",f)
 			plumbing.UpdateIndex(f)
-		}
-		for _,newf := range plumbing.LsOthers() {
-			out.Print("Considering adding ",newf)
-			plumbing.UpdateIndex(newf)
 		}
 	} else {
 		unraw := cook.SetRaw()
 		defer cook.Undo(unraw)
-		for _,f := range plumbing.DiffFilesModified([]string{}) {
+		for _,f := range modfiles {
 			c,e := out.PromptForChar("Record changes to %s? ", f)
 			switch c {
 			case 'q','Q': error.Exit(e)
@@ -61,16 +59,6 @@ func main() {
 				out.Print("Dealing with file ",f)
 				plumbing.UpdateIndex(f)
 			case 'n','N': out.Print("Ignoring changes to file ",f)
-			}
-		}
-		for _,f := range plumbing.LsOthers() {
-			c,e := out.PromptForChar("Record addition of %s? ", f)
-			switch c {
-			case 'q','Q': error.Exit(e)
-			case 'y','Y':
-				out.Print("Adding file ",f)
-				plumbing.UpdateIndex(f)
-			case 'n','N': out.Print("Ignoring addition of file ",f)
 			}
 		}
 		cook.Undo(unraw)
