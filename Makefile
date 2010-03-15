@@ -129,7 +129,7 @@ src/iolaus/gotgo/slice(string).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p src/iolaus/gotgo/
 	$< 'string' > "$@"
 endif
-src/iolaus/core.$(O): src/iolaus/core.go src/git/plumbing.$(O) src/iolaus/gotgo/slice(string).$(O)
+src/iolaus/core.$(O): src/iolaus/core.go src/git/color.$(O) src/git/plumbing.$(O) src/iolaus/gotgo/slice(string).$(O) src/util/patience.$(O)
 
 src/iolaus/gotgo/box(git.CommitHash,git.Commitish).$(O): src/iolaus/gotgo/box(git.CommitHash,git.Commitish).go src/git/git.$(O)
 
@@ -182,7 +182,7 @@ bin/iolaus-whatsnew: src/iolaus-whatsnew.$(O)
 	$(LD) -o $@ $<
 $(bindir)/iolaus-whatsnew: bin/iolaus-whatsnew
 	cp $< $@
-src/iolaus-whatsnew.$(O): src/iolaus-whatsnew.go src/git/color.$(O) src/git/git.$(O) src/git/plumbing.$(O) src/iolaus/core.$(O) src/util/error.$(O) src/util/exit.$(O) src/util/help.$(O) src/util/out.$(O) src/util/patience.$(O)
+src/iolaus-whatsnew.$(O): src/iolaus-whatsnew.go src/git/git.$(O) src/git/plumbing.$(O) src/iolaus/core.$(O) src/util/error.$(O) src/util/exit.$(O) src/util/help.$(O)
 
 src/util/cook.$(O): src/util/cook.go src/util/exit.$(O)
 
