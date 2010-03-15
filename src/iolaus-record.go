@@ -9,7 +9,6 @@ import (
 	"./util/out"
 	"./util/error"
 	"./util/help"
-	"./util/cook"
 	"./iolaus/test"
 	"./iolaus/core"
 	hashes "./gotgo/slice(git.Commitish)"
@@ -37,7 +36,8 @@ func main() {
 		error.Print("It looks like your repository is headless...")
 	}
 	// Check which files are touched before using the new index...
-	modfiles := core.ModifiedFiles()
+	modfiles,e := core.DiffFiles([]string{})
+	error.FailOn(e)
 	// It's pretty hokey to use os.Setenv here rather than using exec to
 	// set it directly, but it shouldn't be a problem as long as we
 	// aren't calling git from multiple goroutines.
@@ -46,26 +46,30 @@ func main() {
 
 	if *all {
 		for _,f := range modfiles {
-			out.Println("Considering changes to ",f)
-			plumbing.UpdateIndex(f)
+			out.Println("Considering changes to ",f.Name)
+			plumbing.UpdateIndex(f.Name)
 		}
 	} else {
-		unraw := cook.SetRaw()
-		defer cook.Undo(unraw)
-		for _,f := range modfiles {
-			c,e := out.PromptForChar("Record changes to %s? ", f)
-			switch c {
-			case 'q','Q': error.Exit(e)
-			case 'y','Y':
-				out.Println("Dealing with file ",f)
-				plumbing.UpdateIndex(f)
-			case 'n','N': out.Println("Ignoring changes to file ",f)
+	  files: for _,f := range modfiles {
+			for {
+				// Just keep asking until we get a reasonable answer...
+				c,e := out.PromptForChar("Record changes to %s? ", f.Name)
+				error.FailOn(e)
+				switch c {
+				case 'q','Q': error.Exit(e)
+		    case 'v','V':
+					f.Print()
+				case 'y','Y':
+					out.Println("Dealing with file ",f.Name)
+					plumbing.UpdateIndex(f.Name)
+					continue files
+				case 'n','N': out.Println("Ignoring changes to file ",f.Name)
+					continue files
+				}
 			}
 		}
-		cook.Undo(unraw)
 	}
 	if *shortlog == "COMMITNAME" {
-		cook.SetCooked()
 		out.Println("What is the patch name? ")
 		inp,e := bufio.NewReaderSize(os.Stdin,1)
 		error.FailOn(e)

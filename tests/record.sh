@@ -47,3 +47,13 @@ echo yq | iolaus-record --interactive --patch 'Hello world'
 iolaus-whatsnew | grep 'Added aaa'
 iolaus-whatsnew | grep 'Added b'
 cd ..
+
+mkdir test-interactive-view
+cd test-interactive-view
+iolaus-initialize
+date > aaa
+iolaus-whatsnew | grep 'Added aaa'
+echo vq | iolaus-record --interactive --patch 'Hello world' > out
+cat out
+grep 'Added aaa' out
+cd ..

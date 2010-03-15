@@ -42,7 +42,7 @@ func DiffFiles(paths []string) (ds []FileDiff, e os.Error) {
 
 type FileDiff plumbing.FileDiff
 
-func (d FileDiff) Fprint(f io.Writer) (e os.Error) {
+func (d *FileDiff) Fprint(f io.Writer) (e os.Error) {
 	switch d.Change {
 	case plumbing.Added:
 		fmt.Fprint(f, color.String("Added "+d.Name, color.Meta))
