@@ -7,6 +7,7 @@ cd repo
 echo hello > foo
 iolaus-initialize
 iolaus-record -am addfoo
+iolaus-whatsnew | grep foo && exit 1
 
 cd ..
 mkdir new

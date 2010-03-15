@@ -26,6 +26,29 @@ func UpdateIndex(f string) os.Error {
 	return git.Run("update-index", "--add", "--remove", "--", f)
 }
 
+func HashObject(c string) (h git.Hash, e os.Error) {
+	o,e := git.WriteRead("hash-object", c, "-w", "--stdin")
+	if e != nil { return }
+	return mkHash(string(o)), e
+}
+
+func HashFile(f string) (h git.Hash, e os.Error) {
+	o,e := git.Read("hash-object", "-w", f)
+	if e != nil { return }
+	return mkHash(string(o)), e
+}
+
+func HashObjectUpdateIndex(mode int, contents, f string) os.Error {
+	h,e := HashObject(contents)
+	if e != nil { return e }
+	return UpdateIndexCache(mode, h, f)
+}
+
+func UpdateIndexCache(mode int, h git.Hash, f string) os.Error {
+	return git.Run("update-index", "--add", "--remove", "--cacheinfo",
+		fmt.Sprintf("%o", mode), h.String(), f)
+}
+
 func CheckoutIndex(args ...string) os.Error {
 	return git.RunS("checkout-index", args)
 }

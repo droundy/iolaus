@@ -129,7 +129,7 @@ src/iolaus/gotgo/slice(string).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p src/iolaus/gotgo/
 	$< 'string' > "$@"
 endif
-src/iolaus/core.$(O): src/iolaus/core.go src/git/color.$(O) src/git/plumbing.$(O) src/iolaus/gotgo/slice(string).$(O) src/util/out.$(O) src/util/patience.$(O)
+src/iolaus/core.$(O): src/iolaus/core.go src/git/color.$(O) src/git/git.$(O) src/git/plumbing.$(O) src/iolaus/gotgo/slice(string).$(O) src/util/out.$(O) src/util/patience.$(O)
 
 src/iolaus/gotgo/box(git.CommitHash,git.Commitish).$(O): src/iolaus/gotgo/box(git.CommitHash,git.Commitish).go src/git/git.$(O)
 
@@ -175,7 +175,7 @@ bin/iolaus-record: src/iolaus-record.$(O)
 	$(LD) -o $@ $<
 $(bindir)/iolaus-record: bin/iolaus-record
 	cp $< $@
-src/iolaus-record.$(O): src/iolaus-record.go src/git/git.$(O) src/git/plumbing.$(O) src/gotgo/slice(git.Commitish).$(O) src/iolaus/core.$(O) src/iolaus/test.$(O) src/util/cook.$(O) src/util/error.$(O) src/util/help.$(O) src/util/out.$(O)
+src/iolaus-record.$(O): src/iolaus-record.go src/git/git.$(O) src/git/plumbing.$(O) src/gotgo/slice(git.Commitish).$(O) src/iolaus/core.$(O) src/iolaus/test.$(O) src/util/error.$(O) src/util/help.$(O) src/util/out.$(O)
 
 bin/iolaus-whatsnew: src/iolaus-whatsnew.$(O)
 	@mkdir -p bin

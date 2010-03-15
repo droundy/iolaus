@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"io"
 	"io/ioutil"
+	"../git/git"
 	"../git/plumbing"
 	"../git/color"
 	"../util/out"
@@ -99,4 +100,20 @@ func (d *FileDiff) Show() string {
 
 func (d *FileDiff) Print() os.Error {
 	return d.Fprint(out.Writer)
+}
+
+func isEmpty(h git.Hash) bool {
+	for _,v := range h {
+		if v != '0' { return false }
+	}
+	return true
+}
+
+func (d *FileDiff) Info() (mode int, contents git.Hash, f string) {
+	mode = d.NewMode
+	contents = d.NewHash
+	if isEmpty(contents) && d.Change != plumbing.Deleted {
+		contents,_ = plumbing.HashFile(d.Name)
+	}
+	return mode, contents, d.Name
 }

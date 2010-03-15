@@ -47,7 +47,7 @@ func main() {
 	if *all {
 		for _,f := range modfiles {
 			out.Println("Considering changes to ",f.Name)
-			plumbing.UpdateIndex(f.Name)
+			plumbing.UpdateIndexCache(f.Info())
 		}
 	} else {
 	  files: for _,f := range modfiles {
@@ -61,7 +61,7 @@ func main() {
 					f.Print()
 				case 'y','Y':
 					out.Println("Dealing with file ",f.Name)
-					plumbing.UpdateIndex(f.Name)
+					plumbing.UpdateIndexCache(f.Info())
 					continue files
 				case 'n','N': out.Println("Ignoring changes to file ",f.Name)
 					continue files
