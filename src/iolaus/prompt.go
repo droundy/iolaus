@@ -5,6 +5,7 @@ import (
 	"./core"
 	"../util/out"
 	"../util/error"
+	"../util/debug"
 )
 
 var all = goopt.Flag([]string{"-a","--all"}, []string{"--interactive"},
@@ -26,10 +27,10 @@ func Run(ds []core.FileDiff, f func(core.FileDiff)) {
 		    case 'v','V':
 					d.Print()
 				case 'y','Y':
-					out.Println("Dealing with file ",d.Name)
+					debug.Println("Dealing with file ",d.Name)
 					f(d)
 					continue files
-				case 'n','N': out.Println("Ignoring changes to file ",d.Name)
+				case 'n','N': debug.Println("Ignoring changes to file ",d.Name)
 					continue files
 				}
 			}

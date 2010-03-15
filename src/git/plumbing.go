@@ -259,7 +259,7 @@ func LsFilesE() (fs []string, e os.Error) {
 func LsOthers() []string {
 	o, e := genLsFilesE("--exclude-standard","-z","--others")
 	if e != nil {
-		debug.Print("yeckgys")
+		debug.Println("yeckgys")
 	}
 	return o
 }

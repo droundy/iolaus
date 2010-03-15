@@ -41,12 +41,12 @@ func main() {
 }
 
 func announce(err os.Error) os.Error {
-	debug.Print(err)
+	debug.Println(err)
 	return err
 }
 
 func pandoc(args ...string) (out string, e os.Error) {
-	debug.Print("calling pandoc",args)
+	debug.Println("calling pandoc",args)
 	args = stringslice.Cat([]string{"pandoc"}, args)
 	pandoc, e := exec.LookPath("pandoc")
 	if e != nil { announce(e); return }
