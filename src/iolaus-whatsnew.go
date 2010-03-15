@@ -1,7 +1,6 @@
 package main;
 
 import (
-	"os"
 	"./git/git"
 	"./git/plumbing"
 	"./util/help"
@@ -24,7 +23,7 @@ func main() {
 	error.FailOn(e)
 	// The following should all be factored apart next...
 	for _,d := range ds {
-		d.Fprint(os.Stdout)
+		d.Print()
 	}
 	exit.Exit(0)
 }

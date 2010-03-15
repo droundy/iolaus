@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"../git/plumbing"
 	"../git/color"
+	"../util/out"
 	"../util/patience"
 	stringslice "./gotgo/slice(string)"
 )
@@ -94,4 +95,8 @@ func (d *FileDiff) Show() string {
 	f := bytes.NewBufferString("")
 	d.Fprint(f)
 	return f.String()
+}
+
+func (d *FileDiff) Print() os.Error {
+	return d.Fprint(out.Writer)
 }

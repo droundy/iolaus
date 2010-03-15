@@ -3,14 +3,17 @@ package out
 import (
 	"fmt"
 	"os"
+	"io"
 	"./cook"
 )
+
+var Writer io.Writer = os.Stdout
 
 // Print to standard output.  Eventually I may add optional piping to
 // a pager to this function, so it should be used in preference to
 // fmt.Print itself.
 func Print(v ...interface{}) os.Error {
-	_,e := fmt.Print(v)
+	_,e := fmt.Fprint(Writer, v)
 	return e
 }
 
@@ -18,12 +21,12 @@ func Print(v ...interface{}) os.Error {
 // a pager to this function, so it should be used in preference to
 // fmt.Print itself.
 func Println(v ...interface{}) os.Error {
-	_,e := fmt.Println(v)
+	_,e := fmt.Fprintln(Writer, v)
 	return e
 }
 
 func Printf(f string, v ...interface{}) os.Error {
-	_,e := fmt.Printf(f, v)
+	_,e := fmt.Fprintf(Writer, f, v)
 	return e
 }
 
