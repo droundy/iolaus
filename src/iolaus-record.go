@@ -45,7 +45,7 @@ func main() {
 
 	if *all {
 		for _,f := range modfiles {
-			out.Print("Considering changes to ",f)
+			out.Println("Considering changes to ",f)
 			plumbing.UpdateIndex(f)
 		}
 	} else {
@@ -56,16 +56,16 @@ func main() {
 			switch c {
 			case 'q','Q': error.Exit(e)
 			case 'y','Y':
-				out.Print("Dealing with file ",f)
+				out.Println("Dealing with file ",f)
 				plumbing.UpdateIndex(f)
-			case 'n','N': out.Print("Ignoring changes to file ",f)
+			case 'n','N': out.Println("Ignoring changes to file ",f)
 			}
 		}
 		cook.Undo(unraw)
 	}
 	if *shortlog == "COMMITNAME" {
 		cook.SetCooked()
-		out.Print("What is the patch name? ")
+		out.Println("What is the patch name? ")
 		inp,e := bufio.NewReaderSize(os.Stdin,1)
 		error.FailOn(e)
 		name,e := inp.ReadString('\n')

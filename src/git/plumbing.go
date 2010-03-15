@@ -155,7 +155,7 @@ func (d FileDiff) String() string {
 		return fmt.Sprintf(":%o %o %s %s %c\t%s\t%s",
 			d.OldMode, d.NewMode, d.OldHash, d.NewHash, d.Change, d.Name, d.OldName)
 	}
-	return fmt.Sprintf(":%o %o %s %s %c\t%s",
+	return fmt.Sprintf(":%06o %06o %s %s %c\t%s",
 		d.OldMode, d.NewMode, d.OldHash, d.NewHash, d.Change, d.Name)
 }
 
@@ -293,6 +293,10 @@ type CommitEntry struct {
 
 func (ce CommitEntry) String() string {
 	return "Author: " + ce.Author + "\n" + ce.Message
+}
+
+func Blob(b git.Hash) (o string, e os.Error) {
+	return git.Read("cat-file", "blob", b.String())
 }
 
 func rawCommit(c git.Commitish) (o string, e os.Error) {
