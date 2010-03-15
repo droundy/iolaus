@@ -7,11 +7,11 @@ import (
 	"../util/error"
 )
 
-var all = goopt.Flag([]string{"-a","--all"}, []string{"--interactive"},
-	"use all patches", "prompt for patches interactively")
+var All = goopt.Flag([]string{"-a","--all"}, []string{"--interactive"},
+	"verb all patches", "prompt for patches interactively")
 
 func Run(ds []core.FileDiff, f func(core.FileDiff)) {
-	if *all {
+	if *All {
 		for _,d := range ds {
 			f(d)
 		}
@@ -19,7 +19,7 @@ func Run(ds []core.FileDiff, f func(core.FileDiff)) {
 	  files: for _,d := range ds {
 			for {
 				// Just keep asking until we get a reasonable answer...
-				c,e := out.PromptForChar("Record changes to %s? ", d.Name)
+				c,e := out.PromptForChar(goopt.Expand("Verb changes to %s? "), d.Name)
 				error.FailOn(e)
 				switch c {
 				case 'q','Q': error.Exit(e)

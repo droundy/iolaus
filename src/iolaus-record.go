@@ -25,6 +25,8 @@ repository.
 `}
 
 func main() {
+	goopt.Vars["Verb"] = "Record"
+	goopt.Vars["verb"] = "record"
 	defer error.Exit(nil) // Must call exit so that cleanup will work!
 	help.Init("record changes.", description, core.ModifiedFiles)
 	git.AmInRepo("Must be in a repository to call record!")

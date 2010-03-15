@@ -184,7 +184,7 @@ bin/iolaus-whatsnew: src/iolaus-whatsnew.$(O)
 	$(LD) -o $@ $<
 $(bindir)/iolaus-whatsnew: bin/iolaus-whatsnew
 	cp $< $@
-src/iolaus-whatsnew.$(O): src/iolaus-whatsnew.go src/git/git.$(O) src/git/plumbing.$(O) src/iolaus/core.$(O) src/util/error.$(O) src/util/exit.$(O) src/util/help.$(O)
+src/iolaus-whatsnew.$(O): src/iolaus-whatsnew.go src/git/git.$(O) src/git/plumbing.$(O) src/iolaus/core.$(O) src/iolaus/prompt.$(O) src/util/error.$(O) src/util/exit.$(O) src/util/help.$(O)
 
 src/util/cook.$(O): src/util/cook.go src/util/exit.$(O)
 
