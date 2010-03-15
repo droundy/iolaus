@@ -135,6 +135,8 @@ src/iolaus/gotgo/box(git.CommitHash,git.Commitish).$(O): src/iolaus/gotgo/box(gi
 
 src/iolaus/gotgo/slice(string).$(O): src/iolaus/gotgo/slice(string).go
 
+src/iolaus/prompt.$(O): src/iolaus/prompt.go src/iolaus/core.$(O) src/util/error.$(O) src/util/out.$(O)
+
 ifneq ($(strip $(shell which gotgo)),)
 # looks like we require src/iolaus/gotgo/box.got as installed package...
 src/iolaus/gotgo/box(git.CommitHash,git.Commitish).go: $(pkgdir)/./gotgo/box.gotgo
@@ -175,7 +177,7 @@ bin/iolaus-record: src/iolaus-record.$(O)
 	$(LD) -o $@ $<
 $(bindir)/iolaus-record: bin/iolaus-record
 	cp $< $@
-src/iolaus-record.$(O): src/iolaus-record.go src/git/git.$(O) src/git/plumbing.$(O) src/gotgo/slice(git.Commitish).$(O) src/iolaus/core.$(O) src/iolaus/test.$(O) src/util/error.$(O) src/util/help.$(O) src/util/out.$(O)
+src/iolaus-record.$(O): src/iolaus-record.go src/git/git.$(O) src/git/plumbing.$(O) src/gotgo/slice(git.Commitish).$(O) src/iolaus/core.$(O) src/iolaus/prompt.$(O) src/iolaus/test.$(O) src/util/error.$(O) src/util/help.$(O) src/util/out.$(O)
 
 bin/iolaus-whatsnew: src/iolaus-whatsnew.$(O)
 	@mkdir -p bin

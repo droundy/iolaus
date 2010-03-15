@@ -9,6 +9,7 @@ import (
 	"./util/out"
 	"./util/error"
 	"./util/help"
+	"./iolaus/prompt"
 	"./iolaus/test"
 	"./iolaus/core"
 	hashes "./gotgo/slice(git.Commitish)"
@@ -16,8 +17,6 @@ import (
 
 var shortlog = goopt.String([]string{"-m","--patch"}, "COMMITNAME",
 	"name of commit")
-var all = goopt.Flag([]string{"-a","--all"}, []string{"--interactive"},
-	"record all patches", "prompt for patches interactively")
 
 var description = func() string {
 	return `
@@ -44,31 +43,9 @@ func main() {
 	e = os.Setenv("GIT_INDEX_FILE", ".git/index.recording")
 	error.FailOn(e)
 
-	if *all {
-		for _,f := range modfiles {
-			out.Println("Considering changes to ",f.Name)
-			plumbing.UpdateIndexCache(f.Info())
-		}
-	} else {
-	  files: for _,f := range modfiles {
-			for {
-				// Just keep asking until we get a reasonable answer...
-				c,e := out.PromptForChar("Record changes to %s? ", f.Name)
-				error.FailOn(e)
-				switch c {
-				case 'q','Q': error.Exit(e)
-		    case 'v','V':
-					f.Print()
-				case 'y','Y':
-					out.Println("Dealing with file ",f.Name)
-					plumbing.UpdateIndexCache(f.Info())
-					continue files
-				case 'n','N': out.Println("Ignoring changes to file ",f.Name)
-					continue files
-				}
-			}
-		}
-	}
+	prompt.Run(modfiles, func (f core.FileDiff) {
+		plumbing.UpdateIndexCache(f.Info())
+	})
 	if *shortlog == "COMMITNAME" {
 		out.Println("What is the patch name? ")
 		inp,e := bufio.NewReaderSize(os.Stdin,1)
