@@ -35,7 +35,7 @@ func main() {
 	origin := plumbing.RemoteUrl("origin")
 	if len(goopt.Args) > 1 {
 		origin = plumbing.RemoteUrl(goopt.Args[1])
-		out.Print("Pulling from ", origin)
+		out.Println("Pulling from ", origin)
 	}
 	remotes,e := plumbing.LsRemote(origin, "--heads")
 	error.FailOn(e)
@@ -60,10 +60,10 @@ func main() {
 	for _,tp := range topull {
 		cc, e := plumbing.Commit(tp)
 		error.FailOn(e)
-		out.Print("Could pull:\n", cc)
+		out.Println("Could pull:\n", cc)
 	}
 	if len(topull) == 0 {
-		out.Print("No commits to pull!")
+		out.Println("No commits to pull!")
 		exit.Exit(0)
 	}
 	if *dryRun { exit.Exit(0) }
@@ -71,15 +71,16 @@ func main() {
 		for _,tp := range topush {
 			cc, e := plumbing.Commit(tp)
 			error.FailOn(e)
-			out.Print("Could push:\n", cc)
+			out.Println("Could push:\n", cc)
 		}
-		out.Print("I haven't finished with pull yet.")
+		out.Println("I haven't finished with pull yet.")
 		exit.Exit(0)
 	} else {
-		out.Print("This is a fast-forward pull!")
+		out.Println("This is a fast-forward pull!")
 		if *all {
-			p := plumbing.DiffFiles([]string{}).String()
-			if p != "" {
+			p,e := plumbing.DiffFiles([]string{})
+			error.FailOn(e)
+			if len(p) > 0 {
 				error.FailOn(os.NewError("I can't handle local changes yet!"))
 			}
 			//plumbing.SendPack(origin, locals)
@@ -91,10 +92,10 @@ func main() {
 					exit.Exit(0)
 				}
 			} else {
-				out.Print("I haven't yet implemented merging.")
+				out.Println("I haven't yet implemented merging.")
 			}
 		} else {
-			out.Print("I haven't yet implemented interactive pulls.")
+			out.Println("I haven't yet implemented interactive pulls.")
 		}
 	}
 	exit.Exit(0)

@@ -48,10 +48,10 @@ func main() {
 	for _,tp := range topush {
 		cc, e := plumbing.Commit(tp)
 		error.FailOn(e)
-		out.Print("Could push:\n", cc)
+		out.Println("Could push:\n", cc)
 	}
 	if len(topush) == 0 {
-		out.Print("No commits to push!")
+		out.Println("No commits to push!")
 		exit.Exit(0)
 	}
 	if *dryRun { exit.Exit(0) }
@@ -61,16 +61,16 @@ func main() {
 		for _,tp := range topull {
 			cc, e := plumbing.Commit(tp)
 			error.FailOn(e)
-			out.Print("Could pull:\n", cc)
+			out.Println("Could pull:\n", cc)
 		}
-		out.Print("I haven't finished with push yet.")
+		out.Println("I haven't finished with push yet.")
 		exit.Exit(0)
 	} else {
-		out.Print("This is a fast-forward push!")
+		out.Println("This is a fast-forward push!")
 		if *all {
 			plumbing.SendPack(origin, locals)
 		} else {
-			out.Print("I haven't yet implemented interactive pushes.")
+			out.Println("I haven't yet implemented interactive pushes.")
 		}
 	}
 	exit.Exit(0)

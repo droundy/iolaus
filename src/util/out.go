@@ -8,10 +8,22 @@ import (
 
 // Print to standard output.  Eventually I may add optional piping to
 // a pager to this function, so it should be used in preference to
-// fmt.Println itself.
+// fmt.Print itself.
 func Print(v ...interface{}) os.Error {
 	_,e := fmt.Print(v)
-	fmt.Print("\r\n")
+	return e
+}
+
+// Print to standard output.  Eventually I may add optional piping to
+// a pager to this function, so it should be used in preference to
+// fmt.Print itself.
+func Println(v ...interface{}) os.Error {
+	_,e := fmt.Println(v)
+	return e
+}
+
+func Printf(f string, v ...interface{}) os.Error {
+	_,e := fmt.Printf(f, v)
 	return e
 }
 
