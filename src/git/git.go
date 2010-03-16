@@ -15,6 +15,12 @@ import (
 // gotgo on them conveniently...
 type Hash [40]byte
 func (h Hash) String() string { return string(h[0:40]) }
+func (h Hash) IsEmpty() bool {
+	for _,v := range h {
+		if v != '0' { return false }
+	}
+	return true
+}
 type TreeHash Hash
 func (r TreeHash) String() string { return string(r[0:40]) }
 func (r TreeHash) treeString() string { return string(r[0:40]) }
@@ -75,7 +81,7 @@ func AmNotDirectlyInRepo(mess string) {
 }
 
 func announce(err os.Error) os.Error {
-	debug.Print(err)
+	debug.Println(err)
 	return err
 }
 
@@ -104,7 +110,7 @@ func RunSilently(arg1 string, args ...string) (e os.Error) {
 }
 
 func ReadS(arg1 string, args []string) (output string, err os.Error) {
-	debug.Print("calling git",arg1,args)
+	debug.Println("calling git",arg1,args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
 	output = "" // empty output if we have an error...
 	git, err := exec.LookPath("git")
@@ -125,7 +131,7 @@ func ReadS(arg1 string, args []string) (output string, err os.Error) {
 }
 
 func WriteReadS(arg1 string, inp string, args []string) (output string, e os.Error) {
-	debug.Print("calling git",arg1,args)
+	debug.Println("calling git",arg1,args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
 	output = "" // empty output if we have an error...
 	git, e := exec.LookPath("git")
@@ -151,7 +157,7 @@ func WriteReadS(arg1 string, inp string, args []string) (output string, e os.Err
 }
 
 func WriteS(arg1 string, inp string, args []string) (e os.Error) {
-	debug.Print("calling git",arg1,args)
+	debug.Println("calling git",arg1,args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
 	git, e := exec.LookPath("git")
 	if e != nil { announce(e); return }
@@ -172,7 +178,7 @@ func WriteS(arg1 string, inp string, args []string) (e os.Error) {
 }
 
 func RunS(arg1 string, args []string) (e os.Error) {
-	debug.Print("calling git",arg1,args)
+	debug.Println("calling git",arg1,args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
 	git, e := exec.LookPath("git")
 	if e != nil { announce(e); return }
@@ -190,7 +196,7 @@ func RunS(arg1 string, args []string) (e os.Error) {
 }
 
 func RunSilentlyS(arg1 string, args []string) (e os.Error) {
-	debug.Print("calling git",arg1,args)
+	debug.Println("calling git",arg1,args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
 	git, e := exec.LookPath("git")
 	if e != nil { announce(e); return }

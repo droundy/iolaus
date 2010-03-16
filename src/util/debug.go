@@ -13,3 +13,11 @@ func Print(v ...interface{}) os.Error {
 	}
 	return nil
 }
+
+func Println(v ...interface{}) os.Error {
+	if *amdebug {
+		_,e := fmt.Fprintln(os.Stderr, v)
+		return e
+	}
+	return nil
+}
