@@ -135,7 +135,7 @@ src/iolaus/gotgo/box(git.CommitHash,git.Commitish).$(O): src/iolaus/gotgo/box(gi
 
 src/iolaus/gotgo/slice(string).$(O): src/iolaus/gotgo/slice(string).go
 
-src/iolaus/prompt.$(O): src/iolaus/prompt.go src/iolaus/core.$(O) src/util/debug.$(O) src/util/error.$(O) src/util/out.$(O)
+src/iolaus/prompt.$(O): src/iolaus/prompt.go src/git/color.$(O) src/git/plumbing.$(O) src/iolaus/core.$(O) src/iolaus/gotgo/slice(string).$(O) src/util/debug.$(O) src/util/error.$(O) src/util/out.$(O) src/util/patience.$(O)
 
 ifneq ($(strip $(shell which gotgo)),)
 # looks like we require src/iolaus/gotgo/box.got as installed package...

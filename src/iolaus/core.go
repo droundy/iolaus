@@ -43,6 +43,36 @@ func DiffFiles(paths []string) (ds []FileDiff, e os.Error) {
 
 type FileDiff plumbing.FileDiff
 
+func (d *FileDiff) UpdateNew(contents string) (e os.Error) {
+	switch d.Change {
+	case plumbing.Modified:
+		h,e := plumbing.HashObject(contents)
+		if e != nil { return }
+		d.NewHash = h
+	}
+	return
+}
+
+func (d *FileDiff) OldNewStrings() (o, n string, e os.Error) {
+	switch d.Change {
+	default:
+		oldf, e := plumbing.Blob(d.OldHash)
+		if e != nil { return }
+		o = string(oldf)
+		if d.NewHash.IsEmpty() {
+			newf, err := ioutil.ReadFile(d.Name)
+			if err != nil {
+				e = err
+				return
+			}
+			n = string(newf)
+		} else {
+			n, e = plumbing.Blob(d.NewHash)
+		}
+	}
+	return
+}
+
 func (d *FileDiff) Fprint(f io.Writer) (e os.Error) {
 	switch d.Change {
 	case plumbing.Added:
@@ -51,11 +81,10 @@ func (d *FileDiff) Fprint(f io.Writer) (e os.Error) {
 		fmt.Fprint(f,color.String("Deleted "+d.Name, color.Meta))
 	case plumbing.Modified:
 		if d.OldMode != d.NewMode { fmt.Fprintln(f,d) }
-		oldf, e := plumbing.Blob(d.OldHash)
+		oldf, newf, e := d.OldNewStrings()
 		if e != nil { return }
-		newf, e := ioutil.ReadFile(d.Name)
-		older := strings.SplitAfter(string(oldf),"\n",0)
-		newer := strings.SplitAfter(string(newf),"\n",0)
+		newer := strings.SplitAfter(newf,"\n",0)
+		older := strings.SplitAfter(oldf,"\n",0)
 		if e != nil { return }
 		mychunks := patience.Diff(older, newer)
 		

@@ -15,6 +15,12 @@ import (
 // gotgo on them conveniently...
 type Hash [40]byte
 func (h Hash) String() string { return string(h[0:40]) }
+func (h Hash) IsEmpty() bool {
+	for _,v := range h {
+		if v != '0' { return false }
+	}
+	return true
+}
 type TreeHash Hash
 func (r TreeHash) String() string { return string(r[0:40]) }
 func (r TreeHash) treeString() string { return string(r[0:40]) }
