@@ -30,6 +30,8 @@ iolaus-pull --debug --all ../repo
 ls
 iolaus-whatsnew
 grep hello foo
+
+git log | grep Merge
 cd ..
 
 # FIXME: need to test iolaus-pull --interactive
