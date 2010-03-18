@@ -86,7 +86,7 @@ func splitRefs(s string) (hs map[git.Ref]git.CommitHash) {
 	return
 }
 
-func WriteTree() git.Treeish {
+func WriteTree() git.TreeHash {
 	o,_ := git.Read("write-tree")
 	t := git.TreeHash{}
 	for j := range o[0:40] {
@@ -108,6 +108,17 @@ func CommitTree(tree git.Treeish, parents []git.Commitish, log string) git.Commi
 
 func ReadTree(ref git.Treeish, args ...string) os.Error {
 	args = stringslice.Append(args, ref.String())
+	return git.RunS("read-tree", args)
+}
+
+func ReadTree2(us, them git.Treeish, args ...string) os.Error {
+	args = stringslice.Cat(args, []string{"-m", us.String(), them.String()})
+	return git.RunS("read-tree", args)
+}
+
+func ReadTree3(base, us, them git.Treeish, args ...string) os.Error {
+	args = stringslice.Cat(args,
+		[]string{"-m", base.String(), us.String(), them.String()} )
 	return git.RunS("read-tree", args)
 }
 
@@ -397,6 +408,16 @@ func RevParse(rev string) (h git.CommitHash, e os.Error) {
 	o,e := git.Read("rev-parse", "--verify", rev)
 	if e != nil { return }
 	return git.CommitHash(mkHash(o)), e
+}
+
+func MergeBase(us, them git.Commitish) (h git.CommitHash, e os.Error) {
+	o, e := git.Read("merge-base", us.String(), them.String())
+	if e != nil { return }
+	return git.CommitHash(mkHash(o)), e
+}
+
+func MergeIndexAll() os.Error {
+	return git.Run("merge-index", "git-merge-one-file", "-a")
 }
 
 func SendPack(repo0 string, updates map[git.Ref]git.CommitHash) os.Error {

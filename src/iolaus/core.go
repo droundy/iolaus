@@ -11,6 +11,7 @@ import (
 	"../git/plumbing"
 	"../git/color"
 	"../util/out"
+	"../util/debug"
 	"../util/patience"
 	stringslice "./gotgo/slice(string)"
 )
@@ -145,4 +146,23 @@ func (d *FileDiff) Info() (mode int, contents git.Hash, f string) {
 		contents,_ = plumbing.HashFile(d.Name)
 	}
 	return mode, contents, d.Name
+}
+
+// Merge two commits, and return the resulting tree.
+func Merge(us, them git.Commitish) (t git.TreeHash, e os.Error) {
+	var basetree git.TreeHash
+	base, e := plumbing.MergeBase(us, them)
+	if e == nil {
+		baseX,e := plumbing.Commit(base)
+		if e != nil { return }
+		basetree = baseX.Tree
+	} else {
+		debug.Println("Looks like there are no common ancestors.")
+		// In this case, we want to use the empty tree for the merge.
+	}
+	e = plumbing.ReadTree3(basetree, us, them) 
+	if e != nil { return }
+	e = plumbing.MergeIndexAll()
+	if e != nil { return }
+	return plumbing.WriteTree(), e
 }

@@ -14,24 +14,36 @@ import (
 // These data types are mostly just defined here so that I can use
 // gotgo on them conveniently...
 type Hash [40]byte
-func (h Hash) String() string { return string(h[0:40]) }
+func (h Hash) String() string {
+	if h[0] == 0 {
+		// This is a default "empty" hash...
+		return "0000000000000000000000000000000000000000"
+	}
+	return string(h[0:40])
+}
 func (h Hash) IsEmpty() bool {
 	for _,v := range h {
-		if v != '0' { return false }
+		if v != '0' && v != 0 { return false }
 	}
 	return true
 }
 type TreeHash Hash
-func (r TreeHash) String() string { return string(r[0:40]) }
-func (r TreeHash) treeString() string { return string(r[0:40]) }
+func (r TreeHash) String() string {
+	if r[0] == 0 {
+		// This is a default "empty" hash for trees...
+		return "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+	}
+	return string(r[0:40])
+}
+func (r TreeHash) treeString() string { return r.String() }
 type Ref string
 func (r Ref) String() string { return string(r) }
 func (r Ref) commitString() string { return string(r) }
 func (r Ref) treeString() string { return string(r) }
 type CommitHash Hash
-func (h CommitHash) String() string { return string(h[0:40]) }
-func (h CommitHash) commitString() string { return string(h[0:40]) }
-func (h CommitHash) treeString() string { return string(h[0:40]) }
+func (h CommitHash) String() string { return Hash(h).String() }
+func (h CommitHash) commitString() string { return h.String() }
+func (h CommitHash) treeString() string { return h.String() }
 type Treeish interface {
 	String() string
 	treeString() string
@@ -39,6 +51,7 @@ type Treeish interface {
 type Commitish interface {
 	String() string
 	commitString() string
+	treeString() string
 }
 
 func AmInRepo(mess string) {

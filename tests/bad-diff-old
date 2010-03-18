@@ -2,7 +2,6 @@ package main;
 
 import (
 	"os"
-	"fmt"
 	"goopt"
 	git "./git/git"
 	"./git/plumbing"
@@ -10,7 +9,6 @@ import (
 	"./util/exit"
 	"./util/error"
 	"./util/help"
-	"./iolaus/core"
 	hashes "./gotgo/slice(git.Commitish)"
 )
 
@@ -70,47 +68,13 @@ func main() {
 	}
 	if *dryRun { exit.Exit(0) }
 	if len(topush) > 0 {
-		// We need to do a real merge!
 		for _,tp := range topush {
 			cc, e := plumbing.Commit(tp)
 			error.FailOn(e)
 			out.Println("Could push:\n", cc)
 		}
-		heads, _ := plumbing.ShowRef("--heads")
-		if len(remotes) == 1 && len(heads) == 1 {
-			// barf on local changes...
-			p,e := plumbing.DiffFiles([]string{})
-			error.FailOn(e)
-			if len(p) > 0 {
-				error.FailOn(os.NewError(
-					fmt.Sprintf("I can't handle local changes yet! %v",p)))
-			}
-			for _,r := range remotes {
-				// There's just one remote and just one head...
-				for _,h := range heads {
-					// It's pretty hokey to use os.Setenv here rather than using exec to
-					// set it directly, but it shouldn't be a problem as long as we
-					// aren't calling git from multiple goroutines.
-					e := plumbing.ReadTree(h,
-						"--index-output=.git/index.pulling")
-					error.FailOn(e)
-					e = os.Setenv("GIT_INDEX_FILE", ".git/index.pulling")
-					error.FailOn(e)
-					t, e := core.Merge(h, r)
-					error.FailOn(e)
-					c := plumbing.CommitTree(t, []git.Commitish{h,r}, "Merge")
-					plumbing.UpdateRef("HEAD", c)
-					plumbing.CheckoutIndex("--all")
-					// Now let's update the true index by just copying over the scratch...
-					e = os.Rename(".git/index.pulling", ".git/index")
-					error.FailOn(e) // FIXME: we should do better than this...
-					exit.Exit(0)
-				}
-			}
-		} else {
-			out.Println("I haven't finished with pull yet.")
-			exit.Exit(0)
-		}
+		out.Println("I haven't finished with pull yet.")
+		exit.Exit(0)
 	} else {
 		out.Println("This is a fast-forward pull!")
 		if *all {
@@ -121,18 +85,9 @@ func main() {
 			}
 			//plumbing.SendPack(origin, locals)
 			if len(remotes) == 1 {
-				heads, _ := plumbing.ShowRef("--heads")
-				if len(heads) > 1 {
-					error.FailOn(os.NewError("You've got too many heads!"))
-				}
 				for _,h := range remotes {
-					if len(heads) == 0 {
-						e = plumbing.ReadTree(h)
-					} else {
-						e = plumbing.ReadTree2(heads[git.Ref("HEAD")], h)
-					}
-					error.FailOn(e)
 					plumbing.UpdateRef("HEAD", h)
+					plumbing.ReadTree(h)
 					plumbing.CheckoutIndex("--all")
 					exit.Exit(0)
 				}

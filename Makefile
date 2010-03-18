@@ -129,13 +129,13 @@ src/iolaus/gotgo/slice(string).go: $(pkgdir)/./gotgo/slice.gotgo
 	mkdir -p src/iolaus/gotgo/
 	$< 'string' > "$@"
 endif
-src/iolaus/core.$(O): src/iolaus/core.go src/git/color.$(O) src/git/git.$(O) src/git/plumbing.$(O) src/iolaus/gotgo/slice(string).$(O) src/util/out.$(O) src/util/patience.$(O)
+src/iolaus/core.$(O): src/iolaus/core.go src/git/color.$(O) src/git/git.$(O) src/git/plumbing.$(O) src/iolaus/gotgo/slice(string).$(O) src/util/debug.$(O) src/util/out.$(O) src/util/patience.$(O)
 
 src/iolaus/gotgo/box(git.CommitHash,git.Commitish).$(O): src/iolaus/gotgo/box(git.CommitHash,git.Commitish).go src/git/git.$(O)
 
 src/iolaus/gotgo/slice(string).$(O): src/iolaus/gotgo/slice(string).go
 
-src/iolaus/prompt.$(O): src/iolaus/prompt.go src/git/color.$(O) src/git/plumbing.$(O) src/iolaus/core.$(O) src/iolaus/gotgo/slice(string).$(O) src/util/debug.$(O) src/util/error.$(O) src/util/out.$(O) src/util/patience.$(O)
+src/iolaus/prompt.$(O): src/iolaus/prompt.go src/git/color.$(O) src/iolaus/core.$(O) src/iolaus/gotgo/slice(string).$(O) src/util/debug.$(O) src/util/error.$(O) src/util/out.$(O) src/util/patience.$(O)
 
 ifneq ($(strip $(shell which gotgo)),)
 # looks like we require src/iolaus/gotgo/box.got as installed package...
@@ -163,7 +163,7 @@ bin/iolaus-pull: src/iolaus-pull.$(O)
 	$(LD) -o $@ $<
 $(bindir)/iolaus-pull: bin/iolaus-pull
 	cp $< $@
-src/iolaus-pull.$(O): src/iolaus-pull.go src/git/git.$(O) src/git/plumbing.$(O) src/gotgo/slice(git.Commitish).$(O) src/util/error.$(O) src/util/exit.$(O) src/util/help.$(O) src/util/out.$(O)
+src/iolaus-pull.$(O): src/iolaus-pull.go src/git/git.$(O) src/git/plumbing.$(O) src/gotgo/slice(git.Commitish).$(O) src/iolaus/core.$(O) src/util/error.$(O) src/util/exit.$(O) src/util/help.$(O) src/util/out.$(O)
 
 bin/iolaus-push: src/iolaus-push.$(O)
 	@mkdir -p bin
