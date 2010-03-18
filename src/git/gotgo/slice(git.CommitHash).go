@@ -70,21 +70,25 @@ func Repeat(val git.CommitHash, n int) []git.CommitHash {
 }
 
 // Cat concatenates two slices, expanding if needed.
-func Cat(slice []git.CommitHash, more []git.CommitHash) []git.CommitHash {
-	length1, length2 := len(slice), len(more)
-	if cap(slice) <= length1 + length2 {
-		// we need to expand
-		newsl := make([]git.CommitHash, length1, 2*(length1+length2))
-		for i,v := range slice {
-			newsl[i] = v
+func Cat(slices ...[]git.CommitHash) []git.CommitHash {
+	return Cats(slices)
+}
+
+// Cats concatenates several slices, expanding if needed.
+func Cats(slices [][]git.CommitHash) []git.CommitHash {
+	lentot := 0
+	for _,sl := range slices {
+		lentot += len(sl)
+	}
+	out := make([]git.CommitHash, lentot)
+	i := 0
+	for _,sl := range slices {
+		for _,v := range sl {
+			out[i] = v
+			i++
 		}
-		slice = newsl
 	}
-	slice = slice[0:length1+length2]
-	for i,v := range more {
-		slice[length1+i] = v
-	}
-	return slice
+	return out
 }
 
 func Reverse(slice []git.CommitHash) (out []git.CommitHash) {

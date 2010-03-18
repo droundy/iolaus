@@ -112,12 +112,14 @@ func ReadTree(ref git.Treeish, args ...string) os.Error {
 }
 
 func ReadTree2(us, them git.Treeish, args ...string) os.Error {
-	args = stringslice.Cat(args, []string{"-m", us.String(), them.String()})
+	foo := args
+	args = stringslice.Cat(foo, []string{"-m", us.String(), them.String()})
 	return git.RunS("read-tree", args)
 }
 
 func ReadTree3(base, us, them git.Treeish, args ...string) os.Error {
-	args = stringslice.Cat(args,
+	foo := args
+	args = stringslice.Cat(foo,
 		[]string{"-m", base.String(), us.String(), them.String()} )
 	return git.RunS("read-tree", args)
 }

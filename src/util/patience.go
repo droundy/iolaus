@@ -19,6 +19,9 @@ func Diff(o, n []string) []pt.StringChunk {
 }
 
 func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
+	if len(o) == 0 && len(n) == 0 {
+		return []pt.StringChunk{}
+	}
 	nnums := map[string] int{}
 	for lnum, l := range n {
 		_, present := nnums[l]
@@ -45,15 +48,6 @@ func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 			uniques = intslice.Append(uniques, nnum)
 		}
 	}
-	//for _,u := range(o) {
-	//	fmt.Printf("old %s\n", strconv.Quote(u))
-	//}
-	//for _,u := range(n) {
-	//	fmt.Printf("new %s\n", strconv.Quote(u))
-	//}
-	//for _,u := range(uniques) {
-	//	fmt.Printf("Unique %3d %s\n", u, strconv.Quote(n[u]))
-	//}
 	if len(uniques) == 0 {
 		first, last := 0, 0
 		for first < len(o) && first < len(n) && o[first] == n[first] { first++ }
@@ -71,6 +65,8 @@ func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 			}
 			return []pt.StringChunk{pt.StringChunk{line0+first, ostuff, nstuff}}
 		} else {
+			//fmt.Printf("Hello silly %v %v\n", len(o)-last > first, len(n)-last > first)
+			//fmt.Printf("Hello lens %d %d %d %d\n", len(o),len(n),last, first)
 			return []pt.StringChunk{}
 		}
 	}
@@ -100,14 +96,7 @@ func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 		lcs = intslice.Append(lcs, piles[pnum][enum].Val)
 		enum = piles[pnum][enum].Prev
 	}
-	//fmt.Println("piles are ", piles)
-	//for i := range lcs {
-	//	fmt.Printf("lcs %3d %3d: %s\n", lcs[i], onums[n[lcs[i]]],
-	//		strconv.Quote(n[lcs[i]]))
-	//	fmt.Printf("             %s\n", strconv.Quote(o[onums[n[lcs[i]]]]))
-	//}
 	diff := []pt.StringChunk{}
-	//fmt.Printf("heello world\n")
 	for prevo,prevn,i:= 0,0,len(lcs)-1; i>=0; i-- {
 		nextn := lcs[i]
 		nexto := onums[n[nextn]]
@@ -115,8 +104,8 @@ func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 		//	len(o), len(n), prevo, nexto, prevn, nextn)
 		diff = ch.Cat(diff,
 			DiffFromLine(line0+prevn, o[prevo:nexto], n[prevn:nextn]))
-		prevo = nexto
-		prevn = nextn
+		prevo = nexto+1
+		prevn = nextn+1
 	}
 	return diff
 }

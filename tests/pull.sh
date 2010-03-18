@@ -30,7 +30,8 @@ iolaus-pull --debug --all ../repo
 ls
 iolaus-whatsnew
 grep hello foo
-
+#
+#x
 git log | grep Merge
 cd ..
 

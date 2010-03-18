@@ -210,6 +210,8 @@ src/util/gotgo/slice(pt.PatienceElem).$(O): src/util/gotgo/slice(pt.PatienceElem
 
 src/util/gotgo/slice(pt.StringChunk).$(O): src/util/gotgo/slice(pt.StringChunk).go src/util/patienceTypes.$(O)
 
+src/util/gotgo/slice(string).$(O): src/util/gotgo/slice(string).go
+
 src/util/help.$(O): src/util/help.go
 
 src/util/out.$(O): src/util/out.go src/util/cook.$(O)

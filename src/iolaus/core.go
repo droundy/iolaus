@@ -77,16 +77,15 @@ func (d *FileDiff) OldNewStrings() (o, n string, e os.Error) {
 func (d *FileDiff) Fprint(f io.Writer) (e os.Error) {
 	switch d.Change {
 	case plumbing.Added:
-		fmt.Fprint(f, color.String("Added "+d.Name, color.Meta))
+		fmt.Fprintln(f, color.String("Added "+d.Name, color.Meta))
 	case plumbing.Deleted:
-		fmt.Fprint(f,color.String("Deleted "+d.Name, color.Meta))
+		fmt.Fprintln(f,color.String("Deleted "+d.Name, color.Meta))
 	case plumbing.Modified:
 		if d.OldMode != d.NewMode { fmt.Fprintln(f,d) }
 		oldf, newf, e := d.OldNewStrings()
 		if e != nil { return }
 		newer := strings.SplitAfter(newf,"\n",0)
 		older := strings.SplitAfter(oldf,"\n",0)
-		if e != nil { return }
 		mychunks := patience.Diff(older, newer)
 		
 		chunkLine := 1
