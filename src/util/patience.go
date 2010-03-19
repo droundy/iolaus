@@ -5,6 +5,7 @@ import (
 	//"fmt"
 	"io/ioutil"
 	"strings"
+	"./debug"
 	pt "./patienceTypes"
 	intslice "./gotgo/slice(int)"
 	ch "./gotgo/slice(pt.StringChunk)"
@@ -48,6 +49,7 @@ func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 			uniques = intslice.Append(uniques, nnum)
 		}
 	}
+	debug.Printf("Uniques are %v\n", uniques)
 	if len(uniques) == 0 {
 		first, last := 0, 0
 		for first < len(o) && first < len(n) && o[first] == n[first] { first++ }
@@ -91,6 +93,7 @@ func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 			piles = pess.Append(piles, newpile)
 		}
 	}
+	debug.Printf("Piles are %v\n", piles)
 	lcs := []int{}
 	for pnum, enum := len(piles)-1, len(piles[len(piles)-1])-1; pnum >= 0; pnum-- {
 		lcs = intslice.Append(lcs, piles[pnum][enum].Val)
@@ -102,6 +105,8 @@ func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 		nexto := onums[n[nextn]]
 		//fmt.Printf("len(o)=%d len(n)=%d prevo=%d nexto=%d prevn=%d nextn=%d\n",
 		//	len(o), len(n), prevo, nexto, prevn, nextn)
+		debug.Printf("Looking at changes in old from %d to %d\n", prevo, nexto)
+		debug.Printf("Looking at changes in new from %d to %d\n", prevn, nextn)
 		diff = ch.Cat(diff,
 			DiffFromLine(line0+prevn, o[prevo:nexto], n[prevn:nextn]))
 		prevo = nexto+1
