@@ -24,6 +24,9 @@ func Run(ds []core.FileDiff, f func(core.FileDiff)) {
 	} else {
 	  files: for _,d := range ds {
 			for {
+				if !d.HasChange() {
+					continue files
+				}
 				// Just keep asking until we get a reasonable answer...
 				c,e := out.PromptForChar(goopt.Expand("Verb changes to %s? "), d.Name)
 				error.FailOn(e)

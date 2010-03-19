@@ -31,6 +31,7 @@ func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 		} else {
 			nnums[l] = lnum // this is distance from "line0"
 		}
+		//debug.Print("n: ", l)
 	}
 	onums := map[string]int {}
 	for lnum, l := range o {
@@ -40,6 +41,7 @@ func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 		} else {
 			onums[l] = lnum // this is distance from "line0"
 		}
+		//debug.Print("o: ", l)
 	}
 	uniques := []int{}
 	for _, l := range o {
@@ -112,5 +114,8 @@ func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 		prevo = nexto+1
 		prevn = nextn+1
 	}
+	lastn := lcs[0]
+	lasto := onums[n[lastn]]
+	diff = ch.Cat(diff, DiffFromLine(line0+lastn, o[lasto+1:], n[lastn+1:]))
 	return diff
 }

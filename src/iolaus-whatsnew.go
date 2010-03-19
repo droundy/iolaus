@@ -7,6 +7,7 @@ import (
 	"./util/help"
 	"./util/exit"
 	"./util/error"
+	"./util/debug"
 	"./iolaus/core"
 	"./iolaus/prompt"
 )
@@ -27,6 +28,7 @@ func main() {
 	ds,e := core.DiffFiles(goopt.Args[1:])
 	error.FailOn(e)
 	prompt.Run(ds, func (f core.FileDiff) {
+		debug.Println("Looking at changes to "+f.Name)
 		f.Print()
 	})
 	exit.Exit(0)

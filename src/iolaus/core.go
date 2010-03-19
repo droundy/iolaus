@@ -83,14 +83,25 @@ func (d *FileDiff) Fprint(f io.Writer) (e os.Error) {
 	case plumbing.Modified:
 		if d.OldMode != d.NewMode { fmt.Fprintln(f,d) }
 		oldf, newf, e := d.OldNewStrings()
-		if e != nil { return }
+		if e != nil {
+			debug.Printf("Had trouble reading file and old %s: %s\n", d.Name, e.String())
+			return
+		}
+		if newf == oldf {
+			debug.Println("File "+d.Name+" is unchanged.")
+			return
+		}
 		newer := strings.SplitAfter(newf,"\n",0)
 		older := strings.SplitAfter(oldf,"\n",0)
 		mychunks := patience.Diff(older, newer)
 		
 		chunkLine := 1
 		lastline := chunkLine
-		if len(mychunks) == 0 { return }
+		debug.Printf("File %s has %d chunks changed\n",d.Name,len(mychunks))
+		if len(mychunks) == 0 {
+			debug.Println("File "+d.Name+" mysteriously looks unchanged.")
+			return
+		}
 		if mychunks[0].Line-4 > lastline {
 			lastline = mychunks[0].Line - 4
 		}
@@ -119,6 +130,21 @@ func (d *FileDiff) Fprint(f io.Writer) (e os.Error) {
 		fmt.Fprintln(f,d)
 	}
 	return
+}
+
+// Check if the file has something changed!
+func (d *FileDiff) HasChange() bool {
+	switch d.Change {
+	case plumbing.Added, plumbing.Deleted:
+		return true
+	case plumbing.Modified:
+		if d.OldMode != d.NewMode { return true }
+		oldf, newf, e := d.OldNewStrings()
+		if e != nil { return true }
+		debug.Printf("File %s has changes? %v\n", d.Name, oldf != newf)
+		return oldf != newf
+	}
+	return true
 }
 
 func (d *FileDiff) Show() string {
