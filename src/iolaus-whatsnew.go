@@ -24,7 +24,7 @@ func main() {
 	help.Init("see unrecorded changes.", description, plumbing.LsFiles)
 	git.AmInRepo("Must be in a repository to call whatsnew!")
 	//plumbing.ReadTree(git.Ref("HEAD"))
-	ds,e := core.DiffFiles([]string{})
+	ds,e := core.DiffFiles(goopt.Args[1:])
 	error.FailOn(e)
 	prompt.Run(ds, func (f core.FileDiff) {
 		f.Print()

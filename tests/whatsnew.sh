@@ -25,8 +25,8 @@ iolaus-whatsnew | grep bbb
 
 # FIXME: The following requires us to make wh accept files
 iolaus-whatsnew aaa
-#iolaus-whatsnew aaa | grep bbb && exit 1
-#iolaus-whatsnew b | grep hello && exit 1
+iolaus-whatsnew aaa | grep bbb && exit 1
+iolaus-whatsnew b | grep goodbye && exit 1
 iolaus-whatsnew aaa | grep goodbye | grep -- -
 
 cd ..
