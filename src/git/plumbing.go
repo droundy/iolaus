@@ -12,7 +12,7 @@ import (
 	"patch"
 	"fmt"
 	"strconv"
-	stringslice "./gotgo/slice(string)"
+	stringslice "../util/slice(string)"
 	pars "./gotgo/slice(git.CommitHash)"
 )
 

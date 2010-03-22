@@ -1,4 +1,4 @@
-package slice龍funcøø龍funcøø
+package slice
 
 
 
@@ -105,9 +105,8 @@ func Any(f func(func()) bool, slice []func()) bool {
 	}
 	return false
 }
+
 // Here we will test that the types parameters are ok...
-
-
 func testTypes(arg0 func(), arg1 func()) {
     f := func(interface{}, interface{}) { } // this func does nothing...
     f(arg0, arg1)

@@ -13,7 +13,7 @@ import (
 	"../util/out"
 	"../util/debug"
 	"../util/patience"
-	stringslice "./gotgo/slice(string)"
+	stringslice "../util/slice(string)"
 )
 
 func ModifiedFiles() []string {

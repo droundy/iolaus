@@ -6,22 +6,44 @@ import (
 	"io/ioutil"
 	"strings"
 	"./debug"
-	pt "./patienceTypes"
+	"../git/color"
 	intslice "./gotgo/slice(int)"
-	ch "./gotgo/slice(pt.StringChunk)"
-	pes "./gotgo/slice(pt.PatienceElem)"
-	pess "./gotgo/slice([]pt.PatienceElem)"
 )
 
-func Diff(o, n []string) []pt.StringChunk {
+type StringChunk struct {
+    Line int
+    Old  []string
+    New  []string
+}
+func (ch StringChunk) String() (out string) {
+	if len(ch.Old) == 0 && len(ch.New) == 0 {
+		return ""
+	}
+	out = "" // fmt.Sprintln(" ",ch.Line)
+	for _, l := range ch.Old {
+		out += color.String("-" + l, color.Old)
+	}
+	for _, l := range ch.New {
+		out += color.String("+" + l, color.New)
+	}
+	return
+}
+
+type PatienceElem struct {
+	Val int
+	// The prev points to the next "pile" to read off.
+	Prev int
+}
+
+func Diff(o, n []string) []StringChunk {
 	ioutil.WriteFile("/tmp/old", []byte(strings.Join(o,"")), 0666)
 	ioutil.WriteFile("/tmp/new", []byte(strings.Join(n,"")), 0666)
 	return DiffFromLine(1,o,n)
 }
 
-func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
+func DiffFromLine(line0 int, o, n []string) []StringChunk {
 	if len(o) == 0 && len(n) == 0 {
-		return []pt.StringChunk{}
+		return []StringChunk{}
 	}
 	nnums := map[string] int{}
 	for lnum, l := range n {
@@ -67,14 +89,14 @@ func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 			if len(n)-last > first {
 				nstuff = n[first:len(n)-last]
 			}
-			return []pt.StringChunk{pt.StringChunk{line0+first, ostuff, nstuff}}
+			return []StringChunk{StringChunk{line0+first, ostuff, nstuff}}
 		} else {
 			//fmt.Printf("Hello silly %v %v\n", len(o)-last > first, len(n)-last > first)
 			//fmt.Printf("Hello lens %d %d %d %d\n", len(o),len(n),last, first)
-			return []pt.StringChunk{}
+			return []StringChunk{}
 		}
 	}
-	piles := [][]pt.PatienceElem{[]pt.PatienceElem{pt.PatienceElem{uniques[0],0}}}
+	piles := [][]PatienceElem{[]PatienceElem{PatienceElem{uniques[0],0}}}
 	for _,v := range uniques[1:] {
 		foundone := false
 		for ipile,pile := range piles {
@@ -85,14 +107,14 @@ func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 					// points to top element of previous pile 
 					myprev = len(piles[ipile-1])-1
 				}
-				piles[ipile] = pes.Append(piles[ipile], pt.PatienceElem{v,myprev})
+				piles[ipile] = peAppend(piles[ipile], PatienceElem{v,myprev})
 				break
 			}
 		}
 		if !foundone {
-			newpile := make([]pt.PatienceElem,1,4)
-			newpile[0] = pt.PatienceElem{v, len(piles[len(piles)-1])-1}
-			piles = pess.Append(piles, newpile)
+			newpile := make([]PatienceElem,1,4)
+			newpile[0] = PatienceElem{v, len(piles[len(piles)-1])-1}
+			piles = pesAppend(piles, newpile)
 		}
 	}
 	debug.Printf("Piles are %v\n", piles)
@@ -101,7 +123,7 @@ func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 		lcs = intslice.Append(lcs, piles[pnum][enum].Val)
 		enum = piles[pnum][enum].Prev
 	}
-	diff := []pt.StringChunk{}
+	diff := []StringChunk{}
 	for prevo,prevn,i:= 0,0,len(lcs)-1; i>=0; i-- {
 		nextn := lcs[i]
 		nexto := onums[n[nextn]]
@@ -109,13 +131,13 @@ func DiffFromLine(line0 int, o, n []string) []pt.StringChunk {
 		//	len(o), len(n), prevo, nexto, prevn, nextn)
 		debug.Printf("Looking at changes in old from %d to %d\n", prevo, nexto)
 		debug.Printf("Looking at changes in new from %d to %d\n", prevn, nextn)
-		diff = ch.Cat(diff,
+		diff = scCat(diff,
 			DiffFromLine(line0+prevn, o[prevo:nexto], n[prevn:nextn]))
 		prevo = nexto+1
 		prevn = nextn+1
 	}
 	lastn := lcs[0]
 	lasto := onums[n[lastn]]
-	diff = ch.Cat(diff, DiffFromLine(line0+lastn, o[lasto+1:], n[lastn+1:]))
+	diff = scCat(diff, DiffFromLine(line0+lastn, o[lasto+1:], n[lastn+1:]))
 	return diff
 }

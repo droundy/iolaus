@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"../src/util/debug"
 	"../src/util/error"
-	stringslice "./gotgo/slice(string)"
+	stringslice "../src/util/slice(string)"
 )
 
 func main() {

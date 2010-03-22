@@ -8,7 +8,7 @@ import (
 	"path"
 	"fmt"
 	"io/ioutil"
-	stringslice "./gotgo/slice(string)"
+	stringslice "../util/slice(string)"
 )
 
 // These data types are mostly just defined here so that I can use

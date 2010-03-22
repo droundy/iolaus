@@ -9,7 +9,7 @@ import (
 	"../util/error"
 	"../util/debug"
 	"../util/patience"
-	ss "./gotgo/slice(string)"
+	ss "../util/slice(string)"
 )
 
 // To make --all the default, set *prompt.All to true.

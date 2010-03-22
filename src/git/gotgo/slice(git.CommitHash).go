@@ -1,13 +1,13 @@
-package slice龍gitøCommitHash龍gitøCommitHash
+package slice
 
-import git "../git"
+import a "../git"
 
 
 // Here we have some utility slice routines
 
 // Map1 provides an in-place map, meaning it modifies its input slice.
 // If you still want that data, use the Map function.
-func Map1(f func(git.CommitHash) git.CommitHash, slice []git.CommitHash) {
+func Map1(f func(a.CommitHash) a.CommitHash, slice []a.CommitHash) {
 	for i,v := range slice {
 		slice[i] = f(v)
 	}
@@ -16,15 +16,15 @@ func Map1(f func(git.CommitHash) git.CommitHash, slice []git.CommitHash) {
 // Map provides an out-of-place map, meaning it does not modify its
 // input slice.  It therefore has the advantage that you can Map from
 // one type of slice to another.
-func Map(f func(git.CommitHash) git.CommitHash, slice []git.CommitHash) []git.CommitHash {
-	out := make([]git.CommitHash, len(slice))
+func Map(f func(a.CommitHash) a.CommitHash, slice []a.CommitHash) []a.CommitHash {
+	out := make([]a.CommitHash, len(slice))
 	for i,v := range slice {
 		out[i] = f(v)
 	}
 	return out
 }
 
-func Fold(f func(git.CommitHash, git.CommitHash) git.CommitHash, x git.CommitHash, slice []git.CommitHash) git.CommitHash {
+func Fold(f func(a.CommitHash, a.CommitHash) a.CommitHash, x a.CommitHash, slice []a.CommitHash) a.CommitHash {
   for _, v := range slice {
     x = f(x, v)
   }
@@ -33,8 +33,8 @@ func Fold(f func(git.CommitHash, git.CommitHash) git.CommitHash, x git.CommitHas
 
 // Filter returns a slice containing only those elements for which the
 // predicate function returns true.
-func Filter(f func(git.CommitHash) bool, slice []git.CommitHash) []git.CommitHash {
-	out := make ([]git.CommitHash, 0, len(slice))
+func Filter(f func(a.CommitHash) bool, slice []a.CommitHash) []a.CommitHash {
+	out := make ([]a.CommitHash, 0, len(slice))
 	i := 0
 	for _,v := range slice {
 		if f(v) {
@@ -48,11 +48,11 @@ func Filter(f func(git.CommitHash) bool, slice []git.CommitHash) []git.CommitHas
 
 // Append appends an element to a slice, in-place if possible, and
 // expanding if needed.
-func Append(slice []git.CommitHash, val git.CommitHash) []git.CommitHash {
+func Append(slice []a.CommitHash, val a.CommitHash) []a.CommitHash {
 	length := len(slice)
 	if cap(slice) == length {
 		// we need to expand
-		newsl := make([]git.CommitHash, length, 2*(length+1))
+		newsl := make([]a.CommitHash, length, 2*(length+1))
 		for i,v := range slice {
 			newsl[i] = v
 		}
@@ -63,24 +63,24 @@ func Append(slice []git.CommitHash, val git.CommitHash) []git.CommitHash {
 	return slice
 }
 
-func Repeat(val git.CommitHash, n int) []git.CommitHash {
-	out := make([]git.CommitHash, n)
+func Repeat(val a.CommitHash, n int) []a.CommitHash {
+	out := make([]a.CommitHash, n)
 	for i,_ := range out { out[i] = val }
 	return out
 }
 
 // Cat concatenates two slices, expanding if needed.
-func Cat(slices ...[]git.CommitHash) []git.CommitHash {
+func Cat(slices ...[]a.CommitHash) []a.CommitHash {
 	return Cats(slices)
 }
 
 // Cats concatenates several slices, expanding if needed.
-func Cats(slices [][]git.CommitHash) []git.CommitHash {
+func Cats(slices [][]a.CommitHash) []a.CommitHash {
 	lentot := 0
 	for _,sl := range slices {
 		lentot += len(sl)
 	}
-	out := make([]git.CommitHash, lentot)
+	out := make([]a.CommitHash, lentot)
 	i := 0
 	for _,sl := range slices {
 		for _,v := range sl {
@@ -91,25 +91,24 @@ func Cats(slices [][]git.CommitHash) []git.CommitHash {
 	return out
 }
 
-func Reverse(slice []git.CommitHash) (out []git.CommitHash) {
+func Reverse(slice []a.CommitHash) (out []a.CommitHash) {
 	ln := len(slice)
-	out = make([]git.CommitHash, ln)
+	out = make([]a.CommitHash, ln)
 	for i,v:= range slice {
 		out[ln-1-i] = v
 	}
 	return
 }
 
-func Any(f func(git.CommitHash) bool, slice []git.CommitHash) bool {
+func Any(f func(a.CommitHash) bool, slice []a.CommitHash) bool {
 	for _,v:= range slice {
 		if f(v) { return true }
 	}
 	return false
 }
+
 // Here we will test that the types parameters are ok...
-
-
-func testTypes(arg0 git.CommitHash, arg1 git.CommitHash) {
+func testTypes(arg0 a.CommitHash, arg1 a.CommitHash) {
     f := func(interface{}, interface{}) { } // this func does nothing...
     f(arg0, arg1)
 }

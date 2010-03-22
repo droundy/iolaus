@@ -1,4 +1,4 @@
-package slice龍int龍int
+package slice
 
 
 
@@ -105,9 +105,8 @@ func Any(f func(int) bool, slice []int) bool {
 	}
 	return false
 }
+
 // Here we will test that the types parameters are ok...
-
-
 func testTypes(arg0 int, arg1 int) {
     f := func(interface{}, interface{}) { } // this func does nothing...
     f(arg0, arg1)

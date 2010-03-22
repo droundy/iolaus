@@ -1,4 +1,4 @@
-package slice龍string龍string
+package patience
 
 
 
@@ -6,7 +6,7 @@ package slice龍string龍string
 
 // Map1 provides an in-place map, meaning it modifies its input slice.
 // If you still want that data, use the Map function.
-func Map1(f func(string) string, slice []string) {
+func pesMap1(f func([]PatienceElem) []PatienceElem, slice [][]PatienceElem) {
 	for i,v := range slice {
 		slice[i] = f(v)
 	}
@@ -15,15 +15,15 @@ func Map1(f func(string) string, slice []string) {
 // Map provides an out-of-place map, meaning it does not modify its
 // input slice.  It therefore has the advantage that you can Map from
 // one type of slice to another.
-func Map(f func(string) string, slice []string) []string {
-	out := make([]string, len(slice))
+func pesMap(f func([]PatienceElem) []PatienceElem, slice [][]PatienceElem) [][]PatienceElem {
+	out := make([][]PatienceElem, len(slice))
 	for i,v := range slice {
 		out[i] = f(v)
 	}
 	return out
 }
 
-func Fold(f func(string, string) string, x string, slice []string) string {
+func pesFold(f func([]PatienceElem, []PatienceElem) []PatienceElem, x []PatienceElem, slice [][]PatienceElem) []PatienceElem {
   for _, v := range slice {
     x = f(x, v)
   }
@@ -32,8 +32,8 @@ func Fold(f func(string, string) string, x string, slice []string) string {
 
 // Filter returns a slice containing only those elements for which the
 // predicate function returns true.
-func Filter(f func(string) bool, slice []string) []string {
-	out := make ([]string, 0, len(slice))
+func pesFilter(f func([]PatienceElem) bool, slice [][]PatienceElem) [][]PatienceElem {
+	out := make ([][]PatienceElem, 0, len(slice))
 	i := 0
 	for _,v := range slice {
 		if f(v) {
@@ -47,11 +47,11 @@ func Filter(f func(string) bool, slice []string) []string {
 
 // Append appends an element to a slice, in-place if possible, and
 // expanding if needed.
-func Append(slice []string, val string) []string {
+func pesAppend(slice [][]PatienceElem, val []PatienceElem) [][]PatienceElem {
 	length := len(slice)
 	if cap(slice) == length {
 		// we need to expand
-		newsl := make([]string, length, 2*(length+1))
+		newsl := make([][]PatienceElem, length, 2*(length+1))
 		for i,v := range slice {
 			newsl[i] = v
 		}
@@ -62,24 +62,24 @@ func Append(slice []string, val string) []string {
 	return slice
 }
 
-func Repeat(val string, n int) []string {
-	out := make([]string, n)
+func pesRepeat(val []PatienceElem, n int) [][]PatienceElem {
+	out := make([][]PatienceElem, n)
 	for i,_ := range out { out[i] = val }
 	return out
 }
 
 // Cat concatenates two slices, expanding if needed.
-func Cat(slices ...[]string) []string {
-	return Cats(slices)
+func pesCat(slices ...[][]PatienceElem) [][]PatienceElem {
+	return pesCats(slices)
 }
 
 // Cats concatenates several slices, expanding if needed.
-func Cats(slices [][]string) []string {
+func pesCats(slices [][][]PatienceElem) [][]PatienceElem {
 	lentot := 0
 	for _,sl := range slices {
 		lentot += len(sl)
 	}
-	out := make([]string, lentot)
+	out := make([][]PatienceElem, lentot)
 	i := 0
 	for _,sl := range slices {
 		for _,v := range sl {
@@ -90,25 +90,24 @@ func Cats(slices [][]string) []string {
 	return out
 }
 
-func Reverse(slice []string) (out []string) {
+func pesReverse(slice [][]PatienceElem) (out [][]PatienceElem) {
 	ln := len(slice)
-	out = make([]string, ln)
+	out = make([][]PatienceElem, ln)
 	for i,v:= range slice {
 		out[ln-1-i] = v
 	}
 	return
 }
 
-func Any(f func(string) bool, slice []string) bool {
+func pesAny(f func([]PatienceElem) bool, slice [][]PatienceElem) bool {
 	for _,v:= range slice {
 		if f(v) { return true }
 	}
 	return false
 }
+
 // Here we will test that the types parameters are ok...
-
-
-func testTypes(arg0 string, arg1 string) {
+func pestestTypes(arg0 []PatienceElem, arg1 []PatienceElem) {
     f := func(interface{}, interface{}) { } // this func does nothing...
     f(arg0, arg1)
 }
