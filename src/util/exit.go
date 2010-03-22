@@ -6,11 +6,9 @@ import (
 )
 
 func Exit(ecode int) {
-	ae := make(chan func())
-	pleaseExit <- ae;
-	atexit := <- ae
-	atexit()
-	os.Exit(ecode)
+	pleaseExit <- ecode;
+	// The following is to guarantee that we don't exit this function...
+	AtExit(func() {})
 }
 
 // returns a "cancel this AtExit" function
@@ -24,7 +22,7 @@ type aeReq struct {
 	cancel chan <- func()
 	atexit func()
 }
-var pleaseExit = make(chan (chan <- func()))
+var pleaseExit = make(chan int)
 var aeRequests = make(chan aeReq)
 func init() {
     go handleExit()
@@ -46,14 +44,16 @@ func handleExit() {
 				// run once...
 				atExit = atExit[0:j]
 			}
-		case ch := <- pleaseExit:
-			f := func() {
-				for i:=len(atExit)-1; i>=0; i-- { if atExit[i] != nil { atExit[i]() } }
-			}
-			ch <- f
+		case ecode := <- pleaseExit:
 			// no more exiting allowed! This should (hopefully) cause any
 			// threads that try to AtExit to hang in a recognizable way (so
 			// they may be GCed), and similarly any that try to Exit.
+			for i:=len(atExit)-1; i>=0; i-- {
+				if atExit[i] != nil {
+					atExit[i]()
+				}
+			}
+			os.Exit(ecode)
 			return
 		}
 	}
