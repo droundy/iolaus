@@ -16,7 +16,7 @@ doc/index.html: README.md scripts/mkdown scripts/header.html scripts/footer.html
 	./scripts/mkdown -o doc/index.html README.md
 
 doc/manual.html: scripts/mkmanual scripts/header.html scripts/footer.html
-	./scripts/mkmanual src/*.go
+	./scripts/mkmanual src/iolaus-*.go
 
 doc/install.html: INSTALL.md scripts/mkdown scripts/header.html scripts/footer.html
 	./scripts/mkdown -o $@ $<
