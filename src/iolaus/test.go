@@ -46,7 +46,8 @@ func Commit(h git.CommitHash) (outh git.CommitHash, e os.Error) {
 	if e != nil { return outh, e }
 	newlog := t.Message
 	if msg != "" {
-		if strings.LastIndex(newlog, ":") <= strings.LastIndex(newlog, "\n") {
+		if strings.LastIndex(newlog, ":") <= strings.LastIndex(newlog, "\n") &&
+			newlog[len(newlog)-2:] != "\n\n" {
 			newlog += "\n"
 		}
 		newlog += "\n" + msg
