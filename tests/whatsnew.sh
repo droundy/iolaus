@@ -17,13 +17,15 @@ echo yq | iolaus-whatsnew --interactive | grep "Added aaa"
 
 iolaus-record -am addfiles
 
+env
+pwd
+which iolaus-whatsnew
 echo allas > aaa
 echo bbb > b
 iolaus-whatsnew
 iolaus-whatsnew | grep hello
 iolaus-whatsnew | grep bbb
 
-# FIXME: The following requires us to make wh accept files
 iolaus-whatsnew aaa
 iolaus-whatsnew aaa | grep bbb && exit 1
 iolaus-whatsnew b | grep goodbye && exit 1

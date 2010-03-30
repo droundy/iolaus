@@ -11,6 +11,7 @@ import (
 	git "../git/git"
 	"../git/plumbing"
 	"../util/out"
+	"../util/debug"
 	box "./gotgo/box(git.CommitHash,git.Commitish)"
 )
 
@@ -86,7 +87,10 @@ func Tree(h git.TreeHash) (msg string, e os.Error) {
 	if e == nil && (bstat.Permission() & 1) == 1 {
 		out.Print("Running build!")
 		// There is an executable .build, so run it!
-		pid,e := exec.Run(path.Join(testdir,".build"), []string{}, os.Environ(),
+		// clear out the GIT_INDEX_FILE environment variable, so our test
+		// will be clean.
+		pid,e := exec.Run(path.Join(testdir,".build"), []string{},
+			removeEnv("GIT_INDEX_FILE", os.Environ()),
 			testdir, exec.DevNull, exec.PassThrough, exec.MergeWithStdout)
 		if e != nil { return "",e }
 		ws,e := pid.Wait(0)
@@ -100,7 +104,8 @@ func Tree(h git.TreeHash) (msg string, e os.Error) {
 	if e == nil && (tstat.Permission() & 1) == 1 {
 		out.Print("Running test!")
 		// There is an executable .test, so run it!
-		pid,e := exec.Run(path.Join(testdir,".test"), []string{}, os.Environ(),
+		pid,e := exec.Run(path.Join(testdir,".test"), []string{},
+			removeEnv("GIT_INDEX_FILE", os.Environ()),
 			testdir, exec.DevNull, exec.PassThrough, exec.MergeWithStdout)
 		if e != nil { return "", e }
 		ws,e := pid.Wait(0)
@@ -109,6 +114,10 @@ func Tree(h git.TreeHash) (msg string, e os.Error) {
 			return "",os.NewError(fmt.Sprintf(".test exited with '%v'",ws.ExitStatus()))
 		}
 		msg = "Tested-on: " + machineName
+	} else if e == nil {
+		debug.Printf("The test isn't executable... %o\n", tstat.Permission())
+	} else {
+		debug.Printf("There is no test... %v\n", e)
 	}
 	e = os.RemoveAll(testdir)
 	return
@@ -128,4 +137,18 @@ func tmpDir(p string) (string, os.Error) {
 		if e == nil { return pnew,nil }
 	}
 	return "",e
+}
+
+func removeEnv(torem string, e []string) []string {
+	out := make([]string,len(e))
+	torem = torem + "="
+	off := 0
+	for i,v := range e {
+		if len(v) > len(torem) && v[0:len(torem)] == torem {
+			off -= 1
+		} else {
+			out[i+off] = v
+		}
+	}
+	return out[0:len(out)+off]
 }
