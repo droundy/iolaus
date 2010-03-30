@@ -1,0 +1,114 @@
+package main
+
+import a "./git/git"
+
+
+// Here we have some utility slice routines
+
+// Map1 provides an in-place map, meaning it modifies its input slice.
+// If you still want that data, use the Map function.
+func csMap1(f func(a.CommitHash) a.CommitHash, slice []a.CommitHash) {
+	for i,v := range slice {
+		slice[i] = f(v)
+	}
+}
+
+// Map provides an out-of-place map, meaning it does not modify its
+// input slice.  It therefore has the advantage that you can Map from
+// one type of slice to another.
+func csMap(f func(a.CommitHash) a.CommitHash, slice []a.CommitHash) []a.CommitHash {
+	out := make([]a.CommitHash, len(slice))
+	for i,v := range slice {
+		out[i] = f(v)
+	}
+	return out
+}
+
+func csFold(f func(a.CommitHash, a.CommitHash) a.CommitHash, x a.CommitHash, slice []a.CommitHash) a.CommitHash {
+  for _, v := range slice {
+    x = f(x, v)
+  }
+  return x
+}
+
+// Filter returns a slice containing only those elements for which the
+// predicate function returns true.
+func csFilter(f func(a.CommitHash) bool, slice []a.CommitHash) []a.CommitHash {
+	out := make ([]a.CommitHash, 0, len(slice))
+	i := 0
+	for _,v := range slice {
+		if f(v) {
+			out = out[0:i+1]
+			out[i] = v
+			i++
+		}
+	}
+	return out
+}
+
+// Append appends an element to a slice, in-place if possible, and
+// expanding if needed.
+func csAppend(slice []a.CommitHash, val a.CommitHash) []a.CommitHash {
+	length := len(slice)
+	if cap(slice) == length {
+		// we need to expand
+		newsl := make([]a.CommitHash, length, 2*(length+1))
+		for i,v := range slice {
+			newsl[i] = v
+		}
+		slice = newsl
+	}
+	slice = slice[0:length+1]
+	slice[length] = val
+	return slice
+}
+
+func csRepeat(val a.CommitHash, n int) []a.CommitHash {
+	out := make([]a.CommitHash, n)
+	for i,_ := range out { out[i] = val }
+	return out
+}
+
+// Cat concatenates two slices, expanding if needed.
+func csCat(slices ...[]a.CommitHash) []a.CommitHash {
+	return csCats(slices)
+}
+
+// Cats concatenates several slices, expanding if needed.
+func csCats(slices [][]a.CommitHash) []a.CommitHash {
+	lentot := 0
+	for _,sl := range slices {
+		lentot += len(sl)
+	}
+	out := make([]a.CommitHash, lentot)
+	i := 0
+	for _,sl := range slices {
+		for _,v := range sl {
+			out[i] = v
+			i++
+		}
+	}
+	return out
+}
+
+func csReverse(slice []a.CommitHash) (out []a.CommitHash) {
+	ln := len(slice)
+	out = make([]a.CommitHash, ln)
+	for i,v:= range slice {
+		out[ln-1-i] = v
+	}
+	return
+}
+
+func csAny(f func(a.CommitHash) bool, slice []a.CommitHash) bool {
+	for _,v:= range slice {
+		if f(v) { return true }
+	}
+	return false
+}
+
+// Here we will test that the types parameters are ok...
+func cstestTypes(arg0 a.CommitHash, arg1 a.CommitHash) {
+    f := func(interface{}, interface{}) { } // this func does nothing...
+    f(arg0, arg1)
+}

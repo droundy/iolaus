@@ -9,7 +9,7 @@ test: all
 install: installbins installpkgs
 
 web: doc/index.html doc/manual.html doc/install.html doc/TODO.html \
-	$(subst src,doc,$(subst .go,.html,$(wildcard src/*.go))) \
+	$(subst src,doc,$(subst .go,.html,$(wildcard src/iolaus-*.go))) \
 	doc/hydra.svg doc/iolaus.css
 
 doc/index.html: README.md scripts/mkdown scripts/header.html scripts/footer.html
@@ -34,7 +34,7 @@ man: $(subst src,doc/man/man1,$(subst .go,.1,$(wildcard src/*.go)))
 installman: $(subst src,doc/man/man1,$(subst .go,.1,$(wildcard src/*.go)))
 	echo cp -f $? /usr/share/man/man1/
 
-doc/man/man1/%.1: bin/%
+doc/man/man1/iolaus-%.1: bin/iolaus-%
 	@mkdir -p `dirname $@`
 	$< --create-manpage > $@
 
@@ -45,7 +45,11 @@ doc/%.html: doc/man/man1/%.1
 
 include $(GOROOT)/src/Make.$(GOARCH)
 
-binaries:  scripts/harness scripts/mkdown scripts/mkmanual scripts/pdiff bin/iolaus-initialize bin/iolaus-pull bin/iolaus-push bin/iolaus-record bin/iolaus-whatsnew
+binaries:  scripts/harness scripts/mkdown scripts/mkmanual scripts/pdiff \
+	bin/iolaus-initialize \
+	bin/iolaus-pull bin/iolaus-push \
+	bin/iolaus-record \
+	bin/iolaus-whatsnew bin/iolaus-changes
 packages: 
 
 ifndef GOBIN
@@ -64,6 +68,12 @@ srcpkgdir=$(subst $(space),\ ,$(GOROOT)/src/pkg)
 
 .go.$(O):
 	cd `dirname "$<"`; $(GC) `basename "$<"`
+
+bin/iolaus-%: src/iolaus-%.$(O)
+	@mkdir -p bin
+	$(LD) -o $@ $<
+$(bindir)/%: bin/%
+	cp $< $@
 
 scripts/harness: scripts/harness.$(O)
 	@mkdir -p bin
@@ -115,47 +125,27 @@ src/iolaus/test.$(O): src/git/plumbing.$(O) \
 	src/iolaus/gotgo/box(git.CommitHash,git.Commitish).$(O) \
 	src/util/out.$(O)
 
-bin/iolaus-initialize: src/iolaus-initialize.$(O)
-	@mkdir -p bin
-	$(LD) -o $@ $<
-$(bindir)/iolaus-initialize: bin/iolaus-initialize
-	cp $< $@
 src/iolaus-initialize.$(O): src/git/git.$(O) src/git/porcelain.$(O) \
 	src/util/error.$(O) src/util/help.$(O)
 
-bin/iolaus-pull: src/iolaus-pull.$(O)
-	@mkdir -p bin
-	$(LD) -o $@ $<
-$(bindir)/iolaus-pull: bin/iolaus-pull
-	cp $< $@
+src/iolaus-changes.$(O): src/iolaus-changes.go \
+		src/private-cs.go src/git/plumbing.$(O) \
+		src/util/error.$(O) src/util/out.$(O) src/util/help.$(O)
+	cd src; $(GC) iolaus-changes.go private-cs.go
+
 src/iolaus-pull.$(O): src/gotgo/slice(git.Commitish).$(O) \
 	src/iolaus/core.$(O) \
 	src/util/error.$(O) src/util/help.$(O) src/util/out.$(O)
 
-bin/iolaus-push: src/iolaus-push.$(O)
-	@mkdir -p bin
-	$(LD) -o $@ $<
-$(bindir)/iolaus-push: bin/iolaus-push
-	cp $< $@
 src/iolaus-push.$(O): src/git/plumbing.$(O) \
 	src/gotgo/slice(git.Commitish).$(O) src/util/error.$(O) \
 	src/util/help.$(O) src/util/out.$(O)
 
-bin/iolaus-record: src/iolaus-record.$(O)
-	@mkdir -p bin
-	$(LD) -o $@ $<
-$(bindir)/iolaus-record: bin/iolaus-record
-	cp $< $@
 src/iolaus-record.$(O): src/gotgo/slice(git.Commitish).$(O) \
 	src/iolaus/core.$(O) \
 	src/iolaus/prompt.$(O) src/iolaus/test.$(O) \
 	src/util/error.$(O) src/util/help.$(O) src/util/out.$(O)
 
-bin/iolaus-whatsnew: src/iolaus-whatsnew.$(O)
-	@mkdir -p bin
-	$(LD) -o $@ $<
-$(bindir)/iolaus-whatsnew: bin/iolaus-whatsnew
-	cp $< $@
 src/iolaus-whatsnew.$(O): src/iolaus/core.$(O) src/iolaus/prompt.$(O) \
 	src/util/error.$(O) src/util/help.$(O)
 
@@ -165,6 +155,12 @@ src/util/exit.$(O): src/util/gotgo/slice(func()).$(O)
 src/util/out.$(O): src/util/cook.$(O)
 
 ifneq ($(strip $(shell which gotgo)),)
+src/private-cs.go: $(srcpkgdir)/gotgo/slice.got
+	gotgo --package-name=main --prefix=cs -o "$@" "$<" ./git/git.CommitHash
+src/private-hashish.go: $(srcpkgdir)/gotgo/box.got
+	gotgo --package-name=main --prefix=hashish -o "$@" "$<" ./git/git.CommitHash ./git/git.Commitish
+src/private-refish.go: $(srcpkgdir)/gotgo/box.got
+	gotgo --package-name=main --prefix=refish -o "$@" "$<" ./git/git.Ref ./git/git.Commitish
 src/util/slice(string).go: $(srcpkgdir)/gotgo/slice.got
 	gotgo -o "$@" "$<" string
 src/git/gotgo/slice(git.CommitHash).go: $(srcpkgdir)/gotgo/slice.got
@@ -199,5 +195,8 @@ src/util/patience.$(O): src/util/patience.go \
 
 src/util/patienceTypes.$(O): src/util/patienceTypes.go src/git/color.$(O)
 
-installbins:  $(bindir)/iolaus-initialize $(bindir)/iolaus-pull $(bindir)/iolaus-push $(bindir)/iolaus-record $(bindir)/iolaus-whatsnew
+installbins:  $(bindir)/iolaus-initialize \
+	$(bindir)/iolaus-pull $(bindir)/iolaus-push \
+	$(bindir)/iolaus-record \
+	$(bindir)/iolaus-whatsnew  $(bindir)/iolaus-changes
 installpkgs: 

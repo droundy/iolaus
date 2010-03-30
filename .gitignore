@@ -6,9 +6,13 @@ manual
 iolaus-pull
 iolaus-push
 iolaus-record
+iolaus-unrecord
 iolaus-amend-record
 iolaus-whatsnew
 iolaus-initialize
+iolaus-changes
+iolaus-revert
+iolaus-unrevert
 harness
 pdiff
 mkdown
