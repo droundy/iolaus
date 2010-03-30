@@ -8,7 +8,7 @@ test: all
 
 install: installbins installpkgs
 
-web: doc/index.html doc/manual.html doc/install.html \
+web: doc/index.html doc/manual.html doc/install.html doc/TODO.html \
 	$(subst src,doc,$(subst .go,.html,$(wildcard src/*.go))) \
 	doc/hydra.svg doc/iolaus.css
 
@@ -19,7 +19,10 @@ doc/manual.html: scripts/mkmanual scripts/header.html scripts/footer.html
 	./scripts/mkmanual src/*.go
 
 doc/install.html: INSTALL.md scripts/mkdown scripts/header.html scripts/footer.html
-	./scripts/mkdown -o $@ INSTALL.md
+	./scripts/mkdown -o $@ $<
+
+doc/TODO.html: TODO.md scripts/mkdown scripts/header.html scripts/footer.html
+	./scripts/mkdown -o $@ $<
 
 doc/%.svg: scripts/%.svg
 	cp -f $< $@
