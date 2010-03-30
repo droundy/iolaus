@@ -23,8 +23,7 @@ func main() {
 	heads, _ := plumbing.ShowRef("--heads")
 	hs := make([]git.CommitHash,len(heads))
 	i := 0
-	for x,v := range heads {
-		out.Println("head is",x,v)
+	for _,v := range heads {
 		hs[i] = v
 	}
 	showChanges(hs, make(map[string]bool))
@@ -36,7 +35,6 @@ func showChanges(hs []git.CommitHash, done map[string]bool) {
 	newhs := make([]git.CommitHash, 0)
 	for _,h := range hs {
 		if _,amdone := done[h.String()]; !amdone {
-			out.Println("foo",h)
 			c,e := plumbing.Commit(h)
 			error.FailOn(e)
 			done[h.String()] = true
