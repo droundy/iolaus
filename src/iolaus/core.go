@@ -37,7 +37,7 @@ func DiffFiles(paths []string) (ds []FileDiff, e os.Error) {
 			debug.Println("File", f, "is executable...")
 			ds[lends+i].NewMode = 0755
 		} else {
-			ds[lends+i].NewMode = 0
+			ds[lends+i].NewMode = 0644
 		}
 		ds[lends+i].Name = f
 		for j := range ds[lends+i].OldHash {

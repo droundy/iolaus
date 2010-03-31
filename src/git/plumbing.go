@@ -45,7 +45,10 @@ func HashObjectUpdateIndex(mode int, contents, f string) os.Error {
 }
 
 func UpdateIndexCache(mode int, h git.Hash, f string) os.Error {
-	return git.Run("update-index", "--add", "--remove", "--cacheinfo",
+	if mode == 0 {
+		return git.Run("update-index", "--force-remove", f)
+	}
+	return git.Run("update-index", "--add", "--cacheinfo",
 		fmt.Sprintf("%o", mode), h.String(), f)
 }
 
@@ -203,7 +206,9 @@ const (
 	Unmerged Verb = 'U'
 	Unknown Verb = 'X'
 )
-
+func (v Verb) String() string {
+	return string(v)
+}
 
 func (s Patch) String() (out string) {
 	out = s.Header
