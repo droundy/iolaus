@@ -86,13 +86,10 @@ func splitRefs(s string) (hs map[git.Ref]git.CommitHash) {
 	return
 }
 
-func WriteTree() git.TreeHash {
-	o,_ := git.Read("write-tree")
-	t := git.TreeHash{}
-	for j := range o[0:40] {
-		t[j] = o[j] // shouldn't there be a nicer way to do this?
-	}
-	return t
+func WriteTree() (h git.TreeHash, e os.Error) {
+	o,e := git.Read("write-tree")
+	if e != nil { return }
+	return git.TreeHash(mkHash(o)), nil
 }
 
 func CommitTree(tree git.Treeish, parents []git.Commitish, log string) git.CommitHash {

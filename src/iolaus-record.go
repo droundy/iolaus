@@ -7,6 +7,7 @@ import (
 	git "./git/git"
 	"./git/plumbing"
 	"./util/out"
+	"./util/debug"
 	"./util/error"
 	"./util/help"
 	"./iolaus/prompt"
@@ -56,14 +57,20 @@ func main() {
 		error.FailOn(e)
 		*shortlog = name
 	}
+	debug.Println("Reading heads...")
 	heads, _ := plumbing.ShowRef("--heads")
 	hs := make([]git.Commitish,0,len(heads))
 	for _,h := range heads {
 		hs = hashes.Append(hs, h)
 	}
-	c := plumbing.CommitTree(plumbing.WriteTree(), hs, *shortlog)
+	debug.Println("Creating commit...")
+	tree,e := plumbing.WriteTree()
+	error.FailOn(e)
+	c := plumbing.CommitTree(tree, hs, *shortlog)
+	debug.Println("Testing commit...")
 	ctested, e := test.Commit(c)
 	error.FailOn(e)
+	debug.Println("Updating HEAD...")
 	plumbing.UpdateRef("HEAD", ctested)
 	// Now let's update the true index by just copying over the scratch...
 	e = os.Rename(".git/index.recording", ".git/index")

@@ -195,5 +195,5 @@ func Merge(us, them git.Commitish) (t git.TreeHash, e os.Error) {
 	if e != nil { return }
 	e = plumbing.MergeIndexAll()
 	if e != nil { return }
-	return plumbing.WriteTree(), e
+	return plumbing.WriteTree()
 }
