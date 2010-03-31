@@ -15,11 +15,14 @@ func AtExit(f func()) {
 	aeRequests <- f
 }
 
-var finishedAtExit = make(chan struct{})
-var pleaseExit = make(chan struct{})
-var aeRequests = make(chan func ())
+var finishedAtExit chan struct{}
+var pleaseExit chan struct{}
+var aeRequests chan func ()
 func init() {
-    go handleExit()
+	pleaseExit = make(chan struct{})
+	aeRequests = make(chan func ())
+	finishedAtExit = make(chan struct{})
+  go handleExit()
 }
 
 func handleExit() {
