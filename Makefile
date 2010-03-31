@@ -5,8 +5,10 @@ all: binaries web
 
 test: all
 	./scripts/harness
+clean:
+	rm -f */*.$(O) */*/*.$(O) */*/*/*.$(O) bin/*
 
-install: installbins installpkgs
+install: installbins installman
 
 web: doc/index.html doc/manual.html doc/install.html doc/TODO.html \
 	$(subst src,doc,$(subst .go,.html,$(wildcard src/iolaus-*.go))) \
@@ -30,8 +32,8 @@ doc/%.svg: scripts/%.svg
 doc/%.css: scripts/%.css
 	cp -f $< $@
 
-man: $(subst src,doc/man/man1,$(subst .go,.1,$(wildcard src/*.go)))
-installman: $(subst src,doc/man/man1,$(subst .go,.1,$(wildcard src/*.go)))
+man: $(subst src,doc/man/man1,$(subst .go,.1,$(wildcard src/iolaus-*.go)))
+installman: $(subst src,doc/man/man1,$(subst .go,.1,$(wildcard src/iolaus-*.go)))
 	echo cp -f $? /usr/share/man/man1/
 
 doc/man/man1/iolaus-%.1: bin/iolaus-%
@@ -50,7 +52,6 @@ binaries:  scripts/harness scripts/mkdown scripts/mkmanual scripts/pdiff \
 	bin/iolaus-pull bin/iolaus-push \
 	bin/iolaus-record \
 	bin/iolaus-whatsnew bin/iolaus-changes
-packages: 
 
 ifndef GOBIN
 GOBIN=$(HOME)/bin
@@ -63,7 +64,7 @@ bindir=$(subst $(space),\ ,$(GOBIN))
 pkgdir=$(subst $(space),\ ,$(GOROOT)/pkg/$(GOOS)_$(GOARCH))
 srcpkgdir=$(subst $(space),\ ,$(GOROOT)/src/pkg)
 
-.PHONY: test binaries packages install installbins installpkgs man installman
+.PHONY: test binaries install installbins man installman clean
 .SUFFIXES: .$(O) .go .got
 
 .go.$(O):
@@ -195,4 +196,3 @@ installbins:  $(bindir)/iolaus-initialize \
 	$(bindir)/iolaus-pull $(bindir)/iolaus-push \
 	$(bindir)/iolaus-record \
 	$(bindir)/iolaus-whatsnew  $(bindir)/iolaus-changes
-installpkgs: 
