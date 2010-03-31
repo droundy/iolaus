@@ -38,7 +38,7 @@ func readStty() secret {
 }
 
 func SetRaw() secret {
-	once.Do(exit.AtExit(func () { SetCooked() }))
+	once.Do(func() { exit.AtExit(func () { SetCooked() })})
 	x := readStty() // could use "-echo" below...
 	pid,e := exec.Run("/bin/stty", []string{"/bin/stty","raw"},
 		os.Environ(), ".",

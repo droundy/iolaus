@@ -151,7 +151,6 @@ src/iolaus-whatsnew.$(O): src/iolaus/core.$(O) src/iolaus/prompt.$(O) \
 
 src/util/cook.$(O): src/util/exit.$(O)
 src/util/error.$(O): src/util/cook.$(O)
-src/util/exit.$(O): src/util/gotgo/slice(func()).$(O)
 src/util/out.$(O): src/util/cook.$(O)
 
 ifneq ($(strip $(shell which gotgo)),)
@@ -172,9 +171,6 @@ src/iolaus/gotgo/box(git.CommitHash,git.Commitish).go: $(srcpkgdir)/gotgo/box.go
 src/gotgo/slice(git.Commitish).go: $(srcpkgdir)/gotgo/slice.got
 	mkdir -p src/gotgo/
 	gotgo -o "$@" "$<" ../git/git.Commitish
-src/util/gotgo/slice(func()).go: $(srcpkgdir)/gotgo/slice.got
-	mkdir -p src/util/gotgo/
-	gotgo -o "$@" "$<" 'func()'
 src/util/slicePatienceElem.go: $(srcpkgdir)/gotgo/slice.got
 	gotgo --package-name=patience --prefix pe -o "$@" "$<" PatienceElem
 src/util/gotgo/slice(int).go: $(srcpkgdir)/gotgo/slice.got
