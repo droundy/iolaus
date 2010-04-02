@@ -65,7 +65,7 @@ chunks: for _,ch := range mychunks {
 			if ch.Line > 4 {
 				lin = ch.Line - 4
 			}
-			out.Printf(color.String("¤¤¤ %s %d ¤¤¤\n", color.Meta),filename,lin+1)
+			out.Printf(color.String("¤¤¤ %s %d ¤¤¤\n", color.Meta),filename,offset+lin+1)
 			for lin=lin; lin < ch.Line-1; lin++ {
 				out.Print(" ",newer[lin])
 			}
