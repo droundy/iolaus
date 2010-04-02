@@ -114,7 +114,7 @@ func (d *FileDiff) Fprint(f io.Writer) (e os.Error) {
 		fmt.Fprintf(f,color.String("¤¤¤ %s %d ¤¤¤\n", color.Meta),d.Name,lastline)
 		for _,ch := range mychunks {
 			if ch.Line > lastline + 6 {
-				for i:=lastline+1; i<lastline+4; i++ {
+				for i:=lastline; i<lastline+3; i++ {
 					fmt.Fprint(f," ",newer[i-chunkLine])
 				}
 				fmt.Fprintf(f,color.String("¤¤¤ %s %d ¤¤¤\n", color.Meta),d.Name,ch.Line-3)
