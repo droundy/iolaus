@@ -122,6 +122,10 @@ src/iolaus/gotgo/box(git.CommitHash,git.Commitish).$(O): src/git/git.$(O)
 src/iolaus/prompt.$(O): src/git/color.$(O) src/iolaus/core.$(O) \
 	src/util/error.$(O)
 
+src/iolaus/promptcommit.$(O): src/iolaus/core.$(O) \
+	src/iolaus/gotgo/box(git.CommitHash,git.Commitish).$(O) \
+	src/util/error.$(O)
+
 src/iolaus/test.$(O): src/git/plumbing.$(O) \
 	src/iolaus/gotgo/box(git.CommitHash,git.Commitish).$(O) \
 	src/util/out.$(O)
@@ -134,8 +138,7 @@ src/iolaus-changes.$(O): src/iolaus-changes.go \
 		src/util/error.$(O) src/util/out.$(O) src/util/help.$(O)
 	cd src; $(GC) iolaus-changes.go private-cs.go
 
-src/iolaus-pull.$(O): src/gotgo/slice(git.Commitish).$(O) \
-	src/iolaus/core.$(O) \
+src/iolaus-pull.$(O): src/iolaus/core.$(O) src/iolaus/promptcommit.$(O) \
 	src/util/error.$(O) src/util/help.$(O) src/util/out.$(O)
 
 src/iolaus-push.$(O): src/git/plumbing.$(O) \

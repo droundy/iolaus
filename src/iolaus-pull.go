@@ -7,18 +7,13 @@ import (
 	git "./git/git"
 	"./git/plumbing"
 	"./util/out"
+	"./util/debug"
 	"./util/exit"
 	"./util/error"
 	"./util/help"
 	"./iolaus/core"
-	hashes "./gotgo/slice(git.Commitish)"
+	"./iolaus/promptcommit"
 )
-
-var all = goopt.Flag([]string{"-a","--all"}, []string{"--interactive"},
-	"pull all patches", "prompt for patches interactively")
-var dryRun = goopt.Flag([]string{"--dry-run"}, []string{},
-	"don't actually pull, just show what we would pull",
-	"actually do pull")
 
 var description = func() string {
 	return `
@@ -31,6 +26,8 @@ without an argument, pull will pull from origin.
 `}
 
 func main() {
+	goopt.Vars["Verb"] = "Pull"
+	goopt.Vars["verb"] = "pull"
 	help.Init("pull changes from origin.", description, plumbing.LsFiles)
 	git.AmInRepo("Must be in a repository to call pull!")
 
@@ -39,36 +36,17 @@ func main() {
 		origin = plumbing.RemoteUrl(goopt.Args[1])
 		out.Println("Pulling from ", origin)
 	}
-	remotes,e := plumbing.LsRemote(origin, "--heads")
+	remote,e := plumbing.RemoteHead(origin)
 	error.FailOn(e)
 	// ignore error code on show-ref, since it returns an error when
 	// there are no heads.
-	locals,_ := plumbing.ShowRef("--heads")
+	local,_ := plumbing.LocalHead()
 	// Fetch the remotes so that they will be present when we need them later.
 	plumbing.FetchPack(origin, "--all", "-q")
-	// Stick hashes into nice arrays...
-	localrefs := make([]git.Commitish, 0, len(locals))
-	for _,h := range locals {
-		localrefs = hashes.Append(localrefs, h)
-	}
-	remoterefs := make([]git.Commitish, 0, len(remotes))
-	for _,h := range remotes {
-		remoterefs = hashes.Append(remoterefs, h)
-	}
-	topush, e := plumbing.RevListDifference(localrefs, remoterefs)
+	debug.Println("Looking for stuff to push...")
+	topush, e := plumbing.RevListDifference([]git.Commitish{local}, []git.Commitish{remote})
 	error.FailOn(e)
-	topull, e := plumbing.RevListDifference(remoterefs, localrefs)
-	error.FailOn(e)
-	for _,tp := range topull {
-		cc, e := plumbing.Commit(tp)
-		error.FailOn(e)
-		out.Println("Could pull:\n", cc)
-	}
-	if len(topull) == 0 {
-		out.Println("No commits to pull!")
-		exit.Exit(0)
-	}
-	if *dryRun { exit.Exit(0) }
+
 	if len(topush) > 0 {
 		// We need to do a real merge!
 		for _,tp := range topush {
@@ -76,72 +54,61 @@ func main() {
 			error.FailOn(e)
 			out.Println("Could push:\n", cc)
 		}
-		heads, _ := plumbing.ShowRef("--heads")
-		if len(remotes) == 1 && len(heads) == 1 {
-			// barf on local changes...
+		// barf on local changes...
+		if !local.IsEmpty() {
 			p,e := plumbing.DiffFiles([]string{})
 			error.FailOn(e)
 			if len(p) > 0 {
 				error.FailOn(os.NewError(
 					fmt.Sprintf("I can't handle local changes yet! %v",p)))
 			}
-			for _,r := range remotes {
-				// There's just one remote and just one head...
-				for _,h := range heads {
-					// It's pretty hokey to use os.Setenv here rather than using exec to
-					// set it directly, but it shouldn't be a problem as long as we
-					// aren't calling git from multiple goroutines.
-					e := plumbing.ReadTree(h,
-						"--index-output=.git/index.pulling")
-					error.FailOn(e)
-					e = os.Setenv("GIT_INDEX_FILE", ".git/index.pulling")
-					error.FailOn(e)
-					t, e := core.Merge(h, r)
-					error.FailOn(e)
-					c := plumbing.CommitTree(t, []git.Commitish{h,r}, "Merge")
-					plumbing.UpdateRef("HEAD", c)
-					plumbing.CheckoutIndex("--all")
-					// Now let's update the true index by just copying over the scratch...
-					e = os.Rename(".git/index.pulling", ".git/index")
-					error.FailOn(e) // FIXME: we should do better than this...
-					exit.Exit(0)
-				}
-			}
-		} else {
-			out.Println("I haven't finished with pull yet.")
-			exit.Exit(0)
 		}
+		// It's pretty hokey to use os.Setenv here rather than using exec to
+		// set it directly, but it shouldn't be a problem as long as we
+		// aren't calling git from multiple goroutines.
+		e = plumbing.ReadTree(local, "--index-output=.git/index.pulling")
+		error.FailOn(e)
+		e = os.Setenv("GIT_INDEX_FILE", ".git/index.pulling")
+		error.FailOn(e)
+		t, e := core.Merge(local, remote)
+		error.FailOn(e)
+		c := plumbing.CommitTree(t, []git.Commitish{local,remote}, "Merge")
+		plumbing.UpdateRef("HEAD", c)
+		plumbing.CheckoutIndex("--all")
+		// Now let's update the true index by just copying over the scratch...
+		e = os.Rename(".git/index.pulling", ".git/index")
+		error.FailOn(e) // FIXME: we should do better than this...
+		exit.Exit(0)
 	} else {
-		out.Println("This is a fast-forward pull!")
-		if *all {
+		out.Println("This is a fast-forward pull! (looking for diffs)")
+		debug.Println("Hello world...")
+		if false && !local.IsEmpty() {
+			debug.Println("Barf on local changes...")
+			out.Println("Barf on local changes...")
 			p,e := plumbing.DiffFiles([]string{})
+			debug.Println("I looked for differences...")
 			error.FailOn(e)
 			if len(p) > 0 {
 				error.FailOn(os.NewError("I can't handle local changes yet!"))
 			}
-			//plumbing.SendPack(origin, locals)
-			if len(remotes) == 1 {
-				heads, _ := plumbing.ShowRef("--heads")
-				if len(heads) > 1 {
-					error.FailOn(os.NewError("You've got too many heads!"))
-				}
-				for _,h := range remotes {
-					if len(heads) == 0 {
-						e = plumbing.ReadTree(h)
-					} else {
-						e = plumbing.ReadTree2(heads[git.Ref("HEAD")], h)
-					}
-					error.FailOn(e)
-					plumbing.UpdateRef("HEAD", h)
-					plumbing.CheckoutIndex("--all")
-					exit.Exit(0)
-				}
-			} else {
-				out.Println("I haven't yet implemented merging.")
-			}
-		} else {
-			out.Println("I haven't yet implemented interactive pulls.")
 		}
+		debug.Println("xxxxxxxxxxxxx...")
+		out.Println("xxxxxxx...")
+
+		//plumbing.SendPack(origin, locals)
+		debug.Println("Prompting for commits...")
+		hnew := promptcommit.Select(local, remote)
+		if local.IsEmpty() {
+			debug.Println("We have no local commits...")
+			e = plumbing.ReadTree(hnew)
+		} else {
+			debug.Println("Merging with local index...")
+			e = plumbing.ReadTree2(local, hnew)
+		}
+		error.FailOn(e)
+		plumbing.UpdateRef("HEAD", hnew)
+		plumbing.CheckoutIndex("--all")
+		exit.Exit(0)
 	}
 	exit.Exit(0)
 }

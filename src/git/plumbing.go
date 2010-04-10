@@ -65,17 +65,26 @@ func FetchPack(remote string, args ...string) {
 	git.RunSilentlyS("fetch-pack", args)
 }
 
-func LsRemote(remote string, args ...string) (hs map[git.Ref]git.CommitHash, e os.Error) {
-	args = stringslice.Append(args, remote)
+func LsRemote(args ...string) (hs map[git.Ref]git.CommitHash, e os.Error) {
 	o, e := git.ReadS("ls-remote", args)
 	if e != nil { return }
 	return splitRefs(o), e
+}
+
+func RemoteHead(remote string) (h git.CommitHash, e os.Error) {
+	xs, e := LsRemote(remote)
+	if e != nil { return }
+	return xs["HEAD"], nil
 }
 
 func ShowRef(args ...string) (hs map[git.Ref]git.CommitHash, e os.Error) {
 	o, e := git.Read("show-ref", args)
 	if e != nil { return }
 	return splitRefs(o), e
+}
+
+func LocalHead() (h git.CommitHash, e os.Error) {
+	return RevParse("HEAD")
 }
 
 func splitRefs(s string) (hs map[git.Ref]git.CommitHash) {
@@ -337,6 +346,13 @@ func Blob(b git.Hash) (o string, e os.Error) {
 	return git.Read("cat-file", "blob", b.String())
 }
 
+func GetCommitHash(c git.Commitish) (git.CommitHash, os.Error) {
+	if h,ok := c.(git.CommitHash); ok {
+		return h,nil
+	}
+	return RevParse(c.String())
+}
+
 func rawCommit(c git.Commitish) (o string, e os.Error) {
 	return git.Read("cat-file", "commit", c.String())
 }
@@ -388,10 +404,14 @@ func mkHash(s string) (h git.Hash) {
 func RevListDifference(newer, older []git.Commitish) ([]git.CommitHash, os.Error) {
 	args := []string{}
 	for _,n := range newer {
-		args = stringslice.Append(args, n.String())
+		if n.String() != "0000000000000000000000000000000000000000" {
+			args = stringslice.Append(args, n.String())
+		}
 	}
 	for _,o := range older {
-		args = stringslice.Append(args, "^"+o.String())
+		if o.String() != "0000000000000000000000000000000000000000" {
+			args = stringslice.Append(args, "^"+o.String())
+		}
 	}
 	return RevListS(args)
 }

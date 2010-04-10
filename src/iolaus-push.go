@@ -27,7 +27,7 @@ func main() {
 	help.Init("push changes to origin.", description, plumbing.LsFiles)
 	git.AmInRepo("Must be in a repository to call push!")
 
-	remotes,e := plumbing.LsRemote("origin", "--heads")
+	remotes,e := plumbing.LsRemote("--heads", "origin")
 	error.FailOn(e)
 	locals,e := plumbing.ShowRef("--heads")
 	error.FailOn(e)

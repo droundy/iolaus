@@ -27,6 +27,9 @@ func (h Hash) IsEmpty() bool {
 	}
 	return true
 }
+func (h CommitHash) IsEmpty() bool {
+	return Hash(h).IsEmpty()
+}
 type TreeHash Hash
 func (r TreeHash) String() string {
 	if r[0] == 0 {

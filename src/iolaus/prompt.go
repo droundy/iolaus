@@ -37,7 +37,7 @@ func Run(ds []core.FileDiff, f func(core.FileDiff)) {
 		    case 'z','Z':
 					o,n,e := d.OldNewStrings()
 					error.FailOn(e)
-					d.UpdateNew(PickChanges(d.Name, o, n))
+					d.UpdateNew(pickChanges(d.Name, o, n))
 				case 'y','Y':
 					debug.Println("Dealing with file ",d.Name)
 					f(d)
@@ -50,7 +50,7 @@ func Run(ds []core.FileDiff, f func(core.FileDiff)) {
 	}
 }
 
-func PickChanges(filename, o, n string) string {
+func pickChanges(filename, o, n string) string {
 	older := strings.SplitAfter(o,"\n",0)
 	outer := strings.SplitAfter(o,"\n",0)
 	newer := strings.SplitAfter(n,"\n",0)
