@@ -9,7 +9,7 @@ cd test1
 iolaus-initialize
 
 cat > .test <<EOF
-#!/bin/sh
+#!/bin/bash
 
 set -ev
 echo I am running test...

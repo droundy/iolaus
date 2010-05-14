@@ -68,7 +68,7 @@ func main() {
 	} else {
 		out.Println("This is a fast-forward push!")
 		if *all {
-			plumbing.SendPack(origin, locals)
+			error.FailOn(plumbing.SendPack(origin, locals))
 		} else {
 			out.Println("I haven't yet implemented interactive pushes.")
 		}

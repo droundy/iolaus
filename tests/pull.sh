@@ -25,8 +25,7 @@ cd repo1
 iolaus-initialize
 date > bar
 iolaus-record -am 'addbar'
-git status && true
-iolaus-pull --debug --all ../repo
+iolaus-pull --all ../repo
 ls
 iolaus-whatsnew
 grep hello foo

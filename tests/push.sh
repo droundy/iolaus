@@ -21,14 +21,19 @@ cat out
 grep modfoo out
 # verify that repo still doesn't have foo, since we only pushed --dry-run
 grep bye ../repo/foo && exit 1
+# we can't push to a non-bare repository by default
+iolaus-push --all && exit 1
+
+cd ../repo
+git config --bool core.bare true
+cd ../new
 iolaus-push --all
 
 cd ../repo
-# FIXME: here is a bug or missing feature: it'd be nice if push
-# updated the working directory like darcs does, or refused to run on
-# non-bare repositories.
+# To check that the repository has been changed, we'll just make it
+# unbare.  This is a stupid way to check this...
+git config --bool core.bare false
 git reset --hard
-
 grep bye foo
 
 # FIXME: need to test iolaus-push --interactive

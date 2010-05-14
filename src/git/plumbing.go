@@ -26,6 +26,10 @@ func UpdateIndex(f string) os.Error {
 	return git.Run("update-index", "--add", "--remove", "--", f)
 }
 
+func RefreshIndex() os.Error {
+	return git.Run("update-index", "--refresh")
+}
+
 func HashObject(c string) (h git.Hash, e os.Error) {
 	o,e := git.WriteRead("hash-object", c, "-w", "--stdin")
 	if e != nil { return }

@@ -56,6 +56,7 @@ func main() {
 		}
 		// barf on local changes...
 		if !local.IsEmpty() {
+			plumbing.RefreshIndex()
 			p,e := plumbing.DiffFiles([]string{})
 			error.FailOn(e)
 			if len(p) > 0 {
