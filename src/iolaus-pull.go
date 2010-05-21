@@ -93,10 +93,7 @@ func main() {
 				error.FailOn(os.NewError("I can't handle local changes yet!"))
 			}
 		}
-		debug.Println("xxxxxxxxxxxxx...")
-		out.Println("xxxxxxx...")
 
-		//plumbing.SendPack(origin, locals)
 		debug.Println("Prompting for commits...")
 		hnew := promptcommit.Select(local, remote)
 		if local.IsEmpty() {
