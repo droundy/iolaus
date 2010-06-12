@@ -37,6 +37,7 @@ func main() {
 	if e != nil {
 		error.Print("It looks like your repository is headless...")
 	}
+	plumbing.RefreshIndex()	// make sure the stat info is up-to-date...
 	// Check which files are touched before using the new index...
 	modfiles,e := core.DiffFiles([]string{})
 	error.FailOn(e)
