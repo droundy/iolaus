@@ -1,7 +1,7 @@
 package help
 
 import (
-	"goopt"
+	"github.com/droundy/goopt.git"
 )
 
 func Init(summary string, description func() string, getopts func() []string ) {

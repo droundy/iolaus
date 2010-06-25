@@ -1,7 +1,7 @@
 package prompt
 
 import (
-	"goopt"
+	"github.com/droundy/goopt.git"
 	"strings"
 	"./core"
 	"../git/color"

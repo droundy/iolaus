@@ -4,7 +4,7 @@ import (
 	"os"
 	"fmt"
 	"exec"
-	"goopt"
+	"github.com/droundy/goopt.git"
 	"path"
 	"io/ioutil"
 	"../src/util/debug"

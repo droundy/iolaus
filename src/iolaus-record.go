@@ -3,7 +3,7 @@ package main;
 import (
 	"os"
 	"bufio"
-	"goopt"
+	"github.com/droundy/goopt.git"
 	git "./git/git"
 	"./git/plumbing"
 	"./util/out"
