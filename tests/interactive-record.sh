@@ -36,7 +36,7 @@ for i in `seq 30 39`; do
     iolaus-whatsnew | grep -- "-I have $i bottles"
 done
 
-iolaus-whatsnew | grep 'foo 10 ' # Second context starts at line 18
+iolaus-whatsnew | grep 'foo 10 ' # Second context starts at line 10
 iolaus-whatsnew | grep 'foo 18 ' # Third context starts at line 18
 # We should be missing 21-22, but have twenty one
 iolaus-whatsnew | grep -- ' I have 20 bottle'
@@ -57,7 +57,7 @@ for i in `seq 2 9`; do
 done
 
 echo znq | iolaus-record > out
-grep 'foo 1 ' out # First context starts at line 18
+grep 'foo 1 ' out # First context starts at line 1
 # We should be missing the 2-9 bottles
 grep -- ' I have 1 bottle' out
 grep -- ' I have 10 bottles' out
