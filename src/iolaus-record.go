@@ -51,7 +51,7 @@ func main() {
 		plumbing.UpdateIndexCache(f.Info())
 	})
 	if *shortlog == "COMMITNAME" {
-		out.Println("What is the patch name? ")
+		out.Print("What is the patch name? ")
 		inp,e := bufio.NewReaderSize(os.Stdin,1)
 		error.FailOn(e)
 		name,e := inp.ReadString('\n')
