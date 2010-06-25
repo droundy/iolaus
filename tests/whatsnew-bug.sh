@@ -60,9 +60,8 @@ grep -1 'Done merging' out | grep Merge
 # And it should be followed by a FailOn:
 grep -1 'Done merging' out | grep FailOn
 
-
-# This particular diff showed problems around the added line that
-# added the debug message: "About to merge".
+# This particular diff used to show problems around the added line
+# that added the debug message: "About to merge".
 grep -1 About out
 
 # About to merge should be followed by Merge

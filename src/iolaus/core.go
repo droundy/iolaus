@@ -101,8 +101,7 @@ func (d *FileDiff) Fprint(f io.Writer) (e os.Error) {
 		older := strings.SplitAfter(oldf,"\n",0)
 		mychunks := patience.Diff(older, newer)
 		
-		chunkLine := 1
-		lastline := chunkLine
+		lastline := 0
 		debug.Printf("File %s has %d chunks changed\n",d.Name,len(mychunks))
 		if len(mychunks) == 0 {
 			debug.Println("File "+d.Name+" mysteriously looks unchanged.")
@@ -111,25 +110,26 @@ func (d *FileDiff) Fprint(f io.Writer) (e os.Error) {
 		if mychunks[0].Line-4 > lastline {
 			lastline = mychunks[0].Line - 4
 		}
-		fmt.Fprintf(f,color.String("¤¤¤ %s %d ¤¤¤\n", color.Meta),d.Name,lastline)
+		fmt.Fprintf(f,color.String("¤¤¤ %s %d ¤¤¤\n", color.Meta),d.Name,lastline+1)
 		for _,ch := range mychunks {
 			if ch.Line > lastline + 6 {
 				for i:=lastline; i<lastline+3; i++ {
-					fmt.Fprint(f," ",newer[i-chunkLine])
+					fmt.Fprint(f," ",newer[i])
 				}
-				fmt.Fprintf(f,color.String("¤¤¤ %s %d ¤¤¤\n", color.Meta),d.Name,ch.Line-3)
+				fmt.Fprintf(f,color.String("¤¤¤ %s %d ¤¤¤\n", color.Meta),
+					d.Name,ch.Line-3+1)
 				for i:=ch.Line-3; i<ch.Line; i++ {
-					fmt.Fprint(f," ",newer[i-chunkLine])
+					fmt.Fprint(f," ",newer[i])
 				}
 			} else {
 				for i:=lastline; i<ch.Line; i++ {
-					fmt.Fprint(f," ",newer[i-chunkLine])
+					fmt.Fprint(f," ",newer[i])
 				}
 			}
 			fmt.Fprint(f,ch)
 			lastline = ch.Line + len(ch.New)
 		}
-		for i:=lastline-chunkLine; i<len(newer)-1 && i < lastline-chunkLine+3;i++ {
+		for i:=lastline; i<len(newer) && i < lastline+3;i++ {
 			fmt.Fprint(f," ",newer[i])
 		}
 	default:
