@@ -62,16 +62,16 @@ chunks: for _,ch := range mychunks {
 		for {
 			// Just keep asking until we get a reasonable answer...
 			lin := 0
-			if ch.Line > 3 {
-				lin = ch.Line - 3
+			if ch.Line > 4 {
+				lin = ch.Line - 4
 			}
 			out.Printf(color.String("¤¤¤ %s %d ¤¤¤\n", color.Meta),filename,offset+lin+1)
-			for lin=lin; lin < ch.Line; lin++ {
+			for lin=lin; lin < ch.Line-1; lin++ {
 				out.Print(" ",newer[lin])
 			}
 			out.Print(ch)
 			lin += len(ch.New)
-			for lin=lin; lin<len(newer)-1 && lin < ch.Line+len(ch.New)+3;lin++ {
+			for lin=lin; lin<len(newer)-1 && lin < ch.Line+len(ch.New)+3-1;lin++ {
 				out.Print(" ",newer[lin])
 			}
 			c,e := out.PromptForChar(goopt.Expand("Verb this change? "))
@@ -80,7 +80,7 @@ chunks: for _,ch := range mychunks {
 			case 'q','Q': error.Exit(e)
 			case 'y','Y':
 				debug.Println("Dealing with file ",filename)
-				fstnum := ch.Line+offset
+				fstnum := ch.Line-1+offset
 				start := outer[0:fstnum]
 				end := outer[fstnum+len(ch.Old):]
 				outer = ss.Cat(make([]string,0,len(start)+len(end)+len(ch.New)), start)

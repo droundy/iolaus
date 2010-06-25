@@ -129,15 +129,17 @@ func DiffFromLine(line0 int, o, n []string) []StringChunk {
 		nexto := onums[n[nextn]]
 		//fmt.Printf("len(o)=%d len(n)=%d prevo=%d nexto=%d prevn=%d nextn=%d\n",
 		//	len(o), len(n), prevo, nexto, prevn, nextn)
-		debug.Printf("Looking at changes in old from %d to %d\n", prevo, nexto)
-		debug.Printf("Looking at changes in new from %d to %d\n", prevn, nextn)
-		diff = scCat(diff,
-			DiffFromLine(line0+prevn, o[prevo:nexto], n[prevn:nextn]))
-		prevo = nexto
-		prevn = nextn
+		if nexto != prevo || nextn != prevn {
+			debug.Printf("Looking at changes in old from %d to %d\n", prevo, nexto)
+			debug.Printf("Looking at changes in new from %d to %d\n", prevn, nextn)
+			diff = scCat(diff,
+				DiffFromLine(line0+prevn, o[prevo:nexto], n[prevn:nextn]))
+		}
+		prevo = nexto+1
+		prevn = nextn+1
 	}
 	lastn := lcs[0]
 	lasto := onums[n[lastn]]
-	diff = scCat(diff, DiffFromLine(line0+lastn, o[lasto+1:], n[lastn+1:]))
+	diff = scCat(diff, DiffFromLine(line0+lastn+1, o[lasto+1:], n[lastn+1:]))
 	return diff
 }

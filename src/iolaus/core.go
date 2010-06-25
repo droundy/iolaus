@@ -117,17 +117,17 @@ func (d *FileDiff) Fprint(f io.Writer) (e os.Error) {
 					fmt.Fprint(f," ",newer[i])
 				}
 				fmt.Fprintf(f,color.String("¤¤¤ %s %d ¤¤¤\n", color.Meta),
-					d.Name,ch.Line-3+1)
-				for i:=ch.Line-3; i<ch.Line; i++ {
+					d.Name,ch.Line-4+1)
+				for i:=ch.Line-4; i<ch.Line-1; i++ {
 					fmt.Fprint(f," ",newer[i])
 				}
 			} else {
-				for i:=lastline; i<ch.Line; i++ {
+				for i:=lastline; i<ch.Line-1; i++ {
 					fmt.Fprint(f," ",newer[i])
 				}
 			}
 			fmt.Fprint(f,ch)
-			lastline = ch.Line + len(ch.New)
+			lastline = ch.Line - 1 + len(ch.New)
 		}
 		for i:=lastline; i<len(newer) && i < lastline+3;i++ {
 			fmt.Fprint(f," ",newer[i])
