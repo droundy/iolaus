@@ -11,6 +11,7 @@ import (
 	"./util/exit"
 	"./util/error"
 	"./util/help"
+	"./iolaus/test"
 	"./iolaus/core"
 	"./iolaus/promptcommit"
 )
@@ -67,22 +68,21 @@ func main() {
 		// It's pretty hokey to use os.Setenv here rather than using exec to
 		// set it directly, but it shouldn't be a problem as long as we
 		// aren't calling git from multiple goroutines.
-		e = plumbing.ReadTree(local, "--index-output=.git/index.pulling")
-		error.FailOn(e)
-		e = os.Setenv("GIT_INDEX_FILE", ".git/index.pulling")
-		error.FailOn(e)
+		error.FailOn(plumbing.ReadTree(local, "--index-output=.git/index.pulling"))
+		error.FailOn(os.Setenv("GIT_INDEX_FILE", ".git/index.pulling"))
 		t, e := core.Merge(local, remote)
 		error.FailOn(e)
 		c := plumbing.CommitTree(t, []git.Commitish{local,remote}, "Merge")
-		plumbing.UpdateRef("HEAD", c)
-		plumbing.CheckoutIndex("--all")
+		debug.Println("Testing merge...")
+		ctested, e := test.Commit(c)
+		error.FailOn(e)
+		plumbing.UpdateRef("HEAD", ctested)
+		plumbing.CheckoutIndex("--force", "--all", "-u")
 		// Now let's update the true index by just copying over the scratch...
-		e = os.Rename(".git/index.pulling", ".git/index")
-		error.FailOn(e) // FIXME: we should do better than this...
+		error.FailOn(os.Rename(".git/index.pulling", ".git/index"))
 		exit.Exit(0)
 	} else {
 		out.Println("This is a fast-forward pull! (looking for diffs)")
-		debug.Println("Hello world...")
 		if false && !local.IsEmpty() {
 			debug.Println("Barf on local changes...")
 			out.Println("Barf on local changes...")

@@ -76,9 +76,11 @@ func Tree(h git.TreeHash) (msg string, e os.Error) {
 	// It's pretty hokey to use os.Setenv here rather than using exec to
 	// set it directly, but it shouldn't be a problem as long as we
 	// aren't calling git from multiple goroutines.
+	oldindex := os.Getenv("GIT_INDEX_FILE")
+	if oldindex == "" { oldindex = ".git/index" }
+	defer os.Setenv("GIT_INDEX_FILE", oldindex)
 	e = os.Setenv("GIT_INDEX_FILE", ".git/index.tmp")
 	if e != nil { return "",e }
-	defer os.Setenv("GIT_INDEX_FILE", "")
 	// don't forget the trailing slash in the prefix!
 	e = plumbing.CheckoutIndex("-a", "--prefix="+testdir+"/")
 	if e != nil { return "",e }

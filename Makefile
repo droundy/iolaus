@@ -139,6 +139,7 @@ src/iolaus-changes.$(O): src/iolaus-changes.go \
 	cd src; $(GC) iolaus-changes.go private-cs.go
 
 src/iolaus-pull.$(O): src/iolaus/core.$(O) src/iolaus/promptcommit.$(O) \
+	src/iolaus/test.$(O) \
 	src/util/error.$(O) src/util/help.$(O) src/util/out.$(O)
 
 src/iolaus-push.$(O): src/git/plumbing.$(O) \
