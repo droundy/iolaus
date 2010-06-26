@@ -81,6 +81,12 @@ func RemoteHead(remote string) (h git.CommitHash, e os.Error) {
 	return xs["HEAD"], nil
 }
 
+func RemoteMaster(remote string) (h git.CommitHash, e os.Error) {
+	xs, e := LsRemote(remote)
+	if e != nil { return }
+	return xs["refs/heads/master"], nil
+}
+
 func ShowRef(args ...string) (hs map[git.Ref]git.CommitHash, e os.Error) {
 	o, e := git.Read("show-ref", args)
 	if e != nil { return }

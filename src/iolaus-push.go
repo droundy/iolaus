@@ -1,14 +1,17 @@
 package main;
 
 import (
+	"os"
 	"github.com/droundy/goopt.git"
 	git "./git/git"
 	"./git/plumbing"
 	"./util/out"
+	"./util/debug"
 	"./util/exit"
 	"./util/error"
 	"./util/help"
-	hashes "./gotgo/slice(git.Commitish)"
+	"./iolaus/core"
+	"./iolaus/test"
 )
 
 var all = goopt.Flag([]string{"-a","--all"}, []string{"--interactive"},
@@ -27,23 +30,18 @@ func main() {
 	help.Init("push changes to origin.", description, plumbing.LsFiles)
 	git.AmInRepo("Must be in a repository to call push!")
 
-	remotes,e := plumbing.LsRemote("--heads", "origin")
-	error.FailOn(e)
-	locals,e := plumbing.ShowRef("--heads")
-	error.FailOn(e)
 	// Fetch the remotes so that they will be present when we need them later.
 	origin := plumbing.RemoteUrl("origin")
 	plumbing.FetchPack(origin, "--all", "-q")
-	// Stick hashes into nice arrays...
-	localrefs := make([]git.Commitish, 0, len(locals))
-	for _,h := range locals {
-		localrefs = hashes.Append(localrefs, h)
-	}
-	remoterefs := make([]git.Commitish, 0, len(remotes))
-	for _,h := range remotes {
-		remoterefs = hashes.Append(remoterefs, h)
-	}
-	topush, e := plumbing.RevListDifference(localrefs, remoterefs)
+	// We use the remote "master", since for some reason we don't seem
+	// to be able to push to a remote "head".  :(
+	remote,e := plumbing.RemoteMaster(origin)
+	out.Println("remote is", remote)
+	error.FailOn(e)
+	// look up the local head
+	local,e := plumbing.LocalHead()
+	error.FailOn(e)
+	topush, e := plumbing.RevListDifference([]git.Commitish{local}, []git.Commitish{remote})
 	error.FailOn(e)
 	for _,tp := range topush {
 		cc, e := plumbing.Commit(tp)
@@ -55,7 +53,7 @@ func main() {
 		exit.Exit(0)
 	}
 	if *dryRun { exit.Exit(0) }
-	topull, e := plumbing.RevListDifference(remoterefs, localrefs)
+	topull, e := plumbing.RevListDifference([]git.Commitish{remote}, []git.Commitish{local})
 	error.FailOn(e)
 	if len(topull) > 0 {
 		for _,tp := range topull {
@@ -63,12 +61,27 @@ func main() {
 			error.FailOn(e)
 			out.Println("Could pull:\n", cc)
 		}
-		out.Println("I haven't finished with push yet.")
+		// It's pretty hokey to use os.Setenv here rather than using exec to
+		// set it directly, but it shouldn't be a problem as long as we
+		// aren't calling git from multiple goroutines.
+		error.FailOn(plumbing.ReadTree(local, "--index-output=.git/index.pushing"))
+		error.FailOn(os.Setenv("GIT_INDEX_FILE", ".git/index.pushing"))
+		t, e := core.Merge(local, remote)
+		error.FailOn(e)
+		c := plumbing.CommitTree(t, []git.Commitish{local,remote}, "Merge")
+		debug.Println("Testing merge...")
+		ctested, e := test.Commit(c)
+		error.FailOn(e)
+		// No need to check for success on removing the temporary index...
+		os.Remove(".git/index.pushing")
+		error.FailOn(plumbing.SendPack(origin,
+			map[git.Ref]git.CommitHash{"refs/heads/master": ctested}))
 		exit.Exit(0)
 	} else {
 		out.Println("This is a fast-forward push!")
 		if *all {
-			error.FailOn(plumbing.SendPack(origin, locals))
+			error.FailOn(plumbing.SendPack(origin,
+				map[git.Ref]git.CommitHash{"refs/heads/master": local}))
 		} else {
 			out.Println("I haven't yet implemented interactive pushes.")
 		}
