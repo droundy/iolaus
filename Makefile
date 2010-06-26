@@ -159,10 +159,6 @@ src/util/out.$(O): src/util/cook.$(O)
 ifneq ($(strip $(shell which gotgo)),)
 src/private-cs.go: $(srcpkgdir)/gotgo/slice.got
 	gotgo --package-name=main --prefix=cs -o "$@" "$<" ./git/git.CommitHash
-src/private-hashish.go: $(srcpkgdir)/gotgo/box.got
-	gotgo --package-name=main --prefix=hashish -o "$@" "$<" ./git/git.CommitHash ./git/git.Commitish
-src/private-refish.go: $(srcpkgdir)/gotgo/box.got
-	gotgo --package-name=main --prefix=refish -o "$@" "$<" ./git/git.Ref ./git/git.Commitish
 src/util/slice(string).go: $(srcpkgdir)/gotgo/slice.got
 	gotgo -o "$@" "$<" string
 src/git/gotgo/slice(git.CommitHash).go: $(srcpkgdir)/gotgo/slice.got
