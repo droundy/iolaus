@@ -36,7 +36,6 @@ func main() {
 	// We use the remote "master", since for some reason we don't seem
 	// to be able to push to a remote "head".  :(
 	remote,e := plumbing.RemoteMaster(origin)
-	out.Println("remote is", remote)
 	error.FailOn(e)
 	// look up the local head
 	local,e := plumbing.LocalHead()
