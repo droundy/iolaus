@@ -1,7 +1,7 @@
 package main;
 
 import (
-	"github.com/droundy/goopt.git"
+	"github.com/droundy/goopt"
 	"./git/git"
 	"./git/plumbing"
 	"./util/help"

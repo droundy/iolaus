@@ -2,7 +2,7 @@ package main;
 
 import (
 	"os"
-	"github.com/droundy/goopt.git"
+	"github.com/droundy/goopt"
 	git "./git/git"
 	"./git/plumbing"
 	"./util/out"

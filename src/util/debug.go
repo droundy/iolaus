@@ -2,7 +2,7 @@ package debug
 
 import "fmt"
 import "os"
-import "github.com/droundy/goopt.git"
+import "github.com/droundy/goopt"
 
 var amdebug = goopt.Bool("--debug", false, "enable debugging")
 

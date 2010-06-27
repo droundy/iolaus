@@ -64,6 +64,8 @@ bindir=$(subst $(space),\ ,$(GOBIN))
 pkgdir=$(subst $(space),\ ,$(GOROOT)/pkg/$(GOOS)_$(GOARCH))
 srcpkgdir=$(subst $(space),\ ,$(GOROOT)/src/pkg)
 
+gooptpkg=$(pkgdir)/github.com/droundy/goopt.a
+
 .PHONY: test binaries install installbins man installman clean
 .SUFFIXES: .$(O) .go .got
 
@@ -99,6 +101,12 @@ scripts/pdiff: scripts/pdiff.$(O)
 scripts/pdiff.$(O): src/util/patience.$(O)
 
 src/git/color.$(O): src/git/git.$(O)
+
+# Automatically install goopt if it isn't yet installed...
+$(gooptpkg):
+	@echo Installing goopt as $(gooptpkg)
+	goinstall github.com/droundy/goopt
+src/util/debug.$(O): $(gooptpkg)
 
 src/git/git.$(O): src/util/slice(string).$(O) \
 	src/util/debug.$(O) src/util/exit.$(O)

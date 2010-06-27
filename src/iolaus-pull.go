@@ -3,7 +3,7 @@ package main;
 import (
 	"os"
 	"fmt"
-	"github.com/droundy/goopt.git"
+	"github.com/droundy/goopt"
 	git "./git/git"
 	"./git/plumbing"
 	"./util/out"

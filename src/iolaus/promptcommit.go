@@ -1,7 +1,7 @@
 package promptcommit
 
 import (
-	"github.com/droundy/goopt.git"
+	"github.com/droundy/goopt"
 	"../git/git"
 	"../git/plumbing"
 	"../util/out"
