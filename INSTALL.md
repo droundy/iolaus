@@ -1,5 +1,9 @@
 # How to install iolaus
 
+First you need to have the go compiler (`8g` or `6g`) installed.  To
+find directions for this, look at the
+[golang website][http://golang.org/doc/install.html].
+
 Get a copy of iolaus with
 
     git clone github.com/droundy/iolaus.git
