@@ -6,10 +6,10 @@ import (
 	"exec"
 	"path"
 	"strings"
-	"syscall"
 	"github.com/droundy/goopt"
 	git "../git/git"
 	"../git/plumbing"
+	"../util/machine"
 	"../util/out"
 	"../util/debug"
 	box "./gotgo/box(git.CommitHash,git.Commitish)"
@@ -17,22 +17,6 @@ import (
 
 var notest = goopt.Flag([]string{"--no-test"}, []string{"--test"},
 	"do not run the test suite", "run the test suite [default]")
-
-var machineName = func() string {
-	var un syscall.Utsname
-	syscall.Uname(&un)
-	return charsToString(un.Nodename) + " (" + charsToString(un.Sysname) +
-		" " + charsToString(un.Release) + ")"
-}()
-
-func charsToString(x [65]int8) string {
-	n := ""
-	for _,v := range x {
-		if v == 0 { return n }
-		n += string(byte(v))
-	}
-	return n
-}
 
 // test.Commit tests a given (presumably new) commit, and returns a
 // modified commit that may contain a note indicating that it's been
@@ -101,7 +85,7 @@ func Tree(h git.TreeHash) (msg string, e os.Error) {
 		if ws.ExitStatus() != 0 {
 			return "",os.NewError(fmt.Sprintf(".build exited with '%v'",ws.ExitStatus()))
 		}
-		msg = "Built-on: " + machineName
+		msg = "Built-on: " + machine.Name
 	}
 	tstat,e := os.Stat(path.Join(testdir,".test"))
 	if e == nil && (tstat.Permission() & 1) == 1 {
@@ -116,7 +100,7 @@ func Tree(h git.TreeHash) (msg string, e os.Error) {
 		if ws.ExitStatus() != 0 {
 			return "",os.NewError(fmt.Sprintf(".test exited with '%v'",ws.ExitStatus()))
 		}
-		msg = "Tested-on: " + machineName
+		msg = "Tested-on: " + machine.Name
 	} else if e == nil {
 		debug.Printf("The test isn't executable... %o\n", tstat.Permission())
 	} else {

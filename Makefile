@@ -1,12 +1,17 @@
 # Copyright 2010 David Roundy, roundyd@physics.oregonstate.edu.
 # All rights reserved.
 
-all: binaries web
+all: binaries
 
 test: all
 	./scripts/harness
 clean:
 	rm -f */*.$(O) */*/*.$(O) */*/*/*.$(O) bin/*
+
+EXE='.oops'
+ifeq ($(GOOS),windows)
+	EXE=.exe
+endif
 
 install: installbins installman
 
@@ -48,10 +53,10 @@ doc/%.html: doc/man/man1/%.1
 include $(GOROOT)/src/Make.$(GOARCH)
 
 binaries:  scripts/harness scripts/mkdown scripts/mkmanual scripts/pdiff \
-	bin/iolaus-initialize \
-	bin/iolaus-pull bin/iolaus-push \
-	bin/iolaus-record \
-	bin/iolaus-whatsnew bin/iolaus-changes
+	bin/iolaus-initialize$(EXE) \
+	bin/iolaus-pull$(EXE) bin/iolaus-push$(EXE) \
+	bin/iolaus-record$(EXE) \
+	bin/iolaus-whatsnew$(EXE) bin/iolaus-changes$(EXE)
 
 ifndef GOBIN
 GOBIN=$(HOME)/bin
@@ -72,7 +77,7 @@ gooptpkg=$(pkgdir)/github.com/droundy/goopt.a
 .go.$(O):
 	cd `dirname "$<"`; $(GC) `basename "$<"`
 
-bin/iolaus-%: src/iolaus-%.$(O)
+bin/iolaus-%$(EXE): src/iolaus-%.$(O)
 	@mkdir -p bin
 	$(LD) -o $@ $<
 $(bindir)/%: bin/%
@@ -108,6 +113,9 @@ $(gooptpkg):
 	goinstall github.com/droundy/goopt
 src/util/debug.$(O): $(gooptpkg)
 
+src/util/machine.$(O): src/util/machine_$(GOOS).go
+	cd `dirname "$<"`; $(GC) -o `basename "$@"` `basename "$<"`
+
 src/git/git.$(O): src/util/slice(string).$(O) \
 	src/util/debug.$(O) src/util/exit.$(O)
 
@@ -136,7 +144,7 @@ src/iolaus/promptcommit.$(O): src/iolaus/core.$(O) \
 
 src/iolaus/test.$(O): src/git/plumbing.$(O) \
 	src/iolaus/gotgo/box(git.CommitHash,git.Commitish).$(O) \
-	src/util/out.$(O)
+	src/util/out.$(O) src/util/machine.$(O) \
 
 src/iolaus-initialize.$(O): src/git/git.$(O) src/git/porcelain.$(O) \
 	src/util/error.$(O) src/util/help.$(O)
@@ -198,7 +206,7 @@ src/util/patience.$(O): src/util/patience.go \
 
 src/util/patienceTypes.$(O): src/util/patienceTypes.go src/git/color.$(O)
 
-installbins:  $(bindir)/iolaus-initialize \
-	$(bindir)/iolaus-pull $(bindir)/iolaus-push \
-	$(bindir)/iolaus-record \
-	$(bindir)/iolaus-whatsnew  $(bindir)/iolaus-changes
+installbins:  $(bindir)/iolaus-initialize$(EXE) \
+	$(bindir)/iolaus-pull$(EXE) $(bindir)/iolaus-push$(EXE) \
+	$(bindir)/iolaus-record$(EXE) \
+	$(bindir)/iolaus-whatsnew$(EXE)  $(bindir)/iolaus-changes$(EXE)

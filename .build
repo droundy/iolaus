@@ -3,3 +3,9 @@
 set -ev
 
 make
+
+if test $GOOS = 'windows'; then
+    echo I am skipping the web build
+else
+    make web
+fi
