@@ -99,7 +99,7 @@ func LocalHead() (h git.CommitHash, e os.Error) {
 
 func splitRefs(s string) (hs map[git.Ref]git.CommitHash) {
 	hs = make(map[git.Ref]git.CommitHash)
-	xs := strings.Split(s, "\n", 0)
+	xs := strings.Split(s, "\n", -1)
 	for _,x := range xs {
 		if len(x) > 42 {
 			hs[git.Ref(string(x[41:]))] = git.CommitHash(mkHash(x))
@@ -162,7 +162,7 @@ func DiffFiles(paths []string) (d []FileDiff, e os.Error) {
 	args := stringslice.Cat([]string{"--"}, paths)
 	o,e := git.ReadS("diff-files", args)
 	if e != nil { return }
-	ls := strings.Split(o,"\n",0)
+	ls := strings.Split(o,"\n",-1)
 	d = make([]FileDiff, 0, len(ls))
 	i := 0
 	for _,l := range ls {
@@ -172,12 +172,12 @@ func DiffFiles(paths []string) (d []FileDiff, e os.Error) {
 		// It would be faster to just use byte offsets, but I'm sure I'd
 		// get them wrong, so for now I'll just use the slow, sloppy, lazy
 		// approach.
-		xxxx := strings.Split(l[1:], "\t",0)
+		xxxx := strings.Split(l[1:], "\t",-1)
 		if len(xxxx) < 2 {
 			e = os.NewError("bad line: "+l)
 			return
 		}
-		chunks := strings.Split(xxxx[0]," ",0)
+		chunks := strings.Split(xxxx[0]," ",-1)
 		if len(chunks) < 4 { continue }
 		mode, e := strconv.Btoui64(chunks[0],8)
 		if e != nil { return }
@@ -250,8 +250,8 @@ func (s Patch) String() (out string) {
 			}
 		case patch.TextDiff:
 			for _, chunk := range d {
-				older := strings.SplitAfter(string(chunk.Old), "\n",0)
-				newer := strings.SplitAfter(string(chunk.New), "\n",0)
+				older := strings.SplitAfter(string(chunk.Old), "\n",-1)
+				newer := strings.SplitAfter(string(chunk.New), "\n",-1)
 				lastline:=chunk.Line
 				mychunks := patience.DiffFromLine(chunk.Line, older, newer)
 				fmt.Println(color.String("¤¤¤¤¤¤ "+f.Src+string(chunk.Line)+" ¤¤¤¤¤¤", color.Meta))
@@ -304,7 +304,7 @@ func genLsFilesE(args ...string) ([]string, os.Error) {
 }
 
 func splitOnNulls(s string) []string {
-	xs := strings.Split(s, "\000", 0)
+	xs := strings.Split(s, "\000", -1)
 	if len(xs[len(xs)-1]) == 0 {
 		return xs[0:len(xs)-1]
 	}
@@ -322,10 +322,10 @@ func ListConfig() map[string]string {
 }
 
 func splitOnNullsAndLines(s string) (out map[string]string) {
-	xs := strings.Split(s, "\000", 0)
+	xs := strings.Split(s, "\000", -1)
 	out = make(map[string]string)
 	for _,x := range xs {
-		kv := strings.Split(x, "\n", 0)
+		kv := strings.Split(x, "\n", -1)
 		if len(kv) == 2 {
 			out[kv[0]] = kv[1]
 		}
@@ -370,7 +370,7 @@ func rawCommit(c git.Commitish) (o string, e os.Error) {
 func Commit(c git.Commitish) (ce CommitEntry, e os.Error) {
 	o,e := rawCommit(c)
 	if e != nil { return }
-	ls := strings.Split(o, "\n", 0)
+	ls := strings.Split(o, "\n", -1)
 	// ls will always have a length of at least one!
 	for _,l := range ls {
 		switch {
@@ -429,7 +429,7 @@ func RevListDifference(newer, older []git.Commitish) ([]git.CommitHash, os.Error
 func RevListS(args []string) (commits []git.CommitHash, e os.Error) {
 	o,e := git.ReadS("rev-list", args)
 	if e != nil { return }
-	ls := strings.Split(o,"\n",0)
+	ls := strings.Split(o,"\n",-1)
 	for _,l := range ls {
 		if len(l) == 40 {
 			commits = pars.Append(commits, git.CommitHash(mkHash(l)))

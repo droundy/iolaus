@@ -51,9 +51,9 @@ func Run(ds []core.FileDiff, f func(core.FileDiff)) {
 }
 
 func pickChanges(filename, o, n string) string {
-	older := strings.SplitAfter(o,"\n",0)
-	outer := strings.SplitAfter(o,"\n",0)
-	newer := strings.SplitAfter(n,"\n",0)
+	older := strings.SplitAfter(o,"\n",-1)
+	outer := strings.SplitAfter(o,"\n",-1)
+	newer := strings.SplitAfter(n,"\n",-1)
 	mychunks := patience.Diff(older, newer)
 	offset := 0
 	

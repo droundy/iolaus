@@ -97,8 +97,8 @@ func (d *FileDiff) Fprint(f io.Writer) (e os.Error) {
 			debug.Println("File "+d.Name+" is unchanged.")
 			return
 		}
-		newer := strings.SplitAfter(newf,"\n",0)
-		older := strings.SplitAfter(oldf,"\n",0)
+		newer := strings.SplitAfter(newf,"\n",-1)
+		older := strings.SplitAfter(oldf,"\n",-1)
 		mychunks := patience.Diff(older, newer)
 		
 		lastline := 0
