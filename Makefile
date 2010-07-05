@@ -8,7 +8,7 @@ test: all
 clean:
 	rm -f */*.$(O) */*/*.$(O) */*/*/*.$(O) bin/*
 
-EXE=''
+EXE=
 ifeq ($(GOOS),windows)
 	EXE=.exe
 endif
