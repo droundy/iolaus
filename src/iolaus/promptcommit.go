@@ -41,7 +41,10 @@ func Select(since, upto git.Commitish) (outh git.CommitHash) {
 	} else {
 	  for len(hs) > 0 {
 			// Just keep asking until we get a reasonable answer...
-			c,e := out.PromptForChar(goopt.Expand("Verb commit %s? "), hs[0])
+			cc,e := plumbing.Commit(hs[0])
+			error.FailOn(e)
+			out.Println(cc)
+			c,e := out.PromptForChar(goopt.Expand("Verb this commit? "))
 			error.FailOn(e)
 			switch c {
 			case 'q','Q': error.Exit(e)

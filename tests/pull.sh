@@ -34,6 +34,10 @@ grep hello foo
 git log | grep Merge
 cd ..
 
+# First let's make a copy that we can use later to attempt this pull
+# again...
+git clone repo test-interactive
+
 # Now let's verify that a test suite is run when commits are merged...
 git clone repo repowithtest
 cd repowithtest
@@ -59,4 +63,18 @@ test -f xxx
 ./.test && exit 1
 test -f .test
 
-# FIXME: need to test iolaus-pull --interactive
+git log --max-count=1 --parents
+cd ..
+
+# Let's check that interactive pulling behaves reasonably...
+cd test-interactive
+# Interactive pull should fail since there's no terminal to prompt...
+iolaus-pull --interactive && exit 1
+iolaus-pull --interactive | grep 'Merge'
+
+# FIXME: Currently typing 'n' uncovers a bug in the interactive commit
+# selection code.  :( So I've commented out the remaining tests.
+
+#echo n | iolaus-pull --interactive
+#echo nq | iolaus-pull --interactive | grep 'create file xxx'
+cd ..
