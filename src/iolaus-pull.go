@@ -105,7 +105,7 @@ func main() {
 		}
 		error.FailOn(e)
 		plumbing.UpdateRef("HEAD", hnew)
-		plumbing.CheckoutIndex("--all")
+		plumbing.CheckoutIndex("--force", "--all")
 		exit.Exit(0)
 	}
 	exit.Exit(0)
