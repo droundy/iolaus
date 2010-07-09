@@ -4,7 +4,8 @@ import "fmt"
 import "os"
 import "github.com/droundy/goopt"
 
-var amdebug = goopt.Bool("--debug", false, "enable debugging")
+var amdebug = goopt.Flag([]string{"--debug"}, []string{},
+	"enable debugging", "disable debugging")
 
 func Print(v ...interface{}) os.Error {
 	if *amdebug {

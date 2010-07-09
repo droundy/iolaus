@@ -26,7 +26,7 @@ func main() {
 	git.AmInRepo("Must be in a repository to call whatsnew!")
 	//plumbing.ReadTree(git.Ref("HEAD"))
 	plumbing.RefreshIndex()	// make sure the stat info is up-to-date...
-	ds,e := core.DiffFiles(goopt.Args[1:])
+	ds,e := core.DiffFiles(goopt.Args)
 	error.FailOn(e)
 	prompt.Run(ds, func (f core.FileDiff) {
 		debug.Println("Looking at changes to "+f.Name)

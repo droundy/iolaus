@@ -33,8 +33,8 @@ func main() {
 	git.AmInRepo("Must be in a repository to call pull!")
 
 	origin := plumbing.RemoteUrl("origin")
-	if len(goopt.Args) > 1 {
-		origin = plumbing.RemoteUrl(goopt.Args[1])
+	if len(goopt.Args) > 0 {
+		origin = plumbing.RemoteUrl(goopt.Args[0])
 		out.Println("Pulling from ", origin)
 	}
 	remote,e := plumbing.RemoteHead(origin)

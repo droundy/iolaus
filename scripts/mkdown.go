@@ -17,10 +17,10 @@ var outname = goopt.String([]string{"-o","--output"}, "FILENAME",
 
 func main() {
 	goopt.Parse(nil)
-	if len(goopt.Args) != 2 {
+	if len(goopt.Args) != 1 {
 		error.Exit(os.NewError(os.Args[0]+" requires just one argument!"))
 	}
-	mdf := goopt.Args[1]
+	mdf := goopt.Args[0]
 	if mdf[len(mdf)-3:] != ".md" {
 		error.Exit(os.NewError(mdf+" doesn't end with .md"))
 	}
