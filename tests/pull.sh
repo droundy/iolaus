@@ -56,9 +56,11 @@ iolaus-record -am 'create file xxx so test will fail...'
 # test should run by default, and should fail
 iolaus-pull --all ../repowithtest && echo oops, it did not crash && exit 1
 # test should fail if run explicitly
-iolaus-pull --test --all ../repowithtest && exit 1
+iolaus-pull --test --all --quiet ../repowithtest && exit 1
 # test shouldn't be run if we use --no-test
-iolaus-pull --no-test --all ../repowithtest
+iolaus-pull --no-test --verbose --all ../repowithtest > pulloutput
+cat pulloutput
+grep Pulling pulloutput
 test -f xxx
 ./.test && exit 1
 test -f .test

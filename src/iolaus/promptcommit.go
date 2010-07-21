@@ -18,6 +18,9 @@ var All = goopt.Flag([]string{"-a","--all"}, []string{"--interactive"},
 var Dryrun = goopt.Flag([]string{"--dry-run"}, []string{},
 	"just show commits that would be verbed", "xxxs")
 
+var Verbose = goopt.Flag([]string{"-v","--verbose"}, []string{"-q","--quiet"},
+	"output commits that are verbed", "don't output commits that are verbed")
+
 func Select(since, upto git.Commitish) (outh git.CommitHash) {
 	hs,e := plumbing.RevListDifference([]git.Commitish{upto}, []git.Commitish{since})
 	error.FailOn(e)
@@ -35,6 +38,13 @@ func Select(since, upto git.Commitish) (outh git.CommitHash) {
 	}
 	if *All {
 		debug.Println(goopt.Expand("Verbing --all commits..."))
+		if *Verbose {
+			for _,h := range hs {
+				cc, e := plumbing.Commit(h)
+				error.FailOn(e)
+				out.Println(goopt.Expand("Verbing:\n"), cc)
+			}
+		}
 		h,e := plumbing.GetCommitHash(upto)
 		error.FailOn(e)
 		return h
