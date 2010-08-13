@@ -32,6 +32,10 @@ func main() {
 
 	// Fetch the remotes so that they will be present when we need them later.
 	origin := plumbing.RemoteUrl("origin")
+	if len(goopt.Args) > 0 {
+		origin = plumbing.RemoteUrl(goopt.Args[0])
+		out.Println("Pulling from ", origin)
+	}
 	plumbing.FetchPack(origin, "--all", "-q")
 	// We use the remote "master", since for some reason we don't seem
 	// to be able to push to a remote "head".  :(
