@@ -82,17 +82,7 @@ func main() {
 		error.FailOn(os.Rename(".git/index.pulling", ".git/index"))
 		exit.Exit(0)
 	} else {
-		out.Println("This is a fast-forward pull! (looking for diffs)")
-		if false && !local.IsEmpty() {
-			debug.Println("Barf on local changes...")
-			out.Println("Barf on local changes...")
-			p,e := plumbing.DiffFiles([]string{})
-			debug.Println("I looked for differences...")
-			error.FailOn(e)
-			if len(p) > 0 {
-				error.FailOn(os.NewError("I can't handle local changes yet!"))
-			}
-		}
+		out.Println("This is a fast-forward pull!")
 
 		debug.Println("Prompting for commits...")
 		hnew := promptcommit.Select(local, remote)
