@@ -7,7 +7,7 @@ import (
 	"../util/debug"
 	"../util/error"
 	"os"
-	"once"
+	"sync"
 	"strings"
 	"patch"
 	"fmt"
@@ -312,6 +312,8 @@ func splitOnNulls(s string) []string {
 }
 
 var configList map[string]string
+
+var once sync.Once
 
 func ListConfig() map[string]string {
 	once.Do(func() {

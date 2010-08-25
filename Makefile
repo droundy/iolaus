@@ -50,7 +50,7 @@ doc/%.html: doc/man/man1/%.1
 	groff -man -Thtml $< | tail -n +19 >> $@
 
 
-include $(GOROOT)/src/Make.$(GOARCH)
+include $(GOROOT)/src/Make.inc
 
 binaries:  scripts/harness scripts/mkdown scripts/mkmanual scripts/pdiff \
 	bin/iolaus-initialize$(EXE) \

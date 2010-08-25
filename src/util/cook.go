@@ -3,7 +3,7 @@ package cook
 import (
 	"exec"
 	"os"
-	"once"
+	"sync"
 	"io/ioutil"
 	"./exit"
 )
@@ -36,6 +36,8 @@ func readStty() secret {
 	}
 	return secret(o[0:len(o)-1])
 }
+
+var once sync.Once
 
 func SetRaw() secret {
 	once.Do(func() { exit.AtExit(func () { SetCooked() })})
