@@ -117,14 +117,6 @@ func Write(arg1 string, inp string, args ...string) (e os.Error) {
 	return WriteS(arg1, inp, args)
 }
 
-func Run(arg1 string, args ...string) (e os.Error) {
-	return RunS(arg1, args)
-}
-
-func RunSilently(arg1 string, args ...string) (e os.Error) {
-	return RunSilentlyS(arg1, args)
-}
-
 func ReadS(arg1 string, args []string) (output string, err os.Error) {
 	debug.Println("calling git",arg1,args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
@@ -193,7 +185,7 @@ func WriteS(arg1 string, inp string, args []string) (e os.Error) {
 	return nil
 }
 
-func RunS(arg1 string, args []string) (e os.Error) {
+func Run(arg1 string, args ...string) (e os.Error) {
 	debug.Println("calling git",arg1,args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
 	git, e := exec.LookPath("git")
@@ -211,7 +203,7 @@ func RunS(arg1 string, args []string) (e os.Error) {
 	return nil
 }
 
-func RunSilentlyS(arg1 string, args []string) (e os.Error) {
+func RunSilently(arg1 string, args ...string) (e os.Error) {
 	debug.Println("calling git",arg1,args)
 	args = stringslice.Cat([]string{"git", arg1}, args)
 	git, e := exec.LookPath("git")

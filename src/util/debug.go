@@ -9,7 +9,7 @@ var amdebug = goopt.Flag([]string{"--debug"}, []string{},
 
 func Print(v ...interface{}) os.Error {
 	if *amdebug {
-		_,e := fmt.Fprint(os.Stderr, v)
+		_,e := fmt.Fprint(os.Stderr, v...)
 		return e
 	}
 	return nil
@@ -17,7 +17,7 @@ func Print(v ...interface{}) os.Error {
 
 func Printf(f string, v ...interface{}) os.Error {
 	if *amdebug {
-		_,e := fmt.Fprintf(os.Stderr, f, v)
+		_,e := fmt.Fprintf(os.Stderr, f, v...)
 		return e
 	}
 	return nil
@@ -25,7 +25,7 @@ func Printf(f string, v ...interface{}) os.Error {
 
 func Println(v ...interface{}) os.Error {
 	if *amdebug {
-		_,e := fmt.Fprintln(os.Stderr, v)
+		_,e := fmt.Fprintln(os.Stderr, v...)
 		return e
 	}
 	return nil

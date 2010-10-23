@@ -57,7 +57,7 @@ func UpdateIndexCache(mode int, h git.Hash, f string) os.Error {
 }
 
 func CheckoutIndex(args ...string) os.Error {
-	return git.RunS("checkout-index", args)
+	return git.Run("checkout-index", args...)
 }
 
 func UpdateRef(ref string, val git.Commitish) os.Error {
@@ -66,7 +66,7 @@ func UpdateRef(ref string, val git.Commitish) os.Error {
 
 func FetchPack(remote string, args ...string) {
 	args = stringslice.Append(args, remote)
-	git.RunSilentlyS("fetch-pack", args)
+	git.RunSilently("fetch-pack", args...)
 }
 
 func LsRemote(args ...string) (hs map[git.Ref]git.CommitHash, e os.Error) {
@@ -88,7 +88,7 @@ func RemoteMaster(remote string) (h git.CommitHash, e os.Error) {
 }
 
 func ShowRef(args ...string) (hs map[git.Ref]git.CommitHash, e os.Error) {
-	o, e := git.Read("show-ref", args)
+	o, e := git.Read("show-ref", args...)
 	if e != nil { return }
 	return splitRefs(o), e
 }
@@ -127,20 +127,20 @@ func CommitTree(tree git.Treeish, parents []git.Commitish, log string) git.Commi
 
 func ReadTree(ref git.Treeish, args ...string) os.Error {
 	args = stringslice.Append(args, ref.String())
-	return git.RunS("read-tree", args)
+	return git.Run("read-tree", args...)
 }
 
 func ReadTree2(us, them git.Treeish, args ...string) os.Error {
 	foo := args
 	args = stringslice.Cat(foo, []string{"-m", us.String(), them.String()})
-	return git.RunS("read-tree", args)
+	return git.Run("read-tree", args...)
 }
 
 func ReadTree3(base, us, them git.Treeish, args ...string) os.Error {
 	foo := args
 	args = stringslice.Cat(foo,
 		[]string{"-m", base.String(), us.String(), them.String()} )
-	return git.RunS("read-tree", args)
+	return git.Run("read-tree", args...)
 }
 
 func DiffFilesModified(paths []string) []string {
@@ -299,7 +299,7 @@ func LsOthers() []string {
 }
 
 func genLsFilesE(args ...string) ([]string, os.Error) {
-	o, e := git.Read("ls-files", args)
+	o, e := git.Read("ls-files", args...)
 	return splitOnNulls(o), e
 }
 
@@ -462,5 +462,5 @@ func SendPack(repo0 string, updates map[git.Ref]git.CommitHash) os.Error {
 	for name,hash := range updates {
 		args = stringslice.Append(args, hash.String()+":"+name.String())
 	}
-	return git.RunS("send-pack", args)
+	return git.Run("send-pack", args...)
 }
