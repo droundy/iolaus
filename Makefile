@@ -55,7 +55,7 @@ include $(GOROOT)/src/Make.inc
 binaries:  scripts/harness scripts/mkdown scripts/mkmanual scripts/pdiff \
 	bin/iolaus-initialize$(EXE) \
 	bin/iolaus-pull$(EXE) bin/iolaus-push$(EXE) \
-	bin/iolaus-record$(EXE) \
+	bin/iolaus-record$(EXE) bin/iolaus-stash$(EXE) \
 	bin/iolaus-whatsnew$(EXE) bin/iolaus-changes$(EXE)
 
 ifndef GOBIN
