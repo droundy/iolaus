@@ -208,5 +208,5 @@ src/util/patienceTypes.$(O): src/util/patienceTypes.go src/git/color.$(O)
 
 installbins:  $(bindir)/iolaus-initialize$(EXE) \
 	$(bindir)/iolaus-pull$(EXE) $(bindir)/iolaus-push$(EXE) \
-	$(bindir)/iolaus-record$(EXE) \
+	$(bindir)/iolaus-record$(EXE) $(bindir)/iolaus-stash$(EXE) \
 	$(bindir)/iolaus-whatsnew$(EXE)  $(bindir)/iolaus-changes$(EXE)
